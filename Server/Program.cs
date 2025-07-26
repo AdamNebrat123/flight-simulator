@@ -1,7 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-Console.WriteLine("HELLOOOOOOOOOOOOOOOOOOOOOOOO");
 app.UseWebSockets();
 
 app.Use(async (context, next) =>
@@ -25,10 +24,9 @@ app.Use(async (context, next) =>
             var message = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
             Console.WriteLine("Received: " + message);
 
-            /*var echoMessage = $"Echo: {message}";
+            var echoMessage = $"Echo: {message}";
             var bytes = System.Text.Encoding.UTF8.GetBytes(echoMessage);
             await webSocket.SendAsync(new ArraySegment<byte>(bytes), result.MessageType, result.EndOfMessage, CancellationToken.None);
-            */
         }
     }
     else
