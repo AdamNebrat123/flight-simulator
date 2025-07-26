@@ -19,16 +19,22 @@
       padding: 0;
       overflow: hidden;
     }
-    #startLosTool {
-      position: absolute;
-      z-index: 9999;
-      top: 10px;
-      left: 10px;
-    }
+    #buttonContainer {
+    position: absolute;
+    z-index: 9999;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
   </style>
 </head>
 <body>
+  <div id="buttonContainer">
   <button id="startLosTool">Start LOS Selection</button>
+  <button id="sendHelloBtn">Send HELLO</button>
+</div>
   <div id="cesiumContainer"></div>
 
   <script type="module" src="src/js/main.js"></script>
