@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Line of Sight Tool</title>
+
+  <!-- CSS Cesium -->
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.131/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+  <!-- CesiumJS Library -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.131/Build/Cesium/Cesium.js"></script>
+
+  
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #startLosTool {
+      position: absolute;
+      z-index: 9999;
+      top: 10px;
+      left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button id="startLosTool">Start LOS Selection</button>
+  <div id="cesiumContainer"></div>
+
+  <script type="module" src="src/js/main.js"></script>
+</body>
+</html>
