@@ -1,3 +1,21 @@
+
+System.Console.WriteLine("====================================================");
+System.Console.WriteLine("                          TEST");
+System.Console.WriteLine("====================================================");
+TrajectoryCalculator trajectoryCalculator = new TrajectoryCalculator();
+GeoPoint start = new(44, 44, 100);
+GeoPoint end = new(44.001, 44, 100);
+
+List<TrajectoryPoint> trajectoryPoints = trajectoryCalculator.ComputeTrajectory(start, end, 10);
+List<string> trajectoryPointsJSON = trajectoryCalculator.ConvertTrajectoryToJson(trajectoryPoints);
+
+foreach (string str in trajectoryPointsJSON)
+{
+    System.Console.WriteLine(str);
+}
+System.Console.WriteLine("====================================================");
+System.Console.WriteLine("====================================================");
+System.Console.WriteLine("====================================================");
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
@@ -36,3 +54,5 @@ app.Use(async (context, next) =>
 });
 
 app.Run();
+
+
