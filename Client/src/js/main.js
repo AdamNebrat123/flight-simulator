@@ -1,10 +1,12 @@
 import { createViewer } from './viewerSetup.js';
 import { setupPointSelection } from './pointSelection.js';
 import { startWebSocketClient } from './websocketClient.js';
-
+import { setUpCreateJrajecory } from './CreateTrajectory.js';
 
 let socket = null;
-
+export function getSocket() {
+  return socket;
+}
 // Initialize WebSocket connection
 async function initWebSocket() {
     try {
@@ -17,21 +19,11 @@ async function initWebSocket() {
 // Call the init function when the page loads
 initWebSocket();
 
-// Handle the "Send HELLO" button click
-document.getElementById('sendHelloBtn').addEventListener('click', () => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send("HELLO");
-        console.log("Sent: HELLO");
-    } else {
-        console.warn("WebSocket is not open");
-    }
-});
-
 window.addEventListener('DOMContentLoaded', async () => {
   // Create viewer in the div with id 'cesiumContainer'
   const viewer = await createViewer('cesiumContainer');
 
   // Setup point selection with the created viewer
   setupPointSelection(viewer);
-  
+  setUpCreateJrajecory(viewer);
 });
