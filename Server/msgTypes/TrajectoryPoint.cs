@@ -10,4 +10,9 @@ public class TrajectoryPoint
         Heading = heading;
         Pitch = pitch;
     }
+
+    public override string ToString()
+    {
+        return string.Format("[{0},Heading={1},Pitch={2}]", Position, Heading, Pitch);
+    }
 }

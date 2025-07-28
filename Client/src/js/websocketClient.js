@@ -1,3 +1,5 @@
+import { HandleIncomingMsg } from "./SereverMsgHandler.js";
+
 export async function startWebSocketClient(serverUrl = "ws://localhost:5000") {
     return new Promise((resolve, reject) => {
         const socket = new WebSocket(serverUrl);
@@ -7,9 +9,7 @@ export async function startWebSocketClient(serverUrl = "ws://localhost:5000") {
             resolve(socket); // Returns the connection object 
         };
 
-        socket.onmessage = (event) => {
-            console.log("Message from server:", event.data);
-        };
+        socket.onmessage = HandleIncomingMsg;
 
         socket.onerror = (err) => {
             console.error("WebSocket error:", err);

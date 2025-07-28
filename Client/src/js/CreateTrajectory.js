@@ -2,7 +2,7 @@ import { SendMsgToServer } from "./serverMsgSender.js";
 import { prepareMessageToServer } from "./ConvertToJson.js";
 import { msgTypes } from "./msgTypes/allMsgTypes.js";
 import { GeoPoint } from "./msgTypes/GeoPoint.js";
-
+import { TrajectoryPointsEvent } from "./msgTypes/TrajectoryPointsEvent.js";
 
 // Export a function that sets up point selection handlers on a given viewer
 export async function setUpCreateJrajecory(viewer) {
@@ -57,11 +57,51 @@ export async function setUpCreateJrajecory(viewer) {
     if (trajectoryPoints.length === 2) {
       createTrajectoryMode = false;
       console.log("2 points selected, createTrajectoryMode mode disabled.");
-
+      // select velocity
+      const velocity = await showVelocityModal();
+      if (velocity === null) {
+        console.log("User canceled.");
+        return;
+      }
+      
+      const trajectoryPointsEvent = new TrajectoryPointsEvent(trajectoryPoints, velocity);
       // Convert points to json
-      const trajectoryPointsJSON = JSON.stringify(trajectoryPoints);
-      const msgJson = prepareMessageToServer(msgTypes.TrajectoryPoints, trajectoryPointsJSON);
+      const msgJson = prepareMessageToServer(msgTypes.TrajectoryPoints, trajectoryPointsEvent);
       await SendMsgToServer(msgJson);
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+}
+
+async function showVelocityModal() {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("velocityModal");
+    const submitBtn = document.getElementById("velocitySubmit");
+    const cancelBtn = document.getElementById("velocityCancel");
+    const input = document.getElementById("velocityInput");
+
+    modal.style.display = "block";
+
+    const cleanup = () => {
+      submitBtn.onclick = null;
+      cancelBtn.onclick = null;
+      modal.style.display = "none";
+      input.value = "";
+    };
+
+    submitBtn.onclick = () => {
+      const velocity = Number(input.value);
+      if (isNaN(velocity) || velocity <= 0) {
+        alert("Please enter a valid positive number.");
+        return;
+      }
+
+      cleanup();
+      resolve(velocity);
+    };
+
+    cancelBtn.onclick = () => {
+      cleanup();
+      resolve(null); // canceled
+    };
+  });
 }

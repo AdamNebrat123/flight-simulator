@@ -19,11 +19,16 @@ async function initWebSocket() {
 // Call the init function when the page loads
 initWebSocket();
 
+let viewer;
+export function GetViewer() {
+    return viewer;
+}
 window.addEventListener('DOMContentLoaded', async () => {
   // Create viewer in the div with id 'cesiumContainer'
-  const viewer = await createViewer('cesiumContainer');
-
+  viewer = await createViewer('cesiumContainer');
   // Setup point selection with the created viewer
   setupPointSelection(viewer);
   setUpCreateJrajecory(viewer);
+
+  
 });

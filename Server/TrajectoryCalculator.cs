@@ -134,13 +134,4 @@ public class TrajectoryCalculator
     /// Helper to convert radians to degrees.
     /// </summary>
     private double RadiansToDegrees(double radians) => radians * 180.0 / Math.PI;
-
-    public List<string> ConvertTrajectoryToJson(List<TrajectoryPoint> trajectoryPoints)
-    {
-        List<string> jsonStrings = trajectoryPoints
-            .Select(point => JsonSerializer.Serialize(point, new JsonSerializerOptions { WriteIndented = false }))
-            .ToList();
-
-        return jsonStrings;
-    }
 }

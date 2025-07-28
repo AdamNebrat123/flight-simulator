@@ -7,3 +7,4 @@ export function prepareMessageToServer(msgType, msg) {
     data: msg
   });
 }
+
