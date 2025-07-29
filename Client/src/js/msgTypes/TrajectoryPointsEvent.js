@@ -1,6 +1,6 @@
 export class TrajectoryPointsEvent {
-  constructor(geoPoints, velocity) {
-    this.GeoPoints = geoPoints;
+  constructor(planeTrajectoryPoints, velocity) {
+    this.PlaneTrajectoryPoints = planeTrajectoryPoints;
     this.Velocity = velocity;
   }
 }

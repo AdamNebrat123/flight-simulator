@@ -43,13 +43,13 @@ async function HandleCalculatedTrajectoryPoints(calculatedTrajectoryPoints) {
 
     const Entities = []; // Array to store the created point entities
 
-    calculatedTrajectoryPoints.trajectoryPoints.forEach((point, index) => {
+    calculatedTrajectoryPoints.trajectoryPoints.forEach((trajectoryPoint, index) => {
         const position = Cesium.Cartesian3.fromDegrees(
-            point.position.longitude,
-            point.position.latitude,
-            point.position.height);
-        const heading = Cesium.Math.toRadians(point.heading);
-        const pitch = Cesium.Math.toRadians(point.pitch);
+            trajectoryPoint.planeTrajectoryPoint.position.longitude,
+            trajectoryPoint.planeTrajectoryPoint.position.latitude,
+            trajectoryPoint.planeTrajectoryPoint.position.height);
+        const heading = Cesium.Math.toRadians(trajectoryPoint.heading);
+        const pitch = Cesium.Math.toRadians(trajectoryPoint.pitch);
         const roll = 0.0;
         //Create HeadingPitchRoll Object
         const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
@@ -71,6 +71,16 @@ async function HandleCalculatedTrajectoryPoints(calculatedTrajectoryPoints) {
                 lightColor: new Cesium.Color(1.0, 1.0, 1.0, 1.0), 
                 silhouetteColor: Cesium.Color.YELLOW,  // add outline (see next point)
                 silhouetteSize: 2.0
+            },
+            label: {
+                text: trajectoryPoint.planeTrajectoryPoint.name,
+                font: "16px sans-serif",
+                fillColor: Cesium.Color.YELLOW,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,
+                pixelOffset: new Cesium.Cartesian2(0, -30)
             }
         });
         Entities.push(entity); // Store the reference
