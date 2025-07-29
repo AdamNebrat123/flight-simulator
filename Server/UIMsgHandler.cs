@@ -19,13 +19,9 @@ public class UIMsgHandler
                 {
                     case MsgTypesEnum.TrajectoryPoints:
                         // Handle
-                        List<TrajectoryPoint> trajectoryPoints = handleTrajectoryPointsEvent(wrapper);
+                        List<List<TrajectoryPoint>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper);
 
-                        // Prepeare the response
-                        string responseJson = prepareMessageToServer(MsgTypesEnum.CalculatedTrajectoryPoints, trajectoryPoints);
-
-                        // Send to client
-                        Program.SendMsgToClient(responseJson);
+                        _ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
                         break;
 
                     // more cases......
@@ -63,16 +59,32 @@ public class UIMsgHandler
     }
 
 
-    public List<TrajectoryPoint> handleTrajectoryPointsEvent(MessageWrapper wrapper)
+    public List<List<TrajectoryPoint>> handleTrajectoryPointsEvent(MessageWrapper wrapper)
     {
+        TrajectoryManager trajectoryManager = new TrajectoryManager();
+
         TrajectoryPointsEvent trajectoryPointsEvent = wrapper.Data.Deserialize<TrajectoryPointsEvent>();
         List<GeoPoint> clientSelectedPoints = trajectoryPointsEvent.GeoPoints;
         double velocity = trajectoryPointsEvent.Velocity;
 
         //handle
         TrajectoryCalculator trajectoryCalculator = new TrajectoryCalculator();
-        List<TrajectoryPoint> trajectoryPoints = trajectoryCalculator.ComputeTrajectory(clientSelectedPoints[0], clientSelectedPoints[1], velocity);
+        List<TrajectoryPoint> calculatedTrajectoryPoints = trajectoryCalculator.ComputeTrajectory(clientSelectedPoints[0], clientSelectedPoints[1], velocity);
 
-        return trajectoryPoints;
+        trajectoryManager.AddTrajectory(calculatedTrajectoryPoints);
+
+        return trajectoryManager.CalculatedTrajectoryPoints;
+    }
+
+    public async Task SendCalculatedTrajectoryPointsAsync(List<List<TrajectoryPoint>> points)
+    {
+        foreach (var point in points)
+        {
+            var responseJson = prepareMessageToServer(MsgTypesEnum.CalculatedTrajectoryPoints, point);
+
+            Program.SendMsgToClient(responseJson); 
+
+            await Task.Delay(1000); // wait 1 second between each step
+        }
     }
 }
