@@ -59,8 +59,7 @@ public class Program
         var encoded = Encoding.UTF8.GetBytes(jsonString);
 
         await _webSocket.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
-        System.Console.WriteLine("sent: " , jsonString);
-        //System.Console.WriteLine("sent: ", jsonString);
+        System.Console.WriteLine("sent: ", jsonString);
     }
 }
 

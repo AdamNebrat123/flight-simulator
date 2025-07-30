@@ -20,8 +20,8 @@ public class UIMsgHandler
                     case MsgTypesEnum.TrajectoryPoints:
                         // Handle
                         List<List<TrajectoryPoint>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper);
-                        _ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
 
+                        _ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
                         break;
 
                     // more cases......
@@ -62,13 +62,15 @@ public class UIMsgHandler
     public List<List<TrajectoryPoint>> handleTrajectoryPointsEvent(MessageWrapper wrapper)
     {
         TrajectoryManager trajectoryManager = new TrajectoryManager();
+
         TrajectoryPointsEvent trajectoryPointsEvent = wrapper.Data.Deserialize<TrajectoryPointsEvent>();
-        List<PlaneTrajectoryPoint> clientSelectedPoints = trajectoryPointsEvent.PlaneTrajectoryPoints;
+        List<GeoPoint> clientSelectedPoints = trajectoryPointsEvent.GeoPoints;
         double velocity = trajectoryPointsEvent.Velocity;
 
         //handle
         TrajectoryCalculator trajectoryCalculator = new TrajectoryCalculator();
         List<TrajectoryPoint> calculatedTrajectoryPoints = trajectoryCalculator.ComputeTrajectory(clientSelectedPoints[0], clientSelectedPoints[1], velocity);
+
         trajectoryManager.AddTrajectory(calculatedTrajectoryPoints);
 
         return trajectoryManager.CalculatedTrajectoryPoints;

@@ -3,7 +3,7 @@ import { prepareMessageToServer } from "./ConvertToJson.js";
 import { msgTypes } from "./msgTypes/allMsgTypes.js";
 import { GeoPoint } from "./msgTypes/GeoPoint.js";
 import { TrajectoryPointsEvent } from "./msgTypes/TrajectoryPointsEvent.js";
-import { PlaneTrajectoryPoint } from "./msgTypes/PlaneTrajectoryPoint.js";
+
 // Export a function that sets up point selection handlers on a given viewer
 export async function setUpCreateJrajecory(viewer) {
   let createTrajectoryMode = false;
@@ -38,18 +38,12 @@ export async function setUpCreateJrajecory(viewer) {
 
     // Save the point with adjusted height
     const newGeoPoint = new GeoPoint(lon, lat, baseHeight);
-    //************************
-    // CONST NAME FOR NOW ONLY
-    //************************
-    const name = "Airplane";
-
-    const planeTrajectoryPoint = new PlaneTrajectoryPoint(newGeoPoint, name);
-    trajectoryPoints.push(planeTrajectoryPoint);
+    trajectoryPoints.push(newGeoPoint);
 
 
     // Add a visual marker for the selected point
     viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(planeTrajectoryPoint.position.longitude, planeTrajectoryPoint.position.latitude, planeTrajectoryPoint.position.height),
+      position: Cesium.Cartesian3.fromDegrees(newGeoPoint.longitude, newGeoPoint.latitude, newGeoPoint.height),
       point: {
         pixelSize: 10,
         color: Cesium.Color.RED,

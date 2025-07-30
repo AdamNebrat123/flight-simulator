@@ -9,13 +9,14 @@ public class TrajectoryCalculator
     /// given a constant velocity (m/s). Each returned point corresponds to
     /// the position after each second.
     /// </summary>
-    public List<TrajectoryPoint> ComputeTrajectory(PlaneTrajectoryPoint start, PlaneTrajectoryPoint end, double velocityMetersPerSecond)
+    public List<TrajectoryPoint> ComputeTrajectory(GeoPoint start, GeoPoint end, double velocityMetersPerSecond)
     {
         var result = new List<TrajectoryPoint>();
 
         // Convert geographic coordinates (lat, lon, height) to Cartesian coordinates (x,y,z)
-        var startCart = GeoToCartesian(start.Position);
-        var endCart = GeoToCartesian(end.Position);
+        var startCart = GeoToCartesian(start);
+        var endCart = GeoToCartesian(end);
+
         // Calculate vector difference between start and end in Cartesian coordinates
         double dx = endCart.X - startCart.X;
         double dy = endCart.Y - startCart.Y;
@@ -23,6 +24,7 @@ public class TrajectoryCalculator
 
         // Calculate the straight-line 3D distance between points
         double distance = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+
         // Calculate total flight duration in seconds (floor to integer)
         int durationSeconds = (int)Math.Floor(distance / velocityMetersPerSecond);
 
@@ -36,10 +38,10 @@ public class TrajectoryCalculator
             double x = startCart.X + alpha * dx;
             double y = startCart.Y + alpha * dy;
             double z = startCart.Z + alpha * dz;
+
             // Convert Cartesian coordinates back to geographic coordinates
             GeoPoint geoPoint = CartesianToGeo(x, y, z);
-            string name = start.Name;
-            PlaneTrajectoryPoint planeTrajectoryPoint = new PlaneTrajectoryPoint(geoPoint, name);
+
             double heading = 0; // Horizontal direction angle in degrees
             double pitch = 0;   // Vertical angle in degrees
 
@@ -53,9 +55,11 @@ public class TrajectoryCalculator
 
                 (heading, pitch) = CalculateHeadingAndPitch(x, y, z, x2, y2, z2);
             }
+
             // Add the interpolated point with calculated angles to the result list
-            result.Add(new TrajectoryPoint(planeTrajectoryPoint, heading, pitch));
+            result.Add(new TrajectoryPoint(geoPoint, heading, pitch));
         }
+
         return result;
     }
 
