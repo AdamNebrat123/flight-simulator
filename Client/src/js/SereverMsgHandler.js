@@ -1,4 +1,4 @@
-import { CalculatedTrajectoryPoints } from "./msgTypes/CalculatedTrajectoryPoints.js";
+import { MultiPlaneTrajectoryResult } from "./msgTypes/MultiPlaneTrajectoryResult.js";
 import { MessageWrapper } from "./MessageWrapper.js";
 import { GetViewer } from "./main.js";
 import { msgTypes } from "./msgTypes/allMsgTypes.js";
@@ -17,15 +17,15 @@ export async function HandleIncomingMsg(event) {
 
 
         switch (message.type) {
-            case msgTypes.CalculatedTrajectoryPoints:
-                const calculatedTrajectoryPoints = new CalculatedTrajectoryPoints(message.data);
-                console.log("Received trajectory points:", calculatedTrajectoryPoints);
+            case msgTypes.MultiPlaneTrajectoryResult:
+                const multiPlaneTrajectoryResult = new MultiPlaneTrajectoryResult(message.data);
+                console.log("ALL PLANE POINTS:" ,multiPlaneTrajectoryResult.toString())
 
                 // Remove old entities first
                 RemoveEntities(currentPlaneEntities);
 
                 // Handle and store new entities
-                currentPlaneEntities = await HandleCalculatedTrajectoryPoints(calculatedTrajectoryPoints);
+                currentPlaneEntities = await HandleCalculatedTrajectoryPoints(multiPlaneTrajectoryResult);
                 break;
 
             default:
@@ -36,8 +36,58 @@ export async function HandleIncomingMsg(event) {
         console.error("Failed to parse or handle message:", err);
     }
 }
+async function HandleCalculatedTrajectoryPoints(multiPlaneTrajectoryResult) {
+    const viewer = GetViewer();
+    const Entities = []; // Will contain entities of all planes
 
+    for (const plane of multiPlaneTrajectoryResult.planes) {
+        for (const point of plane.trajectoryPoints) {
+            console.log("Handling trajectory for plane:", plane.planeName);
+            const position = Cesium.Cartesian3.fromDegrees(
+                point.position.longitude,
+                point.position.latitude,
+                point.position.altitude
+            );
+            const heading = Cesium.Math.toRadians(point.heading);
+            const pitch = Cesium.Math.toRadians(point.pitch);
+            const roll = 0.0;
 
+            const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+            const orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
+
+            console.log("Adding entity with position:", position);
+            const entity = viewer.entities.add({
+                position: position,
+                orientation: orientation,
+                model: {
+                    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumAir/Cesium_Air.glb",
+                    scale: 1.5,
+                    minimumPixelSize: 64,
+                    color: Cesium.Color.WHITE,
+                    lightColor: new Cesium.Color(1.0, 1.0, 1.0, 1.0),
+                    silhouetteColor: Cesium.Color.YELLOW,
+                    silhouetteSize: 2.0
+                },
+            label: {
+                text: plane.planeName,
+                font: '14px sans-serif',
+                fillColor: Cesium.Color.WHITE,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -12)
+            },
+                name: plane.planeName
+            });
+
+            
+            Entities.push(entity);
+        }
+    }
+
+    return Entities;
+}
+/*
 async function HandleCalculatedTrajectoryPoints(calculatedTrajectoryPoints) {
     const viewer = GetViewer();
 
@@ -64,7 +114,7 @@ async function HandleCalculatedTrajectoryPoints(calculatedTrajectoryPoints) {
             orientation: orientation,
             model: {
                 uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumAir/Cesium_Air.glb",
-                scale: 2.5,
+                scale: 1.5,
                 minimumPixelSize: 64,
                 color: Cesium.Color.WHITE,
                 // disable lighting for flat bright look
@@ -79,6 +129,7 @@ async function HandleCalculatedTrajectoryPoints(calculatedTrajectoryPoints) {
     // You can now return this array or store it somewhere
     return Entities;
 }
+    */
 
 async function RemoveEntities(entities) {
     entities.forEach(e => GetViewer().entities.remove(e));

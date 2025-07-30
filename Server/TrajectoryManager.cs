@@ -1,27 +1,33 @@
 public class TrajectoryManager
 {
     // Each inner list is a snapshot in time: one point from each plane
-    public List<List<TrajectoryPoint>> CalculatedTrajectoryPoints { get; } = new();
+    public List<List<PlaneCalculatedTrajectoryPoints>> CalculatedTrajectoryPoints { get; } = new();
 
-    // Keeps track of all trajectories
+    // Keeps track of all trajectories (each plane has a list of points)
     private readonly List<List<TrajectoryPoint>> _allTrajectories = new();
+    private readonly List<string> _planeNames = new();
 
-    public void AddTrajectory(List<TrajectoryPoint> newTrajectory)
+    public void AddTrajectory(List<TrajectoryPoint> newTrajectory, string planeName)
     {
         _allTrajectories.Add(newTrajectory);
+        _planeNames.Add(planeName);
 
-        // Ensure CalculatedTrajectoryPoints has enough time steps
         for (int i = 0; i < newTrajectory.Count; i++)
         {
             if (CalculatedTrajectoryPoints.Count <= i)
             {
-                CalculatedTrajectoryPoints.Add(new List<TrajectoryPoint>());
+                CalculatedTrajectoryPoints.Add(new List<PlaneCalculatedTrajectoryPoints>());
             }
 
-            CalculatedTrajectoryPoints[i].Add(newTrajectory[i]);
+            var point = newTrajectory[i];
+            var wrapped = new PlaneCalculatedTrajectoryPoints
+            {
+                planeName = planeName,
+                trajectoryPoints = new List<TrajectoryPoint> { point }
+            };
+
+            CalculatedTrajectoryPoints[i].Add(wrapped);
         }
 
-        // If this new trajectory is shorter than existing steps, it will simply skip them
-        // No need to pad with nulls unless you want to
     }
 }

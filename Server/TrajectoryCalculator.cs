@@ -9,6 +9,7 @@ public class TrajectoryCalculator
     /// given a constant velocity (m/s). Each returned point corresponds to
     /// the position after each second.
     /// </summary>
+/*
     public List<TrajectoryPoint> ComputeTrajectory(GeoPoint start, GeoPoint end, double velocityMetersPerSecond)
     {
         var result = new List<TrajectoryPoint>();
@@ -62,6 +63,55 @@ public class TrajectoryCalculator
 
         return result;
     }
+*/
+
+    public List<TrajectoryPoint> ComputeTrajectory(GeoPoint start, GeoPoint end, double velocityMetersPerSecond, double timeStepSeconds)
+    {
+        // 1. Convert start/end to Cartesian
+        var startCart = GeoToCartesian(start);
+        var endCart   = GeoToCartesian(end);
+
+        // 2. Compute total distance and total time (double)
+        double dx       = endCart.X - startCart.X;
+        double dy       = endCart.Y - startCart.Y;
+        double dz       = endCart.Z - startCart.Z;
+        double distance = Math.Sqrt(dx*dx + dy*dy + dz*dz);
+        double totalTime = distance / velocityMetersPerSecond;
+
+        var result = new List<TrajectoryPoint>();
+        
+        // 3. Step through t = 0, timeStep, 2*timeStep, …, up to totalTime
+        for (double t = 0.0; t < totalTime; t += timeStepSeconds)
+        {
+            double alpha = t / totalTime; // fraction along path
+
+            double x = startCart.X + alpha * dx;
+            double y = startCart.Y + alpha * dy;
+            double z = startCart.Z + alpha * dz;
+
+            GeoPoint geoPoint = CartesianToGeo(x, y, z);
+
+            // compute heading/pitch toward the next instant
+            double nextT = Math.Min(t + timeStepSeconds, totalTime);
+            double alpha2 = nextT / totalTime;
+            double x2 = startCart.X + alpha2 * dx;
+            double y2 = startCart.Y + alpha2 * dy;
+            double z2 = startCart.Z + alpha2 * dz;
+
+            (double heading, double pitch) = CalculateHeadingAndPitch(x, y, z, x2, y2, z2);
+
+            result.Add(new TrajectoryPoint(geoPoint, heading, pitch));
+        }
+
+        // 4. Ensure exact end point is included
+        {
+            GeoPoint geoPoint = end;
+            // last heading/pitch can be zero or repeat previous
+            result.Add(new TrajectoryPoint(geoPoint, 0.0, 0.0));
+        }
+
+        return result;
+    }
 
     /// <summary>
     /// Converts geographic coordinates (latitude, longitude, height) to
@@ -69,9 +119,9 @@ public class TrajectoryCalculator
     /// </summary>
     private (double X, double Y, double Z) GeoToCartesian(GeoPoint point)
     {
-        double latRad = DegreesToRadians(point.Latitude);
-        double lonRad = DegreesToRadians(point.Longitude);
-        double radius = EarthRadius + point.Height;
+        double latRad = DegreesToRadians(point.latitude);
+        double lonRad = DegreesToRadians(point.longitude);
+        double radius = EarthRadius + point.altitude;
 
         // ECEF formula
         double x = radius * Math.Cos(latRad) * Math.Cos(lonRad);
@@ -96,7 +146,7 @@ public class TrajectoryCalculator
         return new GeoPoint(
             longitude: RadiansToDegrees(lonRad),
             latitude: RadiansToDegrees(latRad),
-            height: height
+            altitude: height
         );
     }
 

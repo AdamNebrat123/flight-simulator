@@ -3,6 +3,7 @@ using System.Text.Json;
 
 public class UIMsgHandler
 {
+    private const double timeStepSeconds = 1;
     public async Task HandleIncomingMessage(string json)
     {
         try
@@ -17,11 +18,20 @@ public class UIMsgHandler
             {
                 switch (messageType)
                 {
-                    case MsgTypesEnum.TrajectoryPoints:
+                    case MsgTypesEnum.PlanesTrajectoryPointsEvent:
                         // Handle
-                        List<List<TrajectoryPoint>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper);
-
-                        _ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
+                        List<List<PlaneCalculatedTrajectoryPoints>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper);
+                        foreach (var trajectoryPoint in allCalculatedTrajectoryPoints)
+                        {
+                            foreach (var trajectoryPointEvent in trajectoryPoint)
+                            {
+                                foreach (var trajectoryEvent in trajectoryPointEvent.trajectoryPoints)
+                                {
+                                    System.Console.WriteLine(trajectoryEvent);
+                                }
+                            }
+                        }
+                        _ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints, timeStepSeconds);
                         break;
 
                     // more cases......
@@ -57,34 +67,65 @@ public class UIMsgHandler
 
         return JsonSerializer.Serialize(message);
     }
+    
 
+private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)
+{
+    List<TrajectoryPoint> fullTrajectory = new List<TrajectoryPoint>();
 
-    public List<List<TrajectoryPoint>> handleTrajectoryPointsEvent(MessageWrapper wrapper)
+    for (int i = 0; i < plane.geoPoints.Count - 1; i++)
+    {
+        GeoPoint start = plane.geoPoints[i];
+        GeoPoint end = plane.geoPoints[i + 1];
+
+        TrajectoryCalculator calculator = new TrajectoryCalculator();
+        List<TrajectoryPoint> segment = calculator.ComputeTrajectory(start, end, plane.velocity,timeStepSeconds); //timeStepSeconds is a const
+
+        if (i > 0 && segment.Count > 0)
+        {
+            segment.RemoveAt(0); // Avoid duplication
+        }
+
+        fullTrajectory.AddRange(segment);
+    }
+
+    return fullTrajectory;
+}
+
+    public List<List<PlaneCalculatedTrajectoryPoints>> handleTrajectoryPointsEvent(MessageWrapper wrapper)
     {
         TrajectoryManager trajectoryManager = new TrajectoryManager();
+        PlanesTrajectoryPointsEvent planesTrajectoryPointsEvent = wrapper.Data.Deserialize<PlanesTrajectoryPointsEvent>();
+        List<PlaneTrajectoryPoints> planesTrajectoryPoints = planesTrajectoryPointsEvent.planes;
 
-        TrajectoryPointsEvent trajectoryPointsEvent = wrapper.Data.Deserialize<TrajectoryPointsEvent>();
-        List<GeoPoint> clientSelectedPoints = trajectoryPointsEvent.GeoPoints;
-        double velocity = trajectoryPointsEvent.Velocity;
-
-        //handle
-        TrajectoryCalculator trajectoryCalculator = new TrajectoryCalculator();
-        List<TrajectoryPoint> calculatedTrajectoryPoints = trajectoryCalculator.ComputeTrajectory(clientSelectedPoints[0], clientSelectedPoints[1], velocity);
-
-        trajectoryManager.AddTrajectory(calculatedTrajectoryPoints);
+        foreach (PlaneTrajectoryPoints plane in planesTrajectoryPoints)
+        {
+            foreach (GeoPoint point in plane.geoPoints)
+            {
+                System.Console.WriteLine(point);
+            }
+            List<TrajectoryPoint> trajectory = HandleSinglePlane(plane);
+            trajectoryManager.AddTrajectory(trajectory, plane.planeName);
+        }
 
         return trajectoryManager.CalculatedTrajectoryPoints;
     }
+    
 
-    public async Task SendCalculatedTrajectoryPointsAsync(List<List<TrajectoryPoint>> points)
+
+
+    
+    public async Task SendCalculatedTrajectoryPointsAsync(List<List<PlaneCalculatedTrajectoryPoints>> results, double timeStepSeconds)
     {
-        foreach (var point in points)
+        System.Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
+        foreach (var result in results)
         {
-            var responseJson = prepareMessageToServer(MsgTypesEnum.CalculatedTrajectoryPoints, point);
+            MultiPlaneTrajectoryResult multiPlaneTrajectoryResult = new MultiPlaneTrajectoryResult(result);
+            var responseJson = prepareMessageToServer(MsgTypesEnum.MultiPlaneTrajectoryResult, multiPlaneTrajectoryResult);
 
-            Program.SendMsgToClient(responseJson); 
+            Program.SendMsgToClient(responseJson);
 
-            await Task.Delay(1000); // wait 1 second between each step
+            await Task.Delay((int)(timeStepSeconds * 1000)); // wait timeStepSeconds * 1000 between each step
         }
     }
 }

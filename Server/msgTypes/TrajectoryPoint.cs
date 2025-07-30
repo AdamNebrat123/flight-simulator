@@ -1,18 +1,18 @@
 public class TrajectoryPoint
 {
-    public GeoPoint Position { get; set; }
-    public double Heading { get; set; }
-    public double Pitch { get; set; }
+    public GeoPoint position { get; set; }
+    public double heading { get; set; }
+    public double pitch { get; set; }
 
     public TrajectoryPoint(GeoPoint position, double heading, double pitch)
     {
-        Position = position;
-        Heading = heading;
-        Pitch = pitch;
+        this.position = position;
+        this.heading = heading;
+        this.pitch = pitch;
     }
 
     public override string ToString()
     {
-        return string.Format("[{0},Heading={1},Pitch={2}]", Position, Heading, Pitch);
+        return string.Format("[{0},Heading={1},Pitch={2}]", position, heading, pitch);
     }
 }

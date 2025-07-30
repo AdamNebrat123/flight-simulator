@@ -8,4 +8,5 @@ export class TrajectoryPoint {
   toString() {
     return `[${this.position.toString()}, Heading=${this.heading}, Pitch=${this.pitch}]`;
   }
+  
 }

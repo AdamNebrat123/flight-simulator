@@ -3,24 +3,23 @@ using System.Text.Json.Serialization;
 public class GeoPoint
 {
     [JsonPropertyName("longitude")]
-    public double Longitude { get; set; }
+    public double longitude { get; set; }
 
     [JsonPropertyName("latitude")]
-    public double Latitude { get; set; }
+    public double latitude { get; set; }
 
-    [JsonPropertyName("height")]
-    public double Height { get; set; }
+    [JsonPropertyName("altitude")]
+    public double altitude { get; set; }
 
-    public GeoPoint(double longitude, double latitude, double height)
+    [JsonConstructor]
+    public GeoPoint(double longitude, double latitude, double altitude)
     {
-        Longitude = longitude;
-        Latitude = latitude;
-        Height = height;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.altitude = altitude;
     }
-
-    
     public override string ToString()
     {
-        return $"Selected Point [Lon={Longitude}, Lat={Latitude}, Height={Height}]";
+        return $"Selected Point [Lon={longitude}, Lat={latitude}, Altitude={altitude}]";
     }
 }
