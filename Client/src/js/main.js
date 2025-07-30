@@ -19,10 +19,7 @@ async function initWebSocket() {
 // Call the init function when the page loads
 initWebSocket();
 
-let viewer;
-export function GetViewer() {
-    return viewer;
-}
+
 
 
 
@@ -95,7 +92,7 @@ document.getElementById("sendSampleTrajectory").addEventListener("click", () => 
           {
             longitude: 34.77205926618796,
             latitude: 32.032993137954726,
-            altitude: 30
+            altitude: 50
           }
         ],
         velocity: 100
@@ -111,6 +108,10 @@ document.getElementById("sendSampleTrajectory").addEventListener("click", () => 
 //===============================================================================
 //===============================================================================
 
+let viewer;
+export function GetViewer() {
+    return viewer;
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
   // Create viewer in the div with id 'cesiumContainer'

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 public class UIMsgHandler
 {
-    private const double timeStepSeconds = 1;
+    private const double timeStepSeconds = 0.1;
     public async Task HandleIncomingMessage(string json)
     {
         try
