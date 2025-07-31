@@ -1,6 +1,6 @@
 import { createViewer } from './viewerSetup.js';
-import { setupPointSelection } from './pointSelection.js';
-import { startWebSocketClient } from './websocketClient.js';
+import { setupPointSelection } from './los/pointSelection.js';
+import { startWebSocketClient } from './websocket/websocketClient.js';
 
 let socket = null;
 export function getSocket() {

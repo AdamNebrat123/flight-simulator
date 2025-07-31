@@ -1,5 +1,4 @@
-import { HandleIncomingMsg } from "./SereverMsgHandler.js";
-
+import { HandleIncomingMsg } from "../ServerMsgHandler.js";
 export async function startWebSocketClient(serverUrl = "ws://localhost:5000") {
     return new Promise((resolve, reject) => {
         const socket = new WebSocket(serverUrl);

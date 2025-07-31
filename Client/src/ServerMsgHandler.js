@@ -1,8 +1,8 @@
-import { MultiPlaneTrajectoryResult } from "./msgTypes/MultiPlaneTrajectoryResult.js";
-import { MessageWrapper } from "./MessageWrapper.js";
+import { MultiPlaneTrajectoryResult } from "./Messages/ReceiveMsgTypes/MultiPlaneTrajectoryResult.js";
+import { MessageWrapper } from "./Messages/MessageWrapper.js";
 import { GetViewer } from "./main.js";
-import { msgTypes } from "./msgTypes/allMsgTypes.js";
-import { PlaneEntityManager } from "./PlaneEntityManager.js";
+import { msgTypes } from "./Messages/allMsgTypes.js";
+import { PlaneEntityManager } from "./trajectoryScenario/PlaneEntityManager.js";
 
 const planeManager = new PlaneEntityManager();
 

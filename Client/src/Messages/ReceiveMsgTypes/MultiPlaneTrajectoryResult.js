@@ -1,5 +1,4 @@
-import { PlaneCalculatedTrajectoryPoints } from "./PlaneCalculatedTrajectoryPoints.js";
-
+import { PlaneCalculatedTrajectoryPoints } from "../Components/PlaneCalculatedTrajectoryPoints.js";
 export class MultiPlaneTrajectoryResult {
     constructor(raw) {
         this.planes = raw.planes.map(p => new PlaneCalculatedTrajectoryPoints(p));
