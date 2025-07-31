@@ -2,7 +2,7 @@ import { SendMsgToServer } from "./serverMsgSender.js";
 import { prepareMessageToServer } from "./ConvertToJson.js";
 import { msgTypes } from "./msgTypes/allMsgTypes.js";
 import { GeoPoint } from "./msgTypes/GeoPoint.js";
-import { TrajectoryPointsEvent } from "./msgTypes/TrajectoryPointsEvent.js";
+//import { TrajectoryPointsEvent } from "./msgTypes/TrajectoryPointsEvent.js";
 
 // Export a function that sets up point selection handlers on a given viewer
 export async function setUpCreateJrajecory(viewer) {
@@ -64,10 +64,10 @@ export async function setUpCreateJrajecory(viewer) {
         return;
       }
       
-      const trajectoryPointsEvent = new TrajectoryPointsEvent(trajectoryPoints, velocity);
+      //const trajectoryPointsEvent = new TrajectoryPointsEvent(trajectoryPoints, velocity);
       // Convert points to json
-      const msgJson = prepareMessageToServer(msgTypes.TrajectoryPoints, trajectoryPointsEvent);
-      await SendMsgToServer(msgJson);
+      //const msgJson = prepareMessageToServer(msgTypes.TrajectoryPoints, trajectoryPointsEvent);
+      //await SendMsgToServer(msgJson);
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 }
