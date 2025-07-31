@@ -1,7 +1,6 @@
 import { createViewer } from './viewerSetup.js';
 import { setupPointSelection } from './pointSelection.js';
 import { startWebSocketClient } from './websocketClient.js';
-import { setUpCreateJrajecory } from './CreateTrajectory.js';
 
 let socket = null;
 export function getSocket() {
@@ -118,7 +117,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   viewer = await createViewer('cesiumContainer');
   // Setup point selection with the created viewer
   setupPointSelection(viewer);
-  setUpCreateJrajecory(viewer);
 
   
 });
