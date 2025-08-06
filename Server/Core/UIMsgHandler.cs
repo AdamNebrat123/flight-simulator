@@ -12,15 +12,15 @@ public class UIMsgHandler
             {
                 PropertyNameCaseInsensitive = true
             });
-            Console.WriteLine("Deserialized Type: " + wrapper?.Type);
+            Console.WriteLine("Deserialized Type: " + wrapper?.type);
 
-            if (!string.IsNullOrWhiteSpace(wrapper.Type) && Enum.TryParse<MsgTypesEnum>(wrapper.Type.Trim(), ignoreCase: true, out var messageType))
+            if (!string.IsNullOrWhiteSpace(wrapper.type) && Enum.TryParse<MsgTypesEnum>(wrapper.type.Trim(), ignoreCase: true, out var messageType))
             {
                 switch (messageType)
                 {
                     case MsgTypesEnum.PlanesTrajectoryPointsEvent:
                         // Handle
-                        List<List<PlaneCalculatedTrajectoryPoints>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper);
+                        List<List<PlaneCalculatedTrajectoryPoints>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper.data);
                         foreach (var trajectoryPoint in allCalculatedTrajectoryPoints)
                         {
                             foreach (var trajectoryPointEvent in trajectoryPoint)
@@ -44,7 +44,7 @@ public class UIMsgHandler
             }
             else
             {
-                Console.WriteLine("Invalid message type: " + wrapper.Type);
+                Console.WriteLine("Invalid message type: " + wrapper.type);
             }
         }
         catch (NullReferenceException ex)
@@ -92,10 +92,10 @@ private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)
     return fullTrajectory;
 }
 
-    public List<List<PlaneCalculatedTrajectoryPoints>> handleTrajectoryPointsEvent(MessageWrapper wrapper)
+    public List<List<PlaneCalculatedTrajectoryPoints>> handleTrajectoryPointsEvent(JsonElement data)
     {
         TrajectoryManager trajectoryManager = new TrajectoryManager();
-        PlanesTrajectoryPointsEvent planesTrajectoryPointsEvent = wrapper.Data.Deserialize<PlanesTrajectoryPointsEvent>();
+        PlanesTrajectoryPointsEvent planesTrajectoryPointsEvent = data.Deserialize<PlanesTrajectoryPointsEvent>();
         List<PlaneTrajectoryPoints> planesTrajectoryPoints = planesTrajectoryPointsEvent.planes;
 
         foreach (PlaneTrajectoryPoints plane in planesTrajectoryPoints)
