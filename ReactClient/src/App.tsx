@@ -25,11 +25,12 @@ export default function App() {
 
   return (
     <>
+      
+      <CesiumMap viewerRef={viewerRef} />
       {!showPanel && <TopLeftButtons onCreateClick={handleOpenPanel} />}
       {showPanel && (
-        <CreateTrajectoryPanel onSave={handleSave} onCancel={handleCancel} />
+        <CreateTrajectoryPanel onSave={handleSave} onCancel={handleCancel} viewerRef={viewerRef}/>
       )}
-      <CesiumMap viewerRef={viewerRef} />
     </>
   );
 }

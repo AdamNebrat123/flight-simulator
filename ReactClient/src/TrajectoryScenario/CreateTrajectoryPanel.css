@@ -16,6 +16,14 @@
   padding: 10px;
 }
 
+.main-label {
+  font-family: Serif;
+  font-size: 30px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
 .trajectory-content {
   margin-bottom: 12px;
 }
@@ -26,22 +34,55 @@
   gap: 6px;
 }
 
-.action-button {
-  padding: 5px 10px;
+.addPlane-button {
+  width: 100%;
+  display: block;
+  margin-bottom: 40px;
+  margin-top: 8px;
+  background-color: #555555;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.addPlane-button:hover {
+  background-color: #414040;
+}
+
+.addPoints-button {
+  width: 100%;
+  display: block;
+  margin-bottom: 30px;
+  margin-top: 8px;
+  background-color: #2d6115;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.addPoints-button:hover {
+  background-color: #1c4b10;
+}
+.save-button {
+  background: #28a745;
+  color: #fff;
   font-size: 13px;
   border-radius: 3px;
   cursor: pointer;
   border: none;
 }
 
-.save-button {
-  background: #28a745;
-  color: #fff;
-}
-
 .cancel-button {
   background: #dc3545;
   color: #fff;
+  font-size: 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: none;
 }
 
 .small {
