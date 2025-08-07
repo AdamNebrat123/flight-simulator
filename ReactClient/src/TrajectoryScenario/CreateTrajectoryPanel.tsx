@@ -84,15 +84,19 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
           const longitude = Cesium.Math.toDegrees(cartographic.longitude);
           const latitude = Cesium.Math.toDegrees(cartographic.latitude);
           const altitude = cartographic.height;
-
           const newPoint: GeoPoint = { longitude, latitude, altitude };
-
           // Update state with a new point in the selected plane
           setEventData(prev => {
-            const newPlanes = [...prev.planes];
-            // Here it is certain that selectedPlaneIndex !== null
-            newPlanes[selectedPlaneIndex].geoPoints = [...newPlanes[selectedPlaneIndex].geoPoints, newPoint];
-            return { ...prev, planes: newPlanes };
+          const newPlanes = [...prev.planes];
+          const currentPoints = newPlanes[selectedPlaneIndex].geoPoints;
+
+          // Check if the point already exists by reference
+          if (!currentPoints.includes(newPoint)) {
+              newPlanes[selectedPlaneIndex].geoPoints = [...currentPoints, newPoint];
+          } else {
+              console.log("Point already exists, not adding");
+          }
+          return { ...prev, planes: newPlanes };
           });
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
