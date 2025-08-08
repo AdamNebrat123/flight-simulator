@@ -4,10 +4,12 @@ import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
 import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
 import type { PlanesTrajectoryPointsEvent } from './Messages/AllTypes';
+import { useWebSocket } from './webSocket/Websocket';
 
 export default function App() {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [showPanel, setShowPanel] = useState(false);
+  const { isConnected, send, on } = useWebSocket("ws://localhost:5000");
 
   const handleOpenPanel = () => {
     setShowPanel(true);
@@ -16,6 +18,7 @@ export default function App() {
   const handleSave = (data: PlanesTrajectoryPointsEvent) => {
     console.log('Saved trajectory scenario', data);
     setShowPanel(false);
+    send("PlanesTrajectoryPointsEvent", data)
   };
 
   const handleCancel = (data: PlanesTrajectoryPointsEvent) => {
