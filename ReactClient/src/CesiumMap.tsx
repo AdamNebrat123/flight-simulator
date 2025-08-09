@@ -7,9 +7,10 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 
 type CesiumMapProps = {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
+  onViewerReady?: () => void;
 };
 
-export default function CesiumMap({ viewerRef }: CesiumMapProps) {
+export default function CesiumMap({ viewerRef, onViewerReady  }: CesiumMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -35,6 +36,8 @@ export default function CesiumMap({ viewerRef }: CesiumMapProps) {
     });
 
     viewerRef.current = viewer;
+    // Notify parent that viewer is ready
+    onViewerReady?.();
 
     return () => {
       if (viewerRef.current) {

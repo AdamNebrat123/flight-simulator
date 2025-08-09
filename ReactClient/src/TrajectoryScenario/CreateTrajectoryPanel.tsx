@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
 import type { GeoPoint, PlaneTrajectoryPoints, PlanesTrajectoryPointsEvent } from "../Messages/AllTypes";
 import "./CreateTrajectoryPanel.css";
-import { EntityManager } from "./EntityManager";
+import { PointEntityManager } from "./PointEntityManager";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -15,11 +15,11 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     const [isAddingPoints, setIsAddingPoints] = useState(false);
     const [selectedPlaneIndex, setSelectedPlaneIndex] = useState<number | null>(null);
     const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
-    const entityManagerRef = useRef<EntityManager | null>(null);
+    const entityManagerRef = useRef<PointEntityManager | null>(null);
 
     useEffect(() => {
     if (viewerRef.current) {
-        entityManagerRef.current = new EntityManager(viewerRef.current);
+        entityManagerRef.current = new PointEntityManager(viewerRef.current);
     }
     return () => {
         entityManagerRef.current?.removeAllEntities();

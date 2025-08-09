@@ -6,14 +6,14 @@ export interface AllTypes {
     planesTrajectoryPointsEvent:     PlanesTrajectoryPointsEvent;
     planeTrajectoryPoints:           PlaneTrajectoryPoints;
     trajectoryPoint:                 TrajectoryPoint;
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 export interface GeoPoint {
     altitude:  number;
     latitude:  number;
     longitude: number;
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 /**
@@ -29,35 +29,35 @@ export interface MessageWrapper {
      * The type of the inner message (used for dynamic deserialization)
      */
     type: string;
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 export interface MultiPlaneTrajectoryResult {
     planes: PlaneCalculatedTrajectoryPoints[];
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 export interface PlaneCalculatedTrajectoryPoints {
     planeName:        string;
     trajectoryPoints: TrajectoryPoint[];
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 export interface TrajectoryPoint {
     heading:  number;
     pitch:    number;
     position: GeoPoint;
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 export interface PlaneTrajectoryPoints {
     geoPoints: GeoPoint[];
     planeName: string;
     velocity:  number;
-    [property: string]: any;
+    //[property: string]: any;
 }
 
 export interface PlanesTrajectoryPointsEvent {
     planes: PlaneTrajectoryPoints[];
-    [property: string]: any;
+    //[property: string]: any;
 }

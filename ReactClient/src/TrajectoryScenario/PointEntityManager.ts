@@ -2,7 +2,7 @@
 import * as Cesium from "cesium";
 import type { GeoPoint } from "../Messages/AllTypes";
 
-export class EntityManager {
+export class PointEntityManager {
   private viewer: Cesium.Viewer;
   private pointToEntityMap = new Map<GeoPoint, Cesium.Entity>();
 
