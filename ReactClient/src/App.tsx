@@ -4,8 +4,8 @@ import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
 import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
 import type { PlanesTrajectoryPointsEvent } from './Messages/AllTypes';
-import { useWebSocketEvents } from './WebSocket/useWebSocketEvents';
-
+import { useWebSocket } from './WebSocket/WebSocketProvider';
+import { ToastContainer } from 'react-toastify';
 
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
@@ -15,7 +15,7 @@ import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajecto
 export default function App() {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [showPanel, setShowPanel] = useState(false);
-  const { isConnected, send, on } = useWebSocketEvents("ws://localhost:5000");
+  const { isConnected, send, on } = useWebSocket()
 
 
   //needed for MultiPlaneTrajectoryResult
@@ -62,7 +62,18 @@ useEffect(() => {
       {showPanel && (
         <CreateTrajectoryPanel onSave={handleSave} onCancel={handleCancel} viewerRef={viewerRef}/>
       )}
-      
+
+      { /*for showing non blocking alerts*/ }
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        newestOnTop 
+        closeOnClick 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover
+        style={{ zIndex: 999999 }} // Add a very high z-index here
+      />
     </>
   );
 }

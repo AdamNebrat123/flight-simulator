@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import type { GeoPoint, PlaneTrajectoryPoints, PlanesTrajectoryPointsEvent } from "../Messages/AllTypes";
 import "./CreateTrajectoryPanel.css";
 import { PointEntityManager } from "./PointEntityManager";
+import { toast } from "react-toastify";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -79,7 +80,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         } else {
         // If you want to start adding points
         if (selectedPlaneIndex === null) {
-            alert("Please select a plane first!");
+            toast.error("Please select a plane first!"); // Non blocking alert! (it important cuase its not blocking!!!!!)
             return;
         }
         if (!viewerRef.current) return;
