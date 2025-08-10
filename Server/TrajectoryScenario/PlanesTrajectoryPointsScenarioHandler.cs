@@ -33,24 +33,8 @@ public class PlanesTrajectoryPointsScenarioHandler
         trajectoryScenarioResultsManager.AddResults(
             planesTrajectoryPointsEvent.scenarioName,
             trajectoryManager.CalculatedTrajectoryPoints);
-
-
-        //testing:
-        List<MultiPlaneTrajectoryResult> allCalculatedTrajectoryPoints =
-            trajectoryScenarioResultsManager.GetResults(planesTrajectoryPointsEvent.scenarioName);
-        System.Console.WriteLine("======================================results======================================");
-        foreach (var multiPlaneTrajectoryResult in allCalculatedTrajectoryPoints)
-        {
-            foreach (var plane in multiPlaneTrajectoryResult.planes)
-            {
-                foreach (var points in plane.trajectoryPoints)
-                {
-                    System.Console.WriteLine(points);
-                }
-            }
-        }
-        // send for testing (data feched from storage class, working!)
-        SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
+            
+        System.Console.WriteLine("Successfully saved scenario: " + planesTrajectoryPointsEvent.scenarioName);
     }
 
     private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)

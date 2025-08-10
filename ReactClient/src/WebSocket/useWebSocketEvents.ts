@@ -28,6 +28,7 @@ export function useWebSocketEvents(url: string, reconnectDelay = 3000) {
   useEffect(() => {
     setOnMessage(rawMessage => {
       try {
+        console.log("recieved: ", rawMessage)
         const wrapper: MessageWrapper = JSON.parse(rawMessage);
         const handlers = eventHandlers.current[wrapper.type] || [];
         handlers.forEach(handler => handler(wrapper.data));

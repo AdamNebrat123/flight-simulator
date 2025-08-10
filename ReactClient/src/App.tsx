@@ -3,9 +3,10 @@ import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
 import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
-import type { PlanesTrajectoryPointsScenario } from './Messages/AllTypes';
+import type { PlanesTrajectoryPointsScenario,GetReadyScenariosRequestCmd, ScenariosReadyToPlay, PlaySelectedScenario } from './Messages/AllTypes';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
+import PlayScenarioPanel from './PlayScenario/PlayScenarioPanel';
 
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
@@ -14,7 +15,10 @@ import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajecto
 
 export default function App() {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
-  const [showPanel, setShowPanel] = useState(false);
+  const [showCreateTrajectoryPanel, setshowCreateTrajectoryPanel] = useState(false);
+  const [showPlayPanel, setShowPlayPanel] = useState(false);
+  const [scenarios, setScenarios] = useState<string[]>([]);
+  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const { isConnected, send, on } = useWebSocket()
 
 
@@ -30,49 +34,107 @@ export default function App() {
   };
 
   // register to all the events (give a handler for each type of msg.)
-useEffect(() => {
-  const unsubMultiPlaneTrajectoryResult = on("MultiPlaneTrajectoryResult", (data) => {
-    MultiPlaneTrajectoryResultHandler(data, planeManagerRef.current!);
-  });
+  // =================================================================
+  // =================================================================
+  useEffect(() => {
+    // type : MultiPlaneTrajectoryResult
+    const unsubMultiPlaneTrajectoryResult = on("MultiPlaneTrajectoryResult", (data) => {
+      MultiPlaneTrajectoryResultHandler(data, planeManagerRef.current!);
+    });
+    // type : ScenariosReadyToPlay
+    const unsubScenariosReadyToPlay = on("ScenariosReadyToPlay", (data) => {
+      try{
+      const scenariosReadyToPlay = data as ScenariosReadyToPlay;
+      setScenarios(scenariosReadyToPlay.scenariosNames);
+      setSelectedScenario(null); // reset selection on new list
+      }
+      catch (err){
+        console.log("data could not be parsed to ScenariosReadyToPlay")
+      }
+    });
 
-  return () => {
-    unsubMultiPlaneTrajectoryResult();
+    //clean up
+    return () => {
+      unsubMultiPlaneTrajectoryResult();
+      unsubScenariosReadyToPlay();
+    };
+  }, []);
+  // =================================================================
+  // =================================================================
+
+  // Open Play Scenario panel
+  const handleOpenPlayPanel = () => {
+    const data: GetReadyScenariosRequestCmd = {};
+    send("GetReadyScenariosRequestCmd", data);
+    setShowPlayPanel(true);
   };
-}, []);
+
+  // Close Play Scenario panel
+  const handleClosePlayPanel = () => {
+    setShowPlayPanel(false);
+    setScenarios([]);
+    setSelectedScenario(null)
+  };
+  
+  const handlePlayScenario = () => {
+    console.log(`Playing scenario: ${selectedScenario}`);
+    const data: PlaySelectedScenario = {scenarioName: selectedScenario!}
+    console.log(data);
+    send("PlaySelectedScenario", data)
+    handleClosePlayPanel();
+  };
+
   const handleOpenPanel = () => {
-    setShowPanel(true);
+    setshowCreateTrajectoryPanel(true);
   };
 
   const handleSave = (data: PlanesTrajectoryPointsScenario) => {
     console.log('Saved trajectory scenario', data);
-    setShowPanel(false);
+    setshowCreateTrajectoryPanel(false);
     send("PlanesTrajectoryPointsScenario", data)
   };
 
   const handleCancel = (data: PlanesTrajectoryPointsScenario) => {
     console.log('canceled trajectory scenario', data);
-    setShowPanel(false);
+    setshowCreateTrajectoryPanel(false);
   };
 
   return (
     <>
-      
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
-      {!showPanel && <TopLeftButtons onCreateClick={handleOpenPanel} />}
-      {showPanel && (
-        <CreateTrajectoryPanel onSave={handleSave} onCancel={handleCancel} viewerRef={viewerRef}/>
+      {!showCreateTrajectoryPanel && !showPlayPanel && (
+        <TopLeftButtons
+          onCreateClick={handleOpenPanel}
+          onPlayClick={handleOpenPlayPanel}
+        />
+      )}
+      {showCreateTrajectoryPanel && (
+        <CreateTrajectoryPanel
+          onSave={handleSave}
+          onCancel={handleCancel}
+          viewerRef={viewerRef}
+        />
       )}
 
-      { /*for showing non blocking alerts*/ }
-      <ToastContainer 
-        position="top-right" 
-        autoClose={3000} 
-        newestOnTop 
-        closeOnClick 
-        pauseOnFocusLoss 
-        draggable 
+      {showPlayPanel && (
+        <PlayScenarioPanel
+          onPlay={handlePlayScenario}
+          onClose={handleClosePlayPanel}
+          scenarios={scenarios}
+          selectedScenario={selectedScenario}
+          onSelect={setSelectedScenario}
+        />
+      )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
         pauseOnHover
-        style={{ zIndex: 999999 }} // Add a very high z-index here
+        style={{ zIndex: 999999 }}
       />
     </>
   );

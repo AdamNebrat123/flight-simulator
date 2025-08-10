@@ -6,12 +6,26 @@ public class UIMsgHandler
     private const double timeStepSeconds = 0.1;
     private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
     private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler;
+    private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler;
 
     public UIMsgHandler()
     {
         trajectoryScenarioResultsManager = new TrajectoryScenarioResultsManager();
+        //for testing only!!!!!!
+        //===============================================================================================
+        //===============================================================================================
+        //===============================================================================================
+        trajectoryScenarioResultsManager.AddResults("Scenario1", new List<MultiPlaneTrajectoryResult>());
+        trajectoryScenarioResultsManager.AddResults("Scenario2", new List<MultiPlaneTrajectoryResult>());
+        trajectoryScenarioResultsManager.AddResults("Scenario3", new List<MultiPlaneTrajectoryResult>());
+        trajectoryScenarioResultsManager.AddResults("Scenario4", new List<MultiPlaneTrajectoryResult>());
+        //===============================================================================================
+        //===============================================================================================
+        //===============================================================================================
         scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
+        playSelecedScenarioHandler = new PlaySelectedScenarioHandler(trajectoryScenarioResultsManager);
     }
+
     public async Task HandleIncomingMessage(string json)
     {
         try
@@ -28,12 +42,24 @@ public class UIMsgHandler
                 {
                     case MsgTypesEnum.PlanesTrajectoryPointsScenario:
                         // Handle
-
                         scenarioHandler.HandlePlanesTrajectoryPointsScenario(wrapper.data);
-
                         break;
 
-                    // more cases......
+                    case MsgTypesEnum.GetReadyScenariosRequestCmd:
+                        // testing
+                        List<string> allScenariosNames = trajectoryScenarioResultsManager.GetAllScenariosNames();
+                        ScenariosReadyToPlay scenariosReadyToPlay = new ScenariosReadyToPlay
+                        {
+                            scenariosNames = allScenariosNames,
+                        };
+                        string response = Program.prepareMessageToServer(MsgTypesEnum.ScenariosReadyToPlay, scenariosReadyToPlay);
+                        Program.SendMsgToClient(response);
+                        break;
+
+                    case MsgTypesEnum.PlaySelectedScenario:
+                        //temporary for testing purpose!!!!!!!
+                        playSelecedScenarioHandler.HandlePlaySelectedScenario(wrapper.data);
+                        break;
 
                     default:
                         Console.WriteLine("Unhandled message type.");

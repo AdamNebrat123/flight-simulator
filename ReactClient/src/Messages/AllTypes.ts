@@ -63,7 +63,15 @@ export interface PlanesTrajectoryPointsScenario {
     //[property: string]: any;
 }
 
-export interface ScenarioReadyToPlay {
-  scenarioName: string;
+export interface ScenariosReadyToPlay {
+  scenariosNames: string[];
   //[property: string]: any;
+}
+
+export interface GetReadyScenariosRequestCmd {
+  // no properties needed
+}
+
+export interface PlaySelectedScenario {
+    scenarioName: string;
 }

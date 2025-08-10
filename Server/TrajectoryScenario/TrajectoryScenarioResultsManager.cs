@@ -12,16 +12,20 @@ public class TrajectoryScenarioResultsManager
         _scenarios[scenarioName].AddRange(results);
     }
     public List<MultiPlaneTrajectoryResult> GetResults(string scenarioName)
-{
-    if (_scenarios.TryGetValue(scenarioName, out var results))
     {
-        return new List<MultiPlaneTrajectoryResult>(results);
+        if (_scenarios.TryGetValue(scenarioName, out var results))
+        {
+            return new List<MultiPlaneTrajectoryResult>(results);
+        }
+        return new List<MultiPlaneTrajectoryResult>();
     }
-    return new List<MultiPlaneTrajectoryResult>();
-}
-    
+
     public bool HasScenario(string scenarioName)
     {
         return _scenarios.ContainsKey(scenarioName);
+    }
+    public List<string> GetAllScenariosNames()
+    {
+        return _scenarios.Keys.ToList();
     }
 }

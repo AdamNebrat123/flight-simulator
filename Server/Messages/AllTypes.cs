@@ -134,7 +134,16 @@ public partial class PlanesTrajectoryPointsScenario
     public string scenarioName { get; set; }
 
 }
-public partial class ScenarioReadyToPlay
+public partial class ScenariosReadyToPlay
+{
+    [JsonPropertyName("scenariosNames")]
+    public List<string> scenariosNames { get; set; }
+}
+public partial class GetReadyScenariosRequestCmd
+{
+    // no properties needed
+}
+public partial class PlaySelectedScenario
 {
     [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
