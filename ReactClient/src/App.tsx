@@ -3,7 +3,7 @@ import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
 import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
-import type { PlanesTrajectoryPointsEvent } from './Messages/AllTypes';
+import type { PlanesTrajectoryPointsScenario } from './Messages/AllTypes';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
 
@@ -43,13 +43,13 @@ useEffect(() => {
     setShowPanel(true);
   };
 
-  const handleSave = (data: PlanesTrajectoryPointsEvent) => {
+  const handleSave = (data: PlanesTrajectoryPointsScenario) => {
     console.log('Saved trajectory scenario', data);
     setShowPanel(false);
-    send("PlanesTrajectoryPointsEvent", data)
+    send("PlanesTrajectoryPointsScenario", data)
   };
 
-  const handleCancel = (data: PlanesTrajectoryPointsEvent) => {
+  const handleCancel = (data: PlanesTrajectoryPointsScenario) => {
     console.log('canceled trajectory scenario', data);
     setShowPanel(false);
   };

@@ -3,7 +3,7 @@ export interface AllTypes {
     messageWrapper:                  MessageWrapper;
     multiPlaneTrajectoryResult:      MultiPlaneTrajectoryResult;
     planeCalculatedTrajectoryPoints: PlaneCalculatedTrajectoryPoints;
-    planesTrajectoryPointsEvent:     PlanesTrajectoryPointsEvent;
+    planesTrajectoryPointsEvent:     PlanesTrajectoryPointsScenario;
     planeTrajectoryPoints:           PlaneTrajectoryPoints;
     trajectoryPoint:                 TrajectoryPoint;
     //[property: string]: any;
@@ -57,7 +57,8 @@ export interface PlaneTrajectoryPoints {
     //[property: string]: any;
 }
 
-export interface PlanesTrajectoryPointsEvent {
+export interface PlanesTrajectoryPointsScenario {
     planes: PlaneTrajectoryPoints[];
+    scenarioName: string;
     //[property: string]: any;
 }

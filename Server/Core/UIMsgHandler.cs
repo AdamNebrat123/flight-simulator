@@ -18,7 +18,7 @@ public class UIMsgHandler
             {
                 switch (messageType)
                 {
-                    case MsgTypesEnum.PlanesTrajectoryPointsEvent:
+                    case MsgTypesEnum.PlanesTrajectoryPointsScenario:
                         // Handle
                         List<List<PlaneCalculatedTrajectoryPoints>> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(wrapper.data);
                         foreach (var trajectoryPoint in allCalculatedTrajectoryPoints)
@@ -95,7 +95,7 @@ private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)
     public List<List<PlaneCalculatedTrajectoryPoints>> handleTrajectoryPointsEvent(JsonElement data)
     {
         TrajectoryManager trajectoryManager = new TrajectoryManager();
-        PlanesTrajectoryPointsEvent planesTrajectoryPointsEvent = data.Deserialize<PlanesTrajectoryPointsEvent>();
+        PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent = data.Deserialize<PlanesTrajectoryPointsScenario>();
         List<PlaneTrajectoryPoints> planesTrajectoryPoints = planesTrajectoryPointsEvent.planes;
 
         foreach (PlaneTrajectoryPoints plane in planesTrajectoryPoints)

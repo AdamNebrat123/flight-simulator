@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
-import type { GeoPoint, PlaneTrajectoryPoints, PlanesTrajectoryPointsEvent } from "../Messages/AllTypes";
+import type { GeoPoint, PlaneTrajectoryPoints, PlanesTrajectoryPointsScenario } from "../Messages/AllTypes";
 import "./CreateTrajectoryPanel.css";
 import { PointEntityManager } from "./PointEntityManager";
 import { toast } from "react-toastify";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
-  onSave: (data: PlanesTrajectoryPointsEvent) => void;
-  onCancel: (data: PlanesTrajectoryPointsEvent) => void;
+  onSave: (data: PlanesTrajectoryPointsScenario) => void;
+  onCancel: (data: PlanesTrajectoryPointsScenario) => void;
 }
 
 export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: Props) {
-    const [eventData, setEventData] = useState<PlanesTrajectoryPointsEvent>({ planes: [] });
+    const [eventData, setEventData] = useState<PlanesTrajectoryPointsScenario>({ planes: [],scenarioName: "ScenarioName"});
     const [isAddingPoints, setIsAddingPoints] = useState(false);
     const [selectedPlaneIndex, setSelectedPlaneIndex] = useState<number | null>(null);
     const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
@@ -26,6 +26,14 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         entityManagerRef.current?.removeAllEntities();
     };
     }, []);
+
+    // Handler for scenario name change
+    const handleScenarioNameChange = (newName: string) => {
+    setEventData((prev) => ({
+        ...prev,
+        scenarioName: newName,
+    }));
+    };
 
     // Adds a new plane with a default name
     const handleAddPlane = () => {
@@ -44,13 +52,13 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     const handlePlaneNameChange = (index: number, newName: string) => {
         const updatedPlanes = [...eventData.planes];
         updatedPlanes[index].planeName = newName;
-        setEventData({ planes: updatedPlanes });
+        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName});
     };
 
     const handleVelocityChange = (index: number, newVelocity: number) => {
         const updatedPlanes = [...eventData.planes];
         updatedPlanes[index].velocity = newVelocity;
-        setEventData({ planes: updatedPlanes });
+        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName });
     };
 
     const handleGeoPointChange = (
@@ -62,7 +70,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         const updatedPlanes = [...eventData.planes];
         updatedPlanes[planeIndex].geoPoints[pointIndex][field] = value;
         const updatedPoint = updatedPlanes[planeIndex].geoPoints[pointIndex];
-        setEventData({ planes: updatedPlanes });
+        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName });
         entityManagerRef.current?.updateEntityPosition(updatedPoint);
     };
 
@@ -134,7 +142,13 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     return (
     <div className="trajectory-panel">
         <div className="trajectory-content">
-        <label className="main-label">Create Scenario</label>
+        <input
+        id="scenario-name"
+        type="text"
+        className="scenarioName"
+        value={eventData.scenarioName}
+        onChange={(e) => handleScenarioNameChange(e.target.value)}
+        />
         <button className="addPlane-button" onClick={handleAddPlane}>
             Add Plane
         </button>

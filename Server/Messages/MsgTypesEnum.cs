@@ -1,6 +1,6 @@
 public enum MsgTypesEnum
 {
-    PlanesTrajectoryPointsEvent,
+    PlanesTrajectoryPointsScenario,
     MultiPlaneTrajectoryResult,
     //in the future there may be more types.. 
 }

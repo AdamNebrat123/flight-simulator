@@ -20,7 +20,7 @@ public partial class AllTypes
     public PlaneCalculatedTrajectoryPoints planeCalculatedTrajectoryPoints { get; set; }
 
     [JsonPropertyName("planesTrajectoryPointsEvent")]
-    public PlanesTrajectoryPointsEvent planesTrajectoryPointsEvent { get; set; }
+    public PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent { get; set; }
 
     [JsonPropertyName("planeTrajectoryPoints")]
     public PlaneTrajectoryPoints planeTrajectoryPoints { get; set; }
@@ -126,8 +126,10 @@ public partial class PlaneTrajectoryPoints
     public double velocity { get; set; }
 }
 
-public partial class PlanesTrajectoryPointsEvent
+public partial class PlanesTrajectoryPointsScenario
 {
     [JsonPropertyName("planes")]
     public List<PlaneTrajectoryPoints> planes { get; set; }
+    public string scenarioName { get; set; }
+
 }
