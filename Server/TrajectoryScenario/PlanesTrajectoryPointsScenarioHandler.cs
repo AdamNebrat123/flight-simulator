@@ -2,23 +2,19 @@ using System.Text.Json;
 
 public class PlanesTrajectoryPointsScenarioHandler
 {
+    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
     private const double timeStepSeconds = 0.1;
+    public PlanesTrajectoryPointsScenarioHandler(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
+    {
+        this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
+    }
     public void HandlePlanesTrajectoryPointsScenario(JsonElement data)
     {
-        List<MultiPlaneTrajectoryResult> allCalculatedTrajectoryPoints = handleTrajectoryPointsEvent(data);
-        foreach (var multiPlaneTrajectoryResult in allCalculatedTrajectoryPoints)
-        {
-            foreach (var plane in multiPlaneTrajectoryResult.planes)
-            {
-                foreach (var points in plane.trajectoryPoints)
-                {
-                    System.Console.WriteLine(points);
-                }
-            }
-        }
-        _ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
+        handleTrajectoryPointsEvent(data);
+        
+        //_ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
     }
-    private List<MultiPlaneTrajectoryResult> handleTrajectoryPointsEvent(JsonElement data)
+    private void handleTrajectoryPointsEvent(JsonElement data)
     {
         TrajectoryManager trajectoryManager = new TrajectoryManager();
         PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent = data.Deserialize<PlanesTrajectoryPointsScenario>();
@@ -33,8 +29,28 @@ public class PlanesTrajectoryPointsScenarioHandler
             List<TrajectoryPoint> trajectory = HandleSinglePlane(plane);
             trajectoryManager.AddTrajectory(trajectory, plane.planeName);
         }
+        // Store the scenarion
+        trajectoryScenarioResultsManager.AddResults(
+            planesTrajectoryPointsEvent.scenarioName,
+            trajectoryManager.CalculatedTrajectoryPoints);
 
-        return trajectoryManager.CalculatedTrajectoryPoints;
+
+        //testing:
+        List<MultiPlaneTrajectoryResult> allCalculatedTrajectoryPoints =
+            trajectoryScenarioResultsManager.GetResults(planesTrajectoryPointsEvent.scenarioName);
+        System.Console.WriteLine("======================================results======================================");
+        foreach (var multiPlaneTrajectoryResult in allCalculatedTrajectoryPoints)
+        {
+            foreach (var plane in multiPlaneTrajectoryResult.planes)
+            {
+                foreach (var points in plane.trajectoryPoints)
+                {
+                    System.Console.WriteLine(points);
+                }
+            }
+        }
+        // send for testing (data feched from storage class, working!)
+        SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
     }
 
     private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)

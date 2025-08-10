@@ -130,6 +130,12 @@ public partial class PlanesTrajectoryPointsScenario
 {
     [JsonPropertyName("planes")]
     public List<PlaneTrajectoryPoints> planes { get; set; }
+    [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
 
+}
+public partial class ScenarioReadyToPlay
+{
+    [JsonPropertyName("scenarioName")]
+    public string scenarioName { get; set; }
 }

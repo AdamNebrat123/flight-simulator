@@ -4,6 +4,14 @@ using System.Text.Json;
 public class UIMsgHandler
 {
     private const double timeStepSeconds = 0.1;
+    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
+    private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler;
+
+    public UIMsgHandler()
+    {
+        trajectoryScenarioResultsManager = new TrajectoryScenarioResultsManager();
+        scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
+    }
     public async Task HandleIncomingMessage(string json)
     {
         try
@@ -20,8 +28,9 @@ public class UIMsgHandler
                 {
                     case MsgTypesEnum.PlanesTrajectoryPointsScenario:
                         // Handle
-                        PlanesTrajectoryPointsScenarioHandler scenarioHandler = new();
+
                         scenarioHandler.HandlePlanesTrajectoryPointsScenario(wrapper.data);
+
                         break;
 
                     // more cases......
