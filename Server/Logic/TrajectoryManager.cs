@@ -1,9 +1,9 @@
 public class TrajectoryManager
 {
-    // Each inner list is a snapshot in time: one point from each plane
-    public List<List<PlaneCalculatedTrajectoryPoints>> CalculatedTrajectoryPoints { get; } = new();
+    // Each element in the list is a result at a certain time with all planes
+    public List<MultiPlaneTrajectoryResult> CalculatedTrajectoryPoints { get; } = new();
 
-    // Keeps track of all trajectories (each plane has a list of points)
+    // Saving routes for each plane separately
     private readonly List<List<TrajectoryPoint>> _allTrajectories = new();
     private readonly List<string> _planeNames = new();
 
@@ -14,9 +14,10 @@ public class TrajectoryManager
 
         for (int i = 0; i < newTrajectory.Count; i++)
         {
+            // If there is no snapshot for this point in time yet - create a new one
             if (CalculatedTrajectoryPoints.Count <= i)
             {
-                CalculatedTrajectoryPoints.Add(new List<PlaneCalculatedTrajectoryPoints>());
+                CalculatedTrajectoryPoints.Add(new MultiPlaneTrajectoryResult(new List<PlaneCalculatedTrajectoryPoints>()));
             }
 
             var point = newTrajectory[i];
@@ -26,8 +27,7 @@ public class TrajectoryManager
                 trajectoryPoints = new List<TrajectoryPoint> { point }
             };
 
-            CalculatedTrajectoryPoints[i].Add(wrapped);
+            CalculatedTrajectoryPoints[i].planes.Add(wrapped);
         }
-
     }
 }

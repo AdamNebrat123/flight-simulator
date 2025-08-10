@@ -47,6 +47,16 @@ public class Program
 
         app.Run();
     }
+    public static string prepareMessageToServer<T>(MsgTypesEnum msgType, T msg)
+    {
+        var message = new
+        {
+            type = msgType.ToString(),
+            data = msg
+        };
+
+        return JsonSerializer.Serialize(message);
+    }
 
     public static async Task SendMsgToClient(string jsonString)
     {
