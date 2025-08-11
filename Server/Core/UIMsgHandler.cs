@@ -7,12 +7,14 @@ public class UIMsgHandler
     private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
     private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler;
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler;
+    private readonly HandleScenarioPlayControl handleScenarioPlayControl;
 
     public UIMsgHandler()
     {
         trajectoryScenarioResultsManager = new TrajectoryScenarioResultsManager();
         scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
         playSelecedScenarioHandler = new PlaySelectedScenarioHandler(trajectoryScenarioResultsManager);
+        handleScenarioPlayControl = new HandleScenarioPlayControl(trajectoryScenarioResultsManager);
     }
 
     public async Task HandleIncomingMessage(string json)
@@ -50,6 +52,18 @@ public class UIMsgHandler
                         playSelecedScenarioHandler.HandlePlaySelectedScenario(wrapper.data);
                         break;
 
+                    case MsgTypesEnum.PauseScenarioCmd:
+                        handleScenarioPlayControl.HandlePauseScenarioCmd(wrapper.data);
+                        break;
+                    
+                    case MsgTypesEnum.ResumeScenarioCmd:
+                        handleScenarioPlayControl.HandleResumeScenarioCmd(wrapper.data);
+                        break;
+                    
+                    case MsgTypesEnum.ChangeScenarioPlaySpeedCmd:
+                        handleScenarioPlayControl.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
+                        break;
+                    
                     default:
                         Console.WriteLine("Unhandled message type.");
                         break;

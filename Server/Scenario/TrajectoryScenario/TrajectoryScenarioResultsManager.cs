@@ -1,7 +1,9 @@
+using System.Collections.Concurrent;
+
 public class TrajectoryScenarioResultsManager
 {
-    private readonly Dictionary<string, ScenarioResults> _scenarios
-        = new Dictionary<string, ScenarioResults>();
+    private readonly ConcurrentDictionary<string, ScenarioResults> _scenarios
+        = new ConcurrentDictionary<string, ScenarioResults>();
 
     public bool TryAddScenario(string scenarioName, ScenarioResults scenarioResult)
 {
