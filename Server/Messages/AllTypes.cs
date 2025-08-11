@@ -143,8 +143,26 @@ public partial class GetReadyScenariosRequestCmd
 {
     // no properties needed
 }
-public partial class PlaySelectedScenario
+public partial class PlaySelectedScenarioCmd
 {
     [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
+}
+
+public partial class PauseScenarioCmd
+{
+    [JsonPropertyName("scenarioName")]
+    public string scenarioName { get; set; }
+}
+public partial class ResumeScenarioCmd
+{
+    [JsonPropertyName("scenarioName")]
+    public string scenarioName { get; set; }
+}
+public partial class ChangeScenarioPlaySpeedCmd
+{
+    [JsonPropertyName("scenarioName")]
+    public string scenarioName { get; set; }
+    [JsonPropertyName("playSpeed")]
+    public double playSpeed { get; set; }
 }

@@ -29,12 +29,22 @@ public class PlanesTrajectoryPointsScenarioHandler
             List<TrajectoryPoint> trajectory = HandleSinglePlane(plane);
             trajectoryManager.AddTrajectory(trajectory, plane.planeName);
         }
+
+        ScenarioResults scenarioResult = new ScenarioResults
+        {
+            points = trajectoryManager.CalculatedTrajectoryPoints,
+            isPaused = false,
+            playSpeed = 1.0
+        };
+
         // Store the scenarion
-        trajectoryScenarioResultsManager.AddResults(
+        bool isAdded = trajectoryScenarioResultsManager.TryAddScenario(
             planesTrajectoryPointsEvent.scenarioName,
-            trajectoryManager.CalculatedTrajectoryPoints);
-            
-        System.Console.WriteLine("Successfully saved scenario: " + planesTrajectoryPointsEvent.scenarioName);
+            scenarioResult);
+        if (isAdded)
+            System.Console.WriteLine("Successfully saved scenario: " + planesTrajectoryPointsEvent.scenarioName);
+        else
+            System.Console.WriteLine(planesTrajectoryPointsEvent.scenarioName + " alreard exists.");
     }
 
     private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)

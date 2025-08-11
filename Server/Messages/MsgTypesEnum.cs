@@ -4,5 +4,8 @@ public enum MsgTypesEnum
     MultiPlaneTrajectoryResult,
     ScenariosReadyToPlay,
     GetReadyScenariosRequestCmd,
-    PlaySelectedScenario,
+    PlaySelectedScenarioCmd,
+    PauseScenarioCmd,
+    ResumeScenarioCmd,
+    ChangeScenarioPlaySpeedCmd,
 }

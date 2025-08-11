@@ -3,10 +3,11 @@ import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
 import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
-import type { PlanesTrajectoryPointsScenario,GetReadyScenariosRequestCmd, ScenariosReadyToPlay, PlaySelectedScenario } from './Messages/AllTypes';
+import type { PlanesTrajectoryPointsScenario,GetReadyScenariosRequestCmd, ScenariosReadyToPlay, PlaySelectedScenario, ResumeScenarioCmd, PauseScenarioCmd, ChangeScenarioPlaySpeedCmd } from './Messages/AllTypes';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
 import PlayScenarioPanel from './PlayScenario/PlayScenarioPanel';
+import ScenarioPlayControlPanel from './Scenario/ScenarioPlayControlPanel';
 
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
@@ -19,6 +20,9 @@ export default function App() {
   const [showPlayPanel, setShowPlayPanel] = useState(false);
   const [scenarios, setScenarios] = useState<string[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [playingScenarioName, setPlayingScenarioName] = useState<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [playSpeed, setPlaySpeed] = useState(1);
   const { isConnected, send, on } = useWebSocket()
 
 
@@ -74,19 +78,69 @@ export default function App() {
     setShowPlayPanel(false);
     setScenarios([]);
     setSelectedScenario(null)
+
   };
   
   const handlePlayScenario = () => {
     console.log(`Playing scenario: ${selectedScenario}`);
     const data: PlaySelectedScenario = {scenarioName: selectedScenario!}
     console.log(data);
-    send("PlaySelectedScenario", data)
+    send("PlaySelectedScenarioCmd", data)
+    //close selecting panel
     handleClosePlayPanel();
+    // Set playing scenario to show control panel
+    startPlayingScenario(selectedScenario!);
   };
 
   const handleOpenPanel = () => {
     setshowCreateTrajectoryPanel(true);
   };
+
+  // Scenario play Control panel
+  // ============================================================
+  const closePlayControlPanel = () => {
+  setPlayingScenarioName(null);
+  setIsPaused(false);
+  setPlaySpeed(1);
+  // currently do nothing.
+  };
+
+  const startPlayingScenario = (scenarioName: string) => {
+  setPlayingScenarioName(scenarioName);
+  setIsPaused(false);
+  setPlaySpeed(1);
+  };
+  const handlePause = () => {
+  setIsPaused(true);
+  //send data to server
+  const data: PauseScenarioCmd = {
+    scenarioName: playingScenarioName!
+  };
+  send("PauseScenarioCmd", data);
+  console.log("Paused")
+  };
+
+  const handleResume = () => {
+  setIsPaused(false);
+  //send data to server
+  const data: ResumeScenarioCmd = {
+    scenarioName: playingScenarioName!
+  };
+  send("ResumeScenarioCmd", data);
+  console.log("Resumed")
+  };
+
+const handlePlaySpeedChange = (playSpeed: number) => {
+  setPlaySpeed(playSpeed);
+  //send data to server
+  const data: ChangeScenarioPlaySpeedCmd = {
+    scenarioName: playingScenarioName!,
+    playSpeed: playSpeed
+  };
+  send("ChangeScenarioPlaySpeedCmd", data);
+  console.log("Changed play speed to: ", playSpeed)
+  };
+  // ============================================================
 
   const handleSave = (data: PlanesTrajectoryPointsScenario) => {
     console.log('Saved trajectory scenario', data);
@@ -125,6 +179,19 @@ export default function App() {
           onSelect={setSelectedScenario}
         />
       )}
+
+      {playingScenarioName && (
+        <ScenarioPlayControlPanel
+          scenarioName={playingScenarioName}
+          isPaused={isPaused}
+          playSpeed={playSpeed}
+          onPause={handlePause}
+          onResume={handleResume}
+          onChangeSpeed={handlePlaySpeedChange}
+          onClose={closePlayControlPanel}
+        />
+      )}
+
 
       <ToastContainer
         position="top-right"

@@ -75,3 +75,16 @@ export interface GetReadyScenariosRequestCmd {
 export interface PlaySelectedScenario {
     scenarioName: string;
 }
+
+export interface PauseScenarioCmd {
+  scenarioName: string;
+}
+
+export interface ResumeScenarioCmd {
+  scenarioName: string;
+}
+
+export interface ChangeScenarioPlaySpeedCmd {
+  scenarioName: string;
+  playSpeed: number;
+}

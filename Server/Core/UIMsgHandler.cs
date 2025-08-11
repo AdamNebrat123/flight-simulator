@@ -11,17 +11,6 @@ public class UIMsgHandler
     public UIMsgHandler()
     {
         trajectoryScenarioResultsManager = new TrajectoryScenarioResultsManager();
-        //for testing only!!!!!!
-        //===============================================================================================
-        //===============================================================================================
-        //===============================================================================================
-        trajectoryScenarioResultsManager.AddResults("Scenario1", new List<MultiPlaneTrajectoryResult>());
-        trajectoryScenarioResultsManager.AddResults("Scenario2", new List<MultiPlaneTrajectoryResult>());
-        trajectoryScenarioResultsManager.AddResults("Scenario3", new List<MultiPlaneTrajectoryResult>());
-        trajectoryScenarioResultsManager.AddResults("Scenario4", new List<MultiPlaneTrajectoryResult>());
-        //===============================================================================================
-        //===============================================================================================
-        //===============================================================================================
         scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
         playSelecedScenarioHandler = new PlaySelectedScenarioHandler(trajectoryScenarioResultsManager);
     }
@@ -56,7 +45,7 @@ public class UIMsgHandler
                         Program.SendMsgToClient(response);
                         break;
 
-                    case MsgTypesEnum.PlaySelectedScenario:
+                    case MsgTypesEnum.PlaySelectedScenarioCmd:
                         //temporary for testing purpose!!!!!!!
                         playSelecedScenarioHandler.HandlePlaySelectedScenario(wrapper.data);
                         break;
@@ -79,19 +68,6 @@ public class UIMsgHandler
         catch (Exception ex)
         {
             Console.WriteLine("Error handling message: " + ex.Message);
-        }
-    }
-
-    public async Task SendCalculatedTrajectoryPointsAsync(List<MultiPlaneTrajectoryResult> results, double timeStepSeconds)
-    {
-        System.Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
-        foreach (var result in results)
-        {
-            var responseJson = Program.prepareMessageToServer(MsgTypesEnum.MultiPlaneTrajectoryResult, result);
-
-            Program.SendMsgToClient(responseJson);
-
-            await Task.Delay((int)(timeStepSeconds * 1000)); // wait timeStepSeconds * 1000 between each step
         }
     }
 }
