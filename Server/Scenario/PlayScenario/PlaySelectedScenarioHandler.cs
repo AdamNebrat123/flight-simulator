@@ -9,7 +9,7 @@ public class PlaySelectedScenarioHandler
     {
         this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
     }
-    public void HandlePlaySelectedScenario(JsonElement data)
+    public void HandlePlaySelectedScenarioCmd(JsonElement data)
     {
         PlaySelectedScenarioCmd playSelecedScenario = data.Deserialize<PlaySelectedScenarioCmd>();
         string scenarioName = playSelecedScenario.scenarioName;

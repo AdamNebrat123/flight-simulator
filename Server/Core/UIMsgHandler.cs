@@ -3,18 +3,17 @@ using System.Text.Json;
 
 public class UIMsgHandler
 {
-    private const double timeStepSeconds = 0.1;
     private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
     private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler;
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler;
-    private readonly HandleScenarioPlayControl handleScenarioPlayControl;
+    private readonly ScenarioPlayControlHandler scenarioPlayControlHandler;
 
     public UIMsgHandler()
     {
         trajectoryScenarioResultsManager = new TrajectoryScenarioResultsManager();
         scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
         playSelecedScenarioHandler = new PlaySelectedScenarioHandler(trajectoryScenarioResultsManager);
-        handleScenarioPlayControl = new HandleScenarioPlayControl(trajectoryScenarioResultsManager);
+        scenarioPlayControlHandler = new ScenarioPlayControlHandler(trajectoryScenarioResultsManager);
     }
 
     public async Task HandleIncomingMessage(string json)
@@ -48,20 +47,19 @@ public class UIMsgHandler
                         break;
 
                     case MsgTypesEnum.PlaySelectedScenarioCmd:
-                        //temporary for testing purpose!!!!!!!
-                        playSelecedScenarioHandler.HandlePlaySelectedScenario(wrapper.data);
+                        playSelecedScenarioHandler.HandlePlaySelectedScenarioCmd(wrapper.data);
                         break;
 
                     case MsgTypesEnum.PauseScenarioCmd:
-                        handleScenarioPlayControl.HandlePauseScenarioCmd(wrapper.data);
+                        scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data);
                         break;
                     
                     case MsgTypesEnum.ResumeScenarioCmd:
-                        handleScenarioPlayControl.HandleResumeScenarioCmd(wrapper.data);
+                        scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data);
                         break;
                     
                     case MsgTypesEnum.ChangeScenarioPlaySpeedCmd:
-                        handleScenarioPlayControl.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
+                        scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
                         break;
                     
                     default:

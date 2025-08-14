@@ -21,7 +21,7 @@ export class PlaneEntityManager {
   ) {
     if (!this.viewer) return;
 
-    const heading = Cesium.Math.toRadians(headingDegrees);
+    const heading = Cesium.Math.toRadians(headingDegrees - 90);
     const pitch = Cesium.Math.toRadians(pitchDegrees);
     const roll = 0.0;
 

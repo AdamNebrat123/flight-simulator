@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-public class HandleScenarioPlayControl
+public class ScenarioPlayControlHandler
 {
     private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
-    public HandleScenarioPlayControl(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
+    public ScenarioPlayControlHandler(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
     {
         this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
     }

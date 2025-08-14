@@ -103,17 +103,30 @@ public class TrajectoryCalculator
     /// </summary>
     private (double heading, double pitch) CalculateHeadingAndPitch(double x1, double y1, double z1, double x2, double y2, double z2)
     {
+        // Convert start point to geodetic
+        var startGeo = CartesianToGeo(x1, y1, z1);
+        
+        // Compute local ENU vector from start to end
+        double latRad = DegreesToRadians(startGeo.latitude);
+        double lonRad = DegreesToRadians(startGeo.longitude);
+
+        // ECEF differences
         double dx = x2 - x1;
         double dy = y2 - y1;
         double dz = z2 - z1;
 
-        // Calculate heading (bearing) in XY plane, from North (Y-axis)
-        double headingRad = Math.Atan2(dx, dy);
+        // ENU transformation
+        double east  = -Math.Sin(lonRad) * dx + Math.Cos(lonRad) * dy;
+        double north = -Math.Sin(latRad) * Math.Cos(lonRad) * dx - Math.Sin(latRad) * Math.Sin(lonRad) * dy + Math.Cos(latRad) * dz;
+        double up    =  Math.Cos(latRad) * Math.Cos(lonRad) * dx + Math.Cos(latRad) * Math.Sin(lonRad) * dy + Math.Sin(latRad) * dz;
+
+        // Compute heading (clockwise from North)
+        double headingRad = Math.Atan2(east, north);
         double headingDeg = (RadiansToDegrees(headingRad) + 360) % 360;
 
-        // Calculate pitch angle relative to horizontal plane
-        double horizontalDistance = Math.Sqrt(dx * dx + dy * dy);
-        double pitchRad = Math.Atan2(dz, horizontalDistance);
+        // Compute pitch (angle above horizontal)
+        double horizontalDist = Math.Sqrt(east * east + north * north);
+        double pitchRad = Math.Atan2(up, horizontalDist);
         double pitchDeg = RadiansToDegrees(pitchRad);
 
         return (headingDeg, pitchDeg);
