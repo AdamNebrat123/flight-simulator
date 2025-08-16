@@ -160,6 +160,48 @@ const handlePlaySpeedChange = (playSpeed: number) => {
     setshowCreateTrajectoryPanel(false);
   };
 
+
+
+
+  // testing
+  // ============================================================
+  // ============================================================
+  // ============================================================
+  const polygonPoints = [
+  { lon: 34.789038498818336, lat: 32.03231874951673 },
+  { lon: 34.78838792050164, lat: 32.032695977005346 },
+  { lon: 34.78766925257639, lat: 32.03243164454725 },
+  { lon: 34.787329530312164, lat: 32.03180822168283 },
+  { lon: 34.78748846676368, lat: 32.03136453852265 },
+  { lon: 34.78814514577472, lat: 32.031127268161605 },
+  { lon: 34.78889466380484, lat: 32.03136271546502 },
+  { lon: 34.7892587196574, lat: 32.031923949650924 }
+];
+
+const createForbiddenZone = () => {
+  const bottomHeight = 0; // meters
+  const topHeight = 150;   // meters
+
+  if (!viewerRef) return;
+
+  const polygonPositions = polygonPoints.map(p =>
+    Cesium.Cartesian3.fromDegrees(p.lon, p.lat, bottomHeight)
+  );
+
+  viewerRef.current!.entities.add({
+    polygon: {
+      hierarchy: polygonPositions,
+      perPositionHeight: true,
+      extrudedHeight: topHeight,
+      material: Cesium.Color.RED.withAlpha(0.3), // classic forbidden zone
+      outline: true,
+      outlineColor: Cesium.Color.RED
+    }
+  });
+};
+// ============================================================
+// ============================================================
+// ============================================================
   return (
     <>
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
@@ -198,6 +240,21 @@ const handlePlaySpeedChange = (playSpeed: number) => {
           onClose={closePlayControlPanel}
         />
       )}
+
+
+
+      <div
+  style={{
+    position: 'absolute',
+    top: '120px',
+    left: '20px',
+    zIndex: 9999, // make sure it’s above Cesium canvas
+  }}
+>
+  <button onClick={createForbiddenZone}>Polygon</button>
+</div>
+
+
 
 
       <ToastContainer
