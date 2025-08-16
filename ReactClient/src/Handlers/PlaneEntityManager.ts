@@ -79,4 +79,17 @@ export class PlaneEntityManager {
   hasEntity(planeName: string): boolean {
     return this.planeNameToEntity.has(planeName);
   }
+  
+  clearAllEntities() {
+  if (!this.viewer) return;
+
+  // Remove all entities from the viewer
+  for (const entity of this.planeNameToEntity.values()) {
+    this.viewer.entities.remove(entity);
+  }
+
+  // Clear the map
+  this.planeNameToEntity.clear();
+  console.log("All planes removed!");
+}
 }

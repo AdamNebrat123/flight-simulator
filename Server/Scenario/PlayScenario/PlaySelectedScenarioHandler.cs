@@ -46,8 +46,8 @@ public class PlaySelectedScenarioHandler
 
                     history[plane.planeName].Enqueue(currentPoint);
 
-                    // If i have passed 5 points  i will discard the oldest one
-                    if (history[plane.planeName].Count > 5)
+                    // If i have passed 30 points  i will discard the oldest one
+                    if (history[plane.planeName].Count > 30)
                         history[plane.planeName].Dequeue();
                 }
 

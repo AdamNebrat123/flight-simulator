@@ -69,16 +69,4 @@ public class PlanesTrajectoryPointsScenarioHandler
 
         return fullTrajectory;
     }
-    public async Task SendCalculatedTrajectoryPointsAsync(List<MultiPlaneTrajectoryResult> results)
-    {
-        System.Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
-        foreach (var result in results)
-        {
-            var responseJson = Program.prepareMessageToServer(MsgTypesEnum.MultiPlaneTrajectoryResult, result);
-
-            Program.SendMsgToClient(responseJson);
-
-            await Task.Delay((int)(timeStepSeconds * 1000)); // wait timeStepSeconds * 1000 between each step
-        }
-    }
 }

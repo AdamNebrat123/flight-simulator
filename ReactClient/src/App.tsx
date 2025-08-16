@@ -11,6 +11,7 @@ import ScenarioPlayControlPanel from './Scenario/ScenarioPlayControlPanel';
 
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
+import { PlaneTailManager } from './Handlers/PlaneTailManager';
 import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajectoryResultHandler';
 
 
@@ -28,11 +29,13 @@ export default function App() {
 
   //needed for MultiPlaneTrajectoryResult
   const planeManagerRef = useRef<PlaneEntityManager | null>(null);
+  const planeTailManagerRef = useRef<PlaneTailManager | null>(null) 
 
   // when a viewer it initialized, this function is run, everything that need the viewer should be put here
   const handleViewerReady = () => {
     if (viewerRef.current && !planeManagerRef.current) {
       planeManagerRef.current = new PlaneEntityManager(viewerRef.current);
+      planeTailManagerRef.current = new PlaneTailManager(viewerRef.current)
       console.log("PlaneEntityManager created");
     }
   };
@@ -43,7 +46,7 @@ export default function App() {
   useEffect(() => {
     // type : MultiPlaneTrajectoryResult
     const unsubMultiPlaneTrajectoryResult = on("MultiPlaneTrajectoryResult", (data) => {
-      MultiPlaneTrajectoryResultHandler(data, planeManagerRef.current!);
+      MultiPlaneTrajectoryResultHandler(data, planeManagerRef.current!, planeTailManagerRef.current!);
     });
     // type : ScenariosReadyToPlay
     const unsubScenariosReadyToPlay = on("ScenariosReadyToPlay", (data) => {
@@ -86,6 +89,10 @@ export default function App() {
     const data: PlaySelectedScenario = {scenarioName: selectedScenario!}
     console.log(data);
     send("PlaySelectedScenarioCmd", data)
+    // clear of previous scenarios planes!!
+    planeManagerRef.current?.clearAllEntities();
+    // clear all tail of previous scenarios planes!!
+    planeTailManagerRef.current?.clearAllTails();
     //close selecting panel
     handleClosePlayPanel();
     // Set playing scenario to show control panel
