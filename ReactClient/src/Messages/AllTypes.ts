@@ -39,7 +39,8 @@ export interface MultiPlaneTrajectoryResult {
 
 export interface PlaneCalculatedTrajectoryPoints {
     planeName:        string;
-    trajectoryPoints: TrajectoryPoint[];
+    trajectoryPoints: TrajectoryPoint[]; // it's usually one point
+    tailPoints: TrajectoryPoint[];
     //[property: string]: any;
 }
 

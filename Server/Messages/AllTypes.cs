@@ -88,7 +88,9 @@ public partial class PlaneCalculatedTrajectoryPoints
     public string planeName { get; set; }
 
     [JsonPropertyName("trajectoryPoints")]
-    public List<TrajectoryPoint> trajectoryPoints { get; set; }
+    public List<TrajectoryPoint> trajectoryPoints { get; set; } // it is actually one point everytime. not list. its a list because it needed to be used sometime a list in server side.
+    [JsonPropertyName("tailPoints")]
+    public List<TrajectoryPoint> tailPoints { get; set; }
 }
 
 public partial class TrajectoryPoint
