@@ -3,12 +3,12 @@ import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
 import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
-import type { PlanesTrajectoryPointsScenario,GetReadyScenariosRequestCmd, ScenariosReadyToPlay, PlaySelectedScenario, ResumeScenarioCmd, PauseScenarioCmd, ChangeScenarioPlaySpeedCmd } from './Messages/AllTypes';
+import type { PlanesTrajectoryPointsScenario,GetReadyScenariosRequestCmd, ScenariosReadyToPlay, PlaySelectedScenario, ResumeScenarioCmd, PauseScenarioCmd, ChangeScenarioPlaySpeedCmd, DangerZone } from './Messages/AllTypes';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
 import PlayScenarioPanel from './PlayScenario/PlayScenarioPanel';
 import ScenarioPlayControlPanel from './Scenario/ScenarioPlayControlPanel';
-
+import DangerZonePanel from './DangerZones/DangerZonePanel';
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
 import { PlaneTailManager } from './Handlers/PlaneTailManager';
@@ -24,6 +24,7 @@ export default function App() {
   const [playingScenarioName, setPlayingScenarioName] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
+  const [showDangerZonePanel, setShowDangerZonePanel] = useState(false);
   const { isConnected, send, on } = useWebSocket()
 
 
@@ -99,7 +100,7 @@ export default function App() {
     startPlayingScenario(selectedScenario!);
   };
 
-  const handleOpenPanel = () => {
+  const handleOpenCreateTrajectoryPanel = () => {
     setshowCreateTrajectoryPanel(true);
   };
 
@@ -160,8 +161,24 @@ const handlePlaySpeedChange = (playSpeed: number) => {
     setshowCreateTrajectoryPanel(false);
   };
 
+  // Danger zone panel component
+  // ============================================================
+  const handleOpenDangerZonePanel = () => {
+    setShowDangerZonePanel(true);
+  };
 
+  const handleCloseDangerZonePanel = () => {
+    setShowDangerZonePanel(false);
+  };
 
+  const handleSaveDangerZonePanel= (data: DangerZone) => {
+    console.log('Saved danger zone:', data);
+    //send to server!!!!!!!!!!!!!!!!
+
+    setShowDangerZonePanel(false);
+  };
+
+  // ============================================================
 
   // testing
   // ============================================================
@@ -205,10 +222,11 @@ const createForbiddenZone = () => {
   return (
     <>
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
-      {!showCreateTrajectoryPanel && !showPlayPanel && (
+      {!showDangerZonePanel && !showCreateTrajectoryPanel && !showPlayPanel && (
         <TopLeftButtons
-          onCreateClick={handleOpenPanel}
+          onCreateClick={handleOpenCreateTrajectoryPanel}
           onPlayClick={handleOpenPlayPanel}
+          onCreateDangerZoneClick={handleOpenDangerZonePanel}
         />
       )}
       {showCreateTrajectoryPanel && (
@@ -240,7 +258,13 @@ const createForbiddenZone = () => {
           onClose={closePlayControlPanel}
         />
       )}
-
+      {showDangerZonePanel && (
+        <DangerZonePanel
+          onClose={handleCloseDangerZonePanel}
+          onSave={handleSaveDangerZonePanel}
+          viewerRef={viewerRef}
+        />
+      )}
 
 
       <div

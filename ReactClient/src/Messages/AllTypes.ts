@@ -89,3 +89,10 @@ export interface ChangeScenarioPlaySpeedCmd {
   scenarioName: string;
   playSpeed: number;
 }
+
+export interface DangerZone {
+  zoneName: string;
+  points: GeoPoint[];
+  topHeight: number;
+  bottomHeight: number; 
+}

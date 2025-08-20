@@ -168,3 +168,10 @@ public partial class ChangeScenarioPlaySpeedCmd
     [JsonPropertyName("playSpeed")]
     public double playSpeed { get; set; }
 }
+public class DangerZone
+{
+    public string name { get; set; }
+    public List<GeoPoint> points { get; set; }
+    public double topHeight { get; set; }
+    public double bottomHeight { get; set; }
+}
