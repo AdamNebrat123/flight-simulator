@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 import type { GeoPoint } from "../Messages/AllTypes";
 import type { DangerZone } from "../Messages/AllTypes";
 import "./DangerZonePanel.css";
-import { PolylineManagerDangerZone } from "./PolylineManagerDangerZone";
+import { DangerZoneEntity } from "./DangerZoneEntity";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -20,14 +20,21 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
   });
   const [isAddingPoints, setIsAddingPoints] = useState(false);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
-  const PolylineEntityManagerRef = useRef<PolylineManagerDangerZone | null>(null);
-  
+  const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
+  console.log("1");
   useEffect(() => {
     if (viewerRef.current) {
-        PolylineEntityManagerRef.current = new PolylineManagerDangerZone(viewerRef.current);
+      dangerZoneEntityRef.current = new DangerZoneEntity(
+        viewerRef.current,
+        dangerZone.points,
+        dangerZone.bottomHeight,
+        dangerZone.topHeight,
+        dangerZone.zoneName
+      );
+      console.log("2");
     }
     return () => {
-        PolylineEntityManagerRef.current?.RemoveEntity();
+        dangerZoneEntityRef.current?.SetEntityNull();
     };
   }, []);
 
@@ -73,24 +80,14 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
 
         const updatedPoints = [...prev.points, newPoint];
 
-        // for testing only
-        viewer.entities.add({
-                position: Cesium.Cartesian3.fromDegrees(newPoint.longitude, newPoint.latitude, newPoint.altitude),
-                point: {
-                    pixelSize: 5,
-                    color: Cesium.Color.RED,
-                    outlineColor: Cesium.Color.WHITESMOKE.withAlpha(0.8),
-                    outlineWidth: 2,
-                }
-            });
-            
-
+        dangerZoneEntityRef.current?.UpdateZonePositions(updatedPoints); // update the 3D polygon positions
         return { ...prev, points: updatedPoints };
       });
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
   handlerRef.current = handler;
+  console.log("3");
 };
 
 // Clean up listener when component unmounts or toggles
@@ -107,9 +104,21 @@ useEffect(() => {
 
   const handleInputChange = (field: keyof DangerZone, value: any) => {
     setDangerZone(prev => ({ ...prev, [field]: value }));
+      switch (field) {
+        case "bottomHeight":
+          dangerZoneEntityRef.current?.UpdateZoneBottomHeight(value); // update the 3D polygon bottomHeight
+          break;
+        case "topHeight":
+          dangerZoneEntityRef.current?.UpdateZoneTopHeight(value); // update the 3D polygon topHeight
+          break;
+        case "zoneName":
+          dangerZoneEntityRef.current?.UpdateZoneName(value); // update the 3D polygon name
+          break;
+      }
   };
 
   return (
+    
     <div className="dangerzone-panel">
       <div className="dangerzone-content">
         <input
