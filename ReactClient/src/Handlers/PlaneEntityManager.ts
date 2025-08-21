@@ -3,6 +3,7 @@ import * as Cesium from 'cesium';
 export class PlaneEntityManager {
   private viewer: Cesium.Viewer;
   private planeNameToEntity: Map<string, Cesium.Entity>;
+  private blinkingPlanes = new Set<string>();
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -60,7 +61,7 @@ export class PlaneEntityManager {
       this.planeNameToEntity.set(planeName, entity);
       console.log("added plane!!!!")
     }
-  }
+  } 
 
   getEntity(planeName: string): Cesium.Entity | null {
     return this.planeNameToEntity.get(planeName) ?? null;
@@ -81,15 +82,46 @@ export class PlaneEntityManager {
   }
   
   clearAllEntities() {
-  if (!this.viewer) return;
+    if (!this.viewer) return;
 
-  // Remove all entities from the viewer
-  for (const entity of this.planeNameToEntity.values()) {
-    this.viewer.entities.remove(entity);
+    // Remove all entities from the viewer
+    for (const entity of this.planeNameToEntity.values()) {
+      this.viewer.entities.remove(entity);
+    }
+
+    // Clear the map
+    this.planeNameToEntity.clear();
+    console.log("All planes removed!");
   }
 
-  // Clear the map
-  this.planeNameToEntity.clear();
-  console.log("All planes removed!");
-}
+  startBlinking(planeName: string) {
+      const entity = this.planeNameToEntity.get(planeName);
+      if (!entity || !entity.model) return;
+
+      if (this.blinkingPlanes.has(planeName)) return; // Already blinking
+
+      this.blinkingPlanes.add(planeName);
+
+      entity.model.color = new Cesium.CallbackProperty((time, result) => {
+          const seconds = Date.now() / 500; // blink every 0.5 seconds
+          return Math.floor(seconds) % 2 === 0 ? Cesium.Color.RED : Cesium.Color.WHITE;
+      }, false);
+
+      entity.model.silhouetteColor = new Cesium.CallbackProperty((time, result) => {
+          const seconds = Date.now() / 500;
+          return Math.floor(seconds) % 2 === 0 ? Cesium.Color.RED : Cesium.Color.YELLOW;
+      }, false);
+  }
+
+  stopBlinking(planeName: string) {
+      const entity = this.planeNameToEntity.get(planeName);
+      if (!entity || !entity.model) return;
+
+      if (!this.blinkingPlanes.has(planeName)) return;
+
+      this.blinkingPlanes.delete(planeName);
+
+      entity.model.color = new Cesium.ConstantProperty(Cesium.Color.WHITE);
+      entity.model.silhouetteColor = new Cesium.ConstantProperty(Cesium.Color.YELLOW);
+  }
 }

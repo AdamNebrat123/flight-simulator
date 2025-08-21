@@ -35,7 +35,12 @@ async function HandleMultiPlaneTrajectoryResult(
                 point.heading,
                 point.pitch
             );
-
+            // check if plane in danger zone
+            if (plane.isInDangerZone) {
+                planeManager.startBlinking(plane.planeName);
+            } else {
+                planeManager.stopBlinking(plane.planeName);
+            }
             // Update the tail
             tailManager.updateTail(plane.planeName, plane.tailPoints);
         }
