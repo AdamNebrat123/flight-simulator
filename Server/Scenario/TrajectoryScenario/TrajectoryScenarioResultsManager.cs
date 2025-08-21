@@ -2,19 +2,29 @@ using System.Collections.Concurrent;
 
 public class TrajectoryScenarioResultsManager
 {
+    private static TrajectoryScenarioResultsManager instance;
     private readonly ConcurrentDictionary<string, ScenarioResults> _scenarios
         = new ConcurrentDictionary<string, ScenarioResults>();
 
-    public bool TryAddScenario(string scenarioName, ScenarioResults scenarioResult)
-{
-    if (_scenarios.ContainsKey(scenarioName))
+    private TrajectoryScenarioResultsManager()
     {
-        return false; // already exists
     }
+    public static TrajectoryScenarioResultsManager GetInstance()
+    {
+        if (instance == null)
+            instance = new TrajectoryScenarioResultsManager();
+        return instance;
+    }
+    public bool TryAddScenario(string scenarioName, ScenarioResults scenarioResult)
+    {
+        if (_scenarios.ContainsKey(scenarioName))
+        {
+            return false; // already exists
+        }
 
-    _scenarios[scenarioName] = scenarioResult;
-    return true; // added successfully
-}
+        _scenarios[scenarioName] = scenarioResult;
+        return true; // added successfully
+    }
 
     public ScenarioResults? GetResults(string scenarioName)
     {

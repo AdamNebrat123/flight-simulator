@@ -5,6 +5,8 @@ public class PlaySelectedScenarioHandler
 {
     private const double timeStepSeconds = 0.1;
     private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
+    private readonly DangerZoneChecker dangerZoneChecker = new();
+
     public PlaySelectedScenarioHandler(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
     {
         this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
@@ -43,8 +45,11 @@ public class PlaySelectedScenarioHandler
                 if (plane.trajectoryPoints != null && plane.trajectoryPoints.Any())
                 {
                     TrajectoryPoint currentPoint = plane.trajectoryPoints.First();
-
                     history[plane.planeName].Enqueue(currentPoint);
+
+                    // Check if point is in danger zone
+                    bool isInDangerZone = dangerZoneChecker.IsPointInAnyZone(currentPoint.position);
+                    plane.isInDangerZone = isInDangerZone; 
 
                     // If i have passed 30 points  i will discard the oldest one
                     if (history[plane.planeName].Count > 30)
@@ -55,12 +60,12 @@ public class PlaySelectedScenarioHandler
                 plane.tailPoints = history[plane.planeName].ToList();
             }
 
-            // send
+
             string responseJson = Program.prepareMessageToServer(
                 MsgTypesEnum.MultiPlaneTrajectoryResult,
                 result
             );
-
+            // send
             Program.SendMsgToClient(responseJson);
 
             int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);

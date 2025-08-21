@@ -3,17 +3,28 @@ using System.Text.Json;
 
 public class UIMsgHandler
 {
+    // managers
     private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
+    private readonly DangerZoneManager dangerZoneManager;
+
+    // Handlers
     private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler;
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler;
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler;
-
+    private readonly DangerZoneHandler dangerZoneHandler;
     public UIMsgHandler()
     {
-        trajectoryScenarioResultsManager = new TrajectoryScenarioResultsManager();
+        // Trajectory related things.
+        trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance(); // manager
+        // Handlers:
         scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
         playSelecedScenarioHandler = new PlaySelectedScenarioHandler(trajectoryScenarioResultsManager);
         scenarioPlayControlHandler = new ScenarioPlayControlHandler(trajectoryScenarioResultsManager);
+
+        // Danger zones related things.
+        dangerZoneManager = DangerZoneManager.GetInstance(); // manager
+        // Handlers:
+        dangerZoneHandler = new DangerZoneHandler(dangerZoneManager);
     }
 
     public async Task HandleIncomingMessage(string json)
@@ -61,7 +72,11 @@ public class UIMsgHandler
                     case MsgTypesEnum.ChangeScenarioPlaySpeedCmd:
                         scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
                         break;
-                    
+
+                    case MsgTypesEnum.DangerZone:
+                        dangerZoneHandler.handleDangerZone(wrapper.data);
+                        break;
+
                     default:
                         Console.WriteLine("Unhandled message type.");
                         break;

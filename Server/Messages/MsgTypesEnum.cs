@@ -8,4 +8,5 @@ public enum MsgTypesEnum
     PauseScenarioCmd,
     ResumeScenarioCmd,
     ChangeScenarioPlaySpeedCmd,
+    DangerZone
 }

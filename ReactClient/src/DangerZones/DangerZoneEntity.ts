@@ -2,6 +2,7 @@ import * as Cesium from "cesium";
 import type { GeoPoint } from "../Messages/AllTypes";
 
 export class DangerZoneEntity {
+  private viewer: Cesium.Viewer | null;
   private entity: Cesium.Entity | null;
   private points: GeoPoint[];
   private bottomHeight: number;
@@ -15,7 +16,8 @@ export class DangerZoneEntity {
     topHeight: number,
     name: string
   ) {
-    this.points = positions
+    this.viewer = viewer;
+    this.points = positions;
     this.bottomHeight = bottomHeight;
     this.topHeight = topHeight;
     this.name = name;
@@ -89,5 +91,8 @@ export class DangerZoneEntity {
   }
   SetEntityNull(){
     this.entity = null;
+  }
+  RemoveEntity(){
+    this.viewer?.entities.remove(this.entity!)
   }
 }

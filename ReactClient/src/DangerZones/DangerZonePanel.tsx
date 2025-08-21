@@ -21,7 +21,6 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
   const [isAddingPoints, setIsAddingPoints] = useState(false);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
-  console.log("1");
   useEffect(() => {
     if (viewerRef.current) {
       dangerZoneEntityRef.current = new DangerZoneEntity(
@@ -31,7 +30,6 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
         dangerZone.topHeight,
         dangerZone.zoneName
       );
-      console.log("2");
     }
     return () => {
         dangerZoneEntityRef.current?.SetEntityNull();
@@ -87,7 +85,6 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
   handlerRef.current = handler;
-  console.log("3");
 };
 
 // Clean up listener when component unmounts or toggles
@@ -118,7 +115,6 @@ useEffect(() => {
   };
 
   return (
-    
     <div className="dangerzone-panel">
       <div className="dangerzone-content">
         <input
@@ -177,8 +173,24 @@ useEffect(() => {
         </div>
 
         <div className="dangerzone-actions">
-          <button className="save-button" onClick={() => onSave(dangerZone)}>Save</button>
-          <button className="cancel-button" onClick={onClose}>Cancel</button>
+          <button className="save-button" onClick={() => 
+          {
+            // need to save it in a manager. SOON
+            dangerZoneEntityRef.current?.SetEntityNull();
+            onSave(dangerZone)
+          }
+        }>
+          Save
+          </button>
+          <button className="cancel-button" onClick={() =>
+              {
+                dangerZoneEntityRef.current?.RemoveEntity();
+                dangerZoneEntityRef.current?.SetEntityNull();
+                onClose()
+              }
+              }>
+                Cancel
+                </button>
         </div>
       </div>
     </div>

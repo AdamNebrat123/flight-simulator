@@ -91,6 +91,8 @@ public partial class PlaneCalculatedTrajectoryPoints
     public List<TrajectoryPoint> trajectoryPoints { get; set; } // it is actually one point everytime. not list. its a list because it needed to be used sometime a list in server side.
     [JsonPropertyName("tailPoints")]
     public List<TrajectoryPoint> tailPoints { get; set; }
+    [JsonPropertyName("isInDangerZone")]
+    public bool isInDangerZone { get; set; }
 }
 
 public partial class TrajectoryPoint
@@ -170,8 +172,12 @@ public partial class ChangeScenarioPlaySpeedCmd
 }
 public class DangerZone
 {
-    public string name { get; set; }
+    [JsonPropertyName("zoneName")]
+    public string zoneName { get; set; }
+    [JsonPropertyName("points")]
     public List<GeoPoint> points { get; set; }
+    [JsonPropertyName("topHeight")]
     public double topHeight { get; set; }
+    [JsonPropertyName("bottomHeight")]
     public double bottomHeight { get; set; }
 }
