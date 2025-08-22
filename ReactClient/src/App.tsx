@@ -1,14 +1,14 @@
 import { useRef, useState, useEffect } from 'react';
 import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
-import TopLeftButtons from './TrajectoryScenario/TopLeftButtons';
-import CreateTrajectoryPanel from './TrajectoryScenario/CreateTrajectoryPanel';
+import TopLeftButtons from './TopLeftButtons/TopLeftButtons';
+import CreateTrajectoryPanel from './CreateTrajectoryPanel/CreateTrajectoryPanel';
 import type { PlanesTrajectoryPointsScenario,GetReadyScenariosRequestCmd, ScenariosReadyToPlay, PlaySelectedScenario, ResumeScenarioCmd, PauseScenarioCmd, ChangeScenarioPlaySpeedCmd, DangerZone } from './Messages/AllTypes';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
-import PlayScenarioPanel from './PlayScenario/PlayScenarioPanel';
-import ScenarioPlayControlPanel from './Scenario/ScenarioPlayControlPanel';
-import DangerZonePanel from './DangerZones/DangerZonePanel';
+import PlayScenarioPanel from './PlayScenarioPanel/PlayScenarioPanel';
+import ScenarioPlayControlPanel from './ScenarioPlayControlPanel/ScenarioPlayControlPanel';
+import DangerZonePanel from './DangerZonePanel/DangerZonePanel';
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
 import { PlaneTailManager } from './Handlers/PlaneTailManager';
