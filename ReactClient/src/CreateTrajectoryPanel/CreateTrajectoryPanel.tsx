@@ -4,7 +4,7 @@ import type { GeoPoint, PlaneTrajectoryPoints, PlanesTrajectoryPointsScenario } 
 import "./CreateTrajectoryPanel.css";
 import { toast } from "react-toastify";
 import { PlanePolylineManager } from "./PlanePolylineManager";
-
+import { PlanePolylineInteraction } from "./PlanePolylineInteraction";
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
   onSave: (data: PlanesTrajectoryPointsScenario) => void;
@@ -18,6 +18,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     const [selectedPlaneIndex, setSelectedPlaneIndex] = useState<number | null>(null);
     const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
     const polylineManagerRef = useRef<PlanePolylineManager | null>(null);
+    const polylineInteractionRef = useRef<PlanePolylineInteraction | null>(null);
     const currentMousePositionRef = useRef<Cesium.Cartesian3 | null>(null);
     
     // Temporary polyline for the line that follows the mouse
@@ -27,9 +28,11 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     useEffect(() => {
     if (viewerRef.current) {
         polylineManagerRef.current = new PlanePolylineManager(viewerRef.current);
+        polylineInteractionRef.current = new PlanePolylineInteraction(viewerRef.current,polylineManagerRef.current)
     }
     return () => {
         polylineManagerRef.current?.clearAll();
+        polylineInteractionRef.current?.destroy();
     };
     }, []);
 
@@ -102,6 +105,10 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         }
         lastPointRef.current = null;
         currentMousePositionRef.current = null;
+
+        // make the trajectory cyan
+        const planeName = eventData.planes[selectedPlaneIndex!].planeName
+        polylineManagerRef.current?.setPlanePolylineColorCyan(planeName);
     };
 
     const toggleAddingPoints = () => {
@@ -121,7 +128,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
 
         const planeName = eventData.planes[selectedPlaneIndex].planeName;
         polylineManagerRef.current?.createPolyline(planeName);
-
+         polylineManagerRef.current?.setPlanePolylineColorYellow(planeName);
         const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
         // Click that adds a point
@@ -182,7 +189,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
                                 return [lastPointRef.current, currentMousePositionRef.current];
                             }, false),
                             width: 3,
-                            material: Cesium.Color.CYAN,
+                            material: Cesium.Color.YELLOW,
                         },
                     });
                 }
@@ -216,7 +223,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         value={eventData.scenarioName}
         onChange={(e) => handleScenarioNameChange(e.target.value)}
         />
-        <button className="addPlane-button" onClick={handleAddPlane}>
+        <button className="addPlane-button" onClick={handleAddPlane} disabled={isDrawing}>
             Add Plane
         </button>
         {eventData.planes.length > 0 && (

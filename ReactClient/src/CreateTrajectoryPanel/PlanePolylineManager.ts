@@ -25,7 +25,7 @@ export class PlanePolylineManager {
         positions: new Cesium.CallbackProperty(() => {
           const points = this.planeToPoints.get(planeName);
           if (!points || points.length < 2) {
-            // חייב להיות לפחות שתי נקודות בשביל polyline
+            // There must be at least two points for a polyline
             return undefined;
           }
           return Cesium.Cartesian3.fromDegreesArrayHeights(
@@ -33,7 +33,7 @@ export class PlanePolylineManager {
           );
         }, false),
         width: 3,
-        material: Cesium.Color.CYAN,
+        material: Cesium.Color.YELLOW,
       },
     });
 
@@ -56,6 +56,25 @@ export class PlanePolylineManager {
     }
     this.planeToEntity.delete(planeName);
     this.planeToPoints.delete(planeName);
+  }
+
+  setPlanePolylineColor(planeName: string, color: Cesium.Color) {
+    const entity = this.planeToEntity.get(planeName);
+    if (!entity) return;
+
+    if (entity.polyline) {
+      entity.polyline.material = new Cesium.ColorMaterialProperty(color);
+    }
+  }
+  
+  // when polyline is cyan its the default
+  setPlanePolylineColorCyan(planeName: string) {
+    this.setPlanePolylineColor(planeName, Cesium.Color.CYAN);
+  }
+
+  // when polyline is yellow it means that we selected a spcific plane's trajectory so it will be differnt from the other trajectories.
+  setPlanePolylineColorYellow(planeName: string) {
+    this.setPlanePolylineColor(planeName, Cesium.Color.YELLOW);
   }
 
   clearAll() {
