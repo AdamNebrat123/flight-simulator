@@ -48,8 +48,12 @@ public class PlaySelectedScenarioHandler
                     history[plane.planeName].Enqueue(currentPoint);
 
                     // Check if point is in danger zone
-                    bool isInDangerZone = dangerZoneChecker.IsPointInAnyZone(currentPoint.position);
-                    plane.isInDangerZone = isInDangerZone; 
+                    List<string> dangerZonesIn = dangerZoneChecker.GetZonesContainingPoint(currentPoint.position);
+                    plane.dangerZonesIn = dangerZonesIn; // set the danger zone in (null if he isnt in any zone)
+
+                    // set the boolean isInDangerZone
+                    plane.isInDangerZone = dangerZonesIn.Count > 0; // if the list is empty its false
+
 
                     // If i have passed 30 points  i will discard the oldest one
                     if (history[plane.planeName].Count > 30)

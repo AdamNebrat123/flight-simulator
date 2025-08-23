@@ -4,14 +4,16 @@ import type { GeoPoint } from "../Messages/AllTypes";
 import type { DangerZone } from "../Messages/AllTypes";
 import "./DangerZonePanel.css";
 import { DangerZoneEntity } from "./DangerZoneEntity";
+import type { DangerZoneEntityManager } from "./DangerZoneEntityManager";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
+  dangerZoneEntityManagerRef: React.MutableRefObject<DangerZoneEntityManager | null>;
   onClose: () => void;
   onSave: (zone: DangerZone) => void;
 }
 
-export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZonePanelProps) {
+export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: dangerZoneEntityManagerRef, onClose, onSave }: DangerZonePanelProps) {
   const [dangerZone, setDangerZone] = useState<DangerZone>({
     zoneName: "ZoneName",
     points: [],
@@ -21,6 +23,7 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
   const [isAddingPoints, setIsAddingPoints] = useState(false);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
+  
   useEffect(() => {
     if (viewerRef.current) {
       dangerZoneEntityRef.current = new DangerZoneEntity(
@@ -175,7 +178,10 @@ useEffect(() => {
         <div className="dangerzone-actions">
           <button className="save-button" onClick={() => 
           {
-            // need to save it in a manager. SOON
+            const entity = dangerZoneEntityRef.current?.GetEntity()
+            if(entity)
+              dangerZoneEntityManagerRef.current?.tryAddDangerZone(dangerZone.zoneName, entity)
+            console.log(entity)
             dangerZoneEntityRef.current?.SetEntityNull();
             onSave(dangerZone)
           }

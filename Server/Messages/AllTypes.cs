@@ -93,6 +93,8 @@ public partial class PlaneCalculatedTrajectoryPoints
     public List<TrajectoryPoint> tailPoints { get; set; }
     [JsonPropertyName("isInDangerZone")]
     public bool isInDangerZone { get; set; }
+    [JsonPropertyName("dangerZonesIn")]
+    public List<string> dangerZonesIn { get; set; }
 }
 
 public partial class TrajectoryPoint

@@ -95,4 +95,7 @@ export class DangerZoneEntity {
   RemoveEntity(){
     this.viewer?.entities.remove(this.entity!)
   }
+  GetEntity(): Cesium.Entity | null {
+    return this.entity;
+  }
 }

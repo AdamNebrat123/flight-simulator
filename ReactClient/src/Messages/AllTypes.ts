@@ -41,6 +41,8 @@ export interface PlaneCalculatedTrajectoryPoints {
     planeName:        string;
     trajectoryPoints: TrajectoryPoint[]; // it's usually one point
     tailPoints: TrajectoryPoint[];
+    isInDangerZone: boolean;
+    dangerZonesIn: string[];
     //[property: string]: any;
 }
 

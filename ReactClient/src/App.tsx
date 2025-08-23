@@ -13,6 +13,7 @@ import DangerZonePanel from './DangerZonePanel/DangerZonePanel';
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
 import { PlaneTailManager } from './Handlers/PlaneTailManager';
 import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajectoryResultHandler';
+import { DangerZoneEntityManager } from './DangerZonePanel/DangerZoneEntityManager';
 
 
 export default function App() {
@@ -30,14 +31,22 @@ export default function App() {
 
   //needed for MultiPlaneTrajectoryResult
   const planeManagerRef = useRef<PlaneEntityManager | null>(null);
-  const planeTailManagerRef = useRef<PlaneTailManager | null>(null) 
+  const planeTailManagerRef = useRef<PlaneTailManager | null>(null);
+  const dangerZoneEntityManagerRef = useRef<DangerZoneEntityManager | null>(null)
+  const multiPlaneTrajectoryResultHandler = useRef<MultiPlaneTrajectoryResultHandler | null>(null) 
 
   // when a viewer it initialized, this function is run, everything that need the viewer should be put here
   const handleViewerReady = () => {
     if (viewerRef.current && !planeManagerRef.current) {
       planeManagerRef.current = new PlaneEntityManager(viewerRef.current);
       planeTailManagerRef.current = new PlaneTailManager(viewerRef.current)
-      console.log("PlaneEntityManager created");
+      dangerZoneEntityManagerRef.current = new DangerZoneEntityManager(viewerRef.current)
+      multiPlaneTrajectoryResultHandler.current = new MultiPlaneTrajectoryResultHandler(
+        planeManagerRef.current,
+        planeTailManagerRef.current, 
+        dangerZoneEntityManagerRef.current
+      );
+      
     }
   };
 
@@ -47,7 +56,7 @@ export default function App() {
   useEffect(() => {
     // type : MultiPlaneTrajectoryResult
     const unsubMultiPlaneTrajectoryResult = on("MultiPlaneTrajectoryResult", (data) => {
-      MultiPlaneTrajectoryResultHandler(data, planeManagerRef.current!, planeTailManagerRef.current!);
+      multiPlaneTrajectoryResultHandler.current?.HandleMultiPlaneTrajectoryResult(data);
     });
     // type : ScenariosReadyToPlay
     const unsubScenariosReadyToPlay = on("ScenariosReadyToPlay", (data) => {
@@ -226,6 +235,7 @@ const handlePlaySpeedChange = (playSpeed: number) => {
           onClose={handleCloseDangerZonePanel}
           onSave={handleSaveDangerZonePanel}
           viewerRef={viewerRef}
+          dangerZoneEntityManagerRef={dangerZoneEntityManagerRef}
         />
       )}
 
