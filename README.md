@@ -18,6 +18,9 @@ Once sent to the server, the server calculates the positions of each plane at an
 
 Example visualization:
 
+<img width="1920" height="1080" alt="CreateTrajectoryScenario" src="https://github.com/user-attachments/assets/b2ee287e-bdc6-4332-b426-1572742bb275" />
+
+
 ---
 ## Playing a Scenario
 
@@ -26,6 +29,9 @@ Now the server Sends all of the points and data about the planes at REAL TIME, A
 There is also a "tail" behing every plane, that represents the last 30 point of the plane.
 
 Example visualization:
+
+
+![PlaneFlying](https://github.com/user-attachments/assets/172c6a24-76b6-4d90-aafa-b1a4470e03b3)
 
 
 ---
@@ -41,6 +47,7 @@ These zones can be added and they are fully interactive, and their visual repres
 
 Example visualization:
 
+![CreateDangerZone](https://github.com/user-attachments/assets/e34512ba-6f39-4e9a-8b60-a6eee6b6273d)
 
 ---
 
@@ -54,6 +61,7 @@ This ensures that alerts and visual feedback are synchronized with live scenario
 
 Example visualization:
 
+![DangerZoneBlink](https://github.com/user-attachments/assets/4d08b0d6-71bc-4d30-8adf-c6b8d542a0f2)
 
 ---
 
