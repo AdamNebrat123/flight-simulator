@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { toast } from "react-toastify";
 
 export function useWebSocketConnection(url: string, reconnectDelay = 3000) {
   const socketRef = useRef<WebSocket | null>(null);
@@ -11,6 +12,7 @@ export function useWebSocketConnection(url: string, reconnectDelay = 3000) {
 
     socket.onopen = () => {
       console.log("Connected")
+      toast.success("Connected to server")
       setIsConnected(true);
       // Reattach the message handler on every reconnect
       if (messageHandlerRef.current) {
