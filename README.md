@@ -28,6 +28,7 @@ Once a scenario is selected, the system begins live playback of all aircraft wit
 Now the server Sends all of the points and data about the planes at REAL TIME, And Client present them on the globe.
 There is also a "tail" behing every plane, that represents the last 30 point of the plane.
 **When scenario is played, there is a pause and resume, and you can also change playspeed**
+
 Example visualization:
 
 
