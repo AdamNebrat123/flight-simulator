@@ -33,6 +33,8 @@ Example visualization:
 
 ![PlaneFlying](https://github.com/user-attachments/assets/172c6a24-76b6-4d90-aafa-b1a4470e03b3)
 
+![_Flight-simulator - Google Chrome_ 2025-08-23 22-13-14](https://github.com/user-attachments/assets/6888a5e8-e5af-46d0-9825-c0b595e348a5)
+
 
 ---
 
