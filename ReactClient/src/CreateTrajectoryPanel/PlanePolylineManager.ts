@@ -58,7 +58,7 @@ export class PlanePolylineManager {
           },
           label: {
               text: `Point ${index}`,
-              font: "12px sans-serif",
+              font: "bold 12px sans-serif",
               fillColor: Cesium.Color.WHITE,
               style: Cesium.LabelStyle.FILL_AND_OUTLINE,
               outlineWidth: 2,
@@ -83,7 +83,6 @@ export class PlanePolylineManager {
       const pointEntities = this.planeToPointEntities.get(planeName);
       if (pointEntities && index < pointEntities.length) {
           const entity = pointEntities[index];
-          // תיקון לסוג נכון
           entity.position = new Cesium.ConstantPositionProperty(
               Cesium.Cartesian3.fromDegrees(newPoint.longitude, newPoint.latitude, newPoint.altitude)
           );
