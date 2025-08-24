@@ -61,7 +61,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     const handleAddPlane = () => {
         const newPlane: PlaneTrajectoryPoints = {
         planeName: `Plane ${eventData.planes.length + 1}`,
-        velocity: 10,
+        velocity: 50,
         geoPoints: [],
         };
         setEventData(prev => ({
