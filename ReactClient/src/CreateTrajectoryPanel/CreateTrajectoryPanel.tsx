@@ -14,6 +14,11 @@ interface Props {
 export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: Props) {
     const [eventData, setEventData] = useState<PlanesTrajectoryPointsScenario>({ planes: [],scenarioName: "ScenarioName"});
     const [isDrawing, setIsDrawing] = useState(false);
+    const isDrawingRef = useRef(isDrawing);
+
+    useEffect(() => {
+    isDrawingRef.current = isDrawing;
+    }, [isDrawing]);
     
     const [selectedPlaneIndex, setSelectedPlaneIndex] = useState<number | null>(null);
     const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
@@ -92,11 +97,12 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     };
 
     const stopAddingPoints = () => {
-        if (!isDrawing) return; // If not already in the drawing, return
+        if (!isDrawingRef.current) return; // use ref instead of state
 
         handlerRef.current?.destroy();
         handlerRef.current = null;
         setIsDrawing(false);
+        isDrawingRef.current = false; // sync immediately
 
         // Removing the temporary line
         if (tempLineRef.current) {
@@ -107,12 +113,12 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         currentMousePositionRef.current = null;
 
         // make the trajectory cyan
-        const planeName = eventData.planes[selectedPlaneIndex!].planeName
+        const planeName = eventData.planes[selectedPlaneIndex!].planeName;
         polylineManagerRef.current?.setPlanePolylineColorCyan(planeName);
     };
 
     const toggleAddingPoints = () => {
-        if (isDrawing) {
+        if (isDrawingRef.current) {
             stopAddingPoints();
             return;
         }
@@ -125,77 +131,76 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
 
         const viewer = viewerRef.current;
         setIsDrawing(true);
+        isDrawingRef.current = true; // sync immediately
 
         const planeName = eventData.planes[selectedPlaneIndex].planeName;
         polylineManagerRef.current?.createPolyline(planeName);
-         polylineManagerRef.current?.setPlanePolylineColorYellow(planeName);
+        polylineManagerRef.current?.setPlanePolylineColorYellow(planeName);
+
         const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-        // Click that adds a point
-        handler.setInputAction(
-            (click: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-                const earthPosition = viewer.scene.pickPosition(click.position);
-                if (!Cesium.defined(earthPosition)) return;
+        // LEFT_CLICK adds point
+        handler.setInputAction((click: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+            const earthPosition = viewer.scene.pickPosition(click.position);
+            if (!Cesium.defined(earthPosition)) return;
 
-                const carto = Cesium.Cartographic.fromCartesian(earthPosition);
-                const newPoint: GeoPoint = {
-                    longitude: Cesium.Math.toDegrees(carto.longitude),
-                    latitude: Cesium.Math.toDegrees(carto.latitude),
-                    altitude: carto.height,
-                };
+            const carto = Cesium.Cartographic.fromCartesian(earthPosition);
+            const newPoint: GeoPoint = {
+                longitude: Cesium.Math.toDegrees(carto.longitude),
+                latitude: Cesium.Math.toDegrees(carto.latitude),
+                altitude: carto.height + 5,
+            };
 
-                // Adding a point to a polyline
-                polylineManagerRef.current?.addPoint(planeName, newPoint);
+            polylineManagerRef.current?.addPoint(planeName, newPoint);
 
-                // Update the state of eventData
-                setEventData((prev) => {
-                    const newPlanes = [...prev.planes];
-                    const currentPoints = newPlanes[selectedPlaneIndex].geoPoints;
-                    newPlanes[selectedPlaneIndex].geoPoints = [...currentPoints, newPoint];
-                    return { ...prev, planes: newPlanes };
+            setEventData((prev) => {
+                const newPlanes = [...prev.planes];
+                const currentPoints = newPlanes[selectedPlaneIndex].geoPoints;
+                newPlanes[selectedPlaneIndex].geoPoints = [...currentPoints, newPoint];
+                return { ...prev, planes: newPlanes };
+            });
+
+            // Reset temporary line
+            if (tempLineRef.current) {
+                viewer.entities.remove(tempLineRef.current);
+                tempLineRef.current = null;
+            }
+
+            lastPointRef.current = Cesium.Cartesian3.fromDegrees(
+                newPoint.longitude,
+                newPoint.latitude,
+                newPoint.altitude
+            );
+            currentMousePositionRef.current = null;
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        // Mouse move - temporary line
+        handler.setInputAction((movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+            if (!lastPointRef.current) return;
+
+            const newPosition = viewer.scene.pickPosition(movement.endPosition);
+            if (!Cesium.defined(newPosition)) return;
+
+            currentMousePositionRef.current = newPosition;
+
+            if (!tempLineRef.current) {
+                tempLineRef.current = viewer.entities.add({
+                    polyline: {
+                        positions: new Cesium.CallbackProperty(() => {
+                            if (!lastPointRef.current || !currentMousePositionRef.current) return undefined;
+                            return [lastPointRef.current, currentMousePositionRef.current];
+                        }, false),
+                        width: 3,
+                        material: Cesium.Color.YELLOW,
+                    },
                 });
+            }
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-                // Reset temporary line
-                if (tempLineRef.current) {
-                    viewer.entities.remove(tempLineRef.current);
-                    tempLineRef.current = null;
-                }
-
-                lastPointRef.current = Cesium.Cartesian3.fromDegrees(
-                    newPoint.longitude,
-                    newPoint.latitude,
-                    newPoint.altitude
-                );
-                currentMousePositionRef.current = null;
-            },
-            Cesium.ScreenSpaceEventType.LEFT_CLICK
-        );
-
-        // Mouse movement - temporary drawing
-        handler.setInputAction(
-            (movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
-                if (!lastPointRef.current) return;
-
-                const newPosition = viewer.scene.pickPosition(movement.endPosition);
-                if (!Cesium.defined(newPosition)) return;
-
-                currentMousePositionRef.current = newPosition;
-
-                if (!tempLineRef.current) {
-                    tempLineRef.current = viewer.entities.add({
-                        polyline: {
-                            positions: new Cesium.CallbackProperty(() => {
-                                if (!lastPointRef.current || !currentMousePositionRef.current) return undefined;
-                                return [lastPointRef.current, currentMousePositionRef.current];
-                            }, false),
-                            width: 3,
-                            material: Cesium.Color.YELLOW,
-                        },
-                    });
-                }
-            },
-            Cesium.ScreenSpaceEventType.MOUSE_MOVE
-        );
+        // RIGHT_CLICK stops drawing
+        handler.setInputAction(() => {
+            stopAddingPoints();
+        }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
         handlerRef.current = handler;
     };
@@ -232,7 +237,6 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
                 <label htmlFor="plane-select">Select plane to add points:</label>
                 <select
                 id="plane-select"
-                //value={selectedPlaneIndex !== null ? selectedPlaneIndex : ""}
                 value={selectedPlaneIndex !== null ? selectedPlaneIndex : ""}
                 onChange={(e) => setSelectedPlaneIndex(e.target.value === "" ? null : Number(e.target.value))}
                 disabled={isDrawing}
