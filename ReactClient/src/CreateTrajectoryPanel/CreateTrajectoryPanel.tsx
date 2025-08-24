@@ -5,6 +5,7 @@ import "./CreateTrajectoryPanel.css";
 import { toast } from "react-toastify";
 import { PlanePolylineManager } from "./PlanePolylineManager";
 import { PlanePolylineInteraction } from "./PlanePolylineInteraction";
+
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
   onSave: (data: PlanesTrajectoryPointsScenario) => void;
@@ -208,17 +209,36 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     };
 
     // Cleans up listener when component is disassembled or state changes
-        useEffect(() => {
-            return () => {
-            if (handlerRef.current) {
-                handlerRef.current.destroy();
-                handlerRef.current = null;
-                cleanTemporaryPolyline();
-            }
-            };
-        }, []);
+    useEffect(() => {
+        return () => {
+        if (handlerRef.current) {
+            handlerRef.current.destroy();
+            handlerRef.current = null;
+            cleanTemporaryPolyline();
+        }
+        };
+    }, []);
     
     
+
+    // testing!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //==================================================================================
+    //==================================================================================
+    //==================================================================================
+    //==================================================================================
+    const [isImgSelctionOpen, setIsImgSelctionOpen] = useState(false);
+    const [selected, setSelected] = useState<string | null>(null);
+
+    const options = [
+        { value: "plane", img: "/Images/AerialUnitsImages/ImgPlane.png" },
+        { value: "drone", img: "/Images/AerialUnitsImages/ImgDrone.png" },
+        { value: "balloon", img: "/Images/AerialUnitsImages/ImgBalloon.png" },
+    ];
+
+
+    //==================================================================================
+    //==================================================================================
+    //==================================================================================
 
     return (
     <div className="trajectory-panel">
@@ -230,6 +250,44 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         value={eventData.scenarioName}
         onChange={(e) => handleScenarioNameChange(e.target.value)}
         />
+
+
+{/* testing*/}
+<div>
+    <label
+    style={{fontSize: 20}}>AerialUnit type: {selected ? selected : "plane"}</label>
+    <button 
+    className="changeType-button"
+    onClick={() => setIsImgSelctionOpen(!isImgSelctionOpen)}
+    >
+    Change AerialUnit Type
+    </button>
+
+    {isImgSelctionOpen && (
+    <div>
+        {options.map((opt) => (
+            
+            <div key={opt.value} style={{ display: "inline-block", textAlign: "center", margin: "4px" }}>
+            <label style={{ display: "block", fontSize: "12px" }}>{opt.value}</label>
+            <img
+                className="image-option"
+                src={opt.img}
+                width={100}
+                height={100}
+                onClick={() => {
+                setSelected(opt.value);
+                setIsImgSelctionOpen(false);
+                }}
+            />
+            </div>
+        ))}
+    </div>
+    )}
+</div>
+
+
+
+
         <button className="addPlane-button" onClick={handleAddPlane} disabled={isDrawing}>
             Add Plane
         </button>
