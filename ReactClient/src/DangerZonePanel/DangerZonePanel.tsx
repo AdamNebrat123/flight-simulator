@@ -24,6 +24,16 @@ export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: 
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
   
+  const handleDangerZonePointChange = (
+          pointIndex: number,
+          field: keyof GeoPoint,
+          value: number
+  ) => {
+      const updatedPoints = [...dangerZone.points]
+      updatedPoints[pointIndex][field] = value;
+      setDangerZone({ ...dangerZone, points: updatedPoints })
+  }
+
   useEffect(() => {
     if (viewerRef.current) {
       dangerZoneEntityRef.current = new DangerZoneEntity(
@@ -155,25 +165,43 @@ useEffect(() => {
         </button>
         
         <div className="points-section">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Longitude</th>
-                <th>Latitude</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dangerZone.points.map((p, idx) => (
-                <tr key={idx}>
-                  <td>{idx + 1}</td>
-                  <td>{p.longitude.toFixed(6)}</td>
-                  <td>{p.latitude.toFixed(6)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Longitude</th>
+        <th>Latitude</th>
+      </tr>
+    </thead>
+    <tbody>
+      {dangerZone.points.map((p, idx) => (
+        <tr key={idx}>
+          <td>{idx + 1}</td>
+          <td>
+            <input
+              type="number"
+              value={p.longitude}
+              step="0.000001"
+              onChange={(e) =>
+                handleDangerZonePointChange(idx, "longitude", Number(e.target.value))
+              }
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              value={p.latitude}
+              step="0.000001"
+              onChange={(e) =>
+                handleDangerZonePointChange(idx, "latitude", Number(e.target.value))
+              }
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
         <div className="dangerzone-actions">
           <button className="save-button" onClick={() => 
