@@ -94,6 +94,8 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         updatedPlanes[planeIndex].geoPoints[pointIndex][field] = value;
         const updatedPoint = updatedPlanes[planeIndex].geoPoints[pointIndex];
         setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName });
+        const planeName = updatedPlanes[planeIndex].planeName;
+        polylineManagerRef.current?.updatePoint(planeName, pointIndex, updatedPoint)
     };
 
     const stopAddingPoints = () => {

@@ -6,11 +6,13 @@ export class PlanePolylineManager {
   private viewer: Cesium.Viewer;
   private planeToEntity: Map<string, Cesium.Entity>;
   private planeToPoints: Map<string, GeoPoint[]>;
+  private planeToPointEntities: Map<string, Cesium.Entity[]>;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
     this.planeToEntity = new Map();
     this.planeToPoints = new Map();
+    this.planeToPointEntities = new Map()
   }
 
   createPolyline(planeName: string) {
@@ -41,8 +43,52 @@ export class PlanePolylineManager {
   }
 
   addPoint(planeName: string, point: GeoPoint) {
-    if (!this.planeToPoints.has(planeName)) return;
-    this.planeToPoints.get(planeName)!.push(point);
+      if (!this.planeToPoints.has(planeName)) return;
+
+      const points = this.planeToPoints.get(planeName)!;
+      points.push(point);
+
+      // Create a point entity with a label
+      const index = points.length; // Point number
+      const pointEntity = this.viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.altitude),
+          point: {
+              pixelSize: 7,
+              color: Cesium.Color.RED,
+          },
+          label: {
+              text: `Point ${index}`,
+              font: "12px sans-serif",
+              fillColor: Cesium.Color.WHITE,
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+              outlineWidth: 2,
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+              pixelOffset: new Cesium.Cartesian2(0, -12),
+          },
+          name: `${planeName}-point-${index}`,
+      });
+
+      if (!this.planeToPointEntities.has(planeName)) {
+          this.planeToPointEntities.set(planeName, []);
+      }
+      this.planeToPointEntities.get(planeName)!.push(pointEntity);
+  }
+
+  updatePoint(planeName: string, index: number, newPoint: GeoPoint) {
+      const points = this.planeToPoints.get(planeName);
+      if (!points || index < 0 || index >= points.length) return;
+
+      points[index] = newPoint;
+
+      const pointEntities = this.planeToPointEntities.get(planeName);
+      if (pointEntities && index < pointEntities.length) {
+          const entity = pointEntities[index];
+          // תיקון לסוג נכון
+          entity.position = new Cesium.ConstantPositionProperty(
+              Cesium.Cartesian3.fromDegrees(newPoint.longitude, newPoint.latitude, newPoint.altitude)
+          );
+          entity.label!.text = new Cesium.ConstantProperty(`Point ${index + 1}`);
+      }
   }
 
   getPoints(planeName: string): GeoPoint[] {
@@ -81,7 +127,12 @@ export class PlanePolylineManager {
     for (const entity of this.planeToEntity.values()) {
       this.viewer.entities.remove(entity);
     }
+    for (const entities of this.planeToPointEntities.values()) {
+      for(const entity of entities)
+        this.viewer.entities.remove(entity);
+    }
     this.planeToEntity.clear();
     this.planeToPoints.clear();
+    this.planeToPointEntities.clear();
   }
 }
