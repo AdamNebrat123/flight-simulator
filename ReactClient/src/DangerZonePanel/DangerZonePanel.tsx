@@ -5,6 +5,7 @@ import type { DangerZone } from "../Messages/AllTypes";
 import "./DangerZonePanel.css";
 import { DangerZoneEntity } from "./DangerZoneEntity";
 import type { DangerZoneEntityManager } from "./DangerZoneEntityManager";
+import { DangerZonePolylineManager } from "./DangerZonePolylineManager";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -20,97 +21,248 @@ export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: 
     topHeight: 100,
     bottomHeight: 0,
   });
-  const [isAddingPoints, setIsAddingPoints] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const isDrawingRef = useRef(isDrawing);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
+  const dangerZonePolylineManagerRef = useRef<DangerZonePolylineManager | null>(null);
+  const currentMousePositionRef = useRef<Cesium.Cartesian3 | null>(null);
   
-  const handleDangerZonePointChange = (
-          pointIndex: number,
-          field: keyof GeoPoint,
-          value: number
+  // Temporary polylines for the lines that follow the mouse
+  const tempLineRef = useRef<Cesium.Entity | null>(null);
+  const lastPointRef = useRef<Cesium.Cartesian3 | null>(null);
+  const tempClosingLineRef = useRef<Cesium.Entity | null>(null);
+
+  // REF that will always be synchronized with the state
+  const dangerZoneRef = useRef<DangerZone>(dangerZone);
+  useEffect(() => {
+    dangerZoneRef.current = dangerZone;
+  }, [dangerZone]);
+  
+
+
+const handleDangerZonePointChange = (
+    pointIndex: number,
+    field: keyof GeoPoint,
+    value: number
   ) => {
-      const updatedPoints = [...dangerZone.points]
-      updatedPoints[pointIndex][field] = value;
-      setDangerZone({ ...dangerZone, points: updatedPoints })
-  }
+    const updatedPoints = dangerZoneRef.current.points.map((p, idx) =>
+      idx === pointIndex ? { ...p, [field]: value } : p
+    );
+    const newZone = { ...dangerZoneRef.current, points: updatedPoints };
+
+    setDangerZone(newZone);
+    dangerZoneRef.current = newZone; 
+
+    dangerZonePolylineManagerRef.current?.updatePoint(
+      newZone.zoneName,
+      pointIndex,
+      updatedPoints[pointIndex]
+    );
+  };
 
   useEffect(() => {
     if (viewerRef.current) {
       dangerZoneEntityRef.current = new DangerZoneEntity(
         viewerRef.current,
-        dangerZone.points,
-        dangerZone.bottomHeight,
-        dangerZone.topHeight,
-        dangerZone.zoneName
+        dangerZoneRef.current.points,
+        dangerZoneRef.current.bottomHeight,
+        dangerZoneRef.current.topHeight,
+        dangerZoneRef.current.zoneName
       );
+      dangerZonePolylineManagerRef.current = new DangerZonePolylineManager(viewerRef.current);
     }
     return () => {
-        dangerZoneEntityRef.current?.SetEntityNull();
+      dangerZoneEntityRef.current?.SetEntityNull();
+    };
+  }, []);
+
+  const stopAddingPoints = () => {
+    if (!isDrawingRef.current) return;
+
+    handlerRef.current?.destroy();
+    handlerRef.current = null;
+    setIsDrawing(false);
+    isDrawingRef.current = false;
+
+    if (tempLineRef.current) {
+      viewerRef.current?.entities.remove(tempLineRef.current);
+      tempLineRef.current = null;
+    }
+    if (tempClosingLineRef.current) {
+        viewerRef.current?.entities.remove(tempClosingLineRef.current);
+        tempClosingLineRef.current = null;
+    }
+    currentMousePositionRef.current = null;
+
+    // Set the closing polyline to *constant* red
+    const zoneName = dangerZoneRef.current.zoneName;
+    dangerZonePolylineManagerRef.current?.setPlanePolylineColorConstantRed(zoneName);
+
+    /*
+    if (viewerRef.current) {
+      // create polygon
+      viewerRef.current.entities.add({
+        polygon:
+          dangerZoneRef.current.points.length >= 3
+            ? {
+                hierarchy: Cesium.Cartesian3.fromDegreesArray(
+                  dangerZoneRef.current.points.flatMap((p) => [p.longitude, p.latitude])
+                ),
+                perPositionHeight: true,
+                height: dangerZoneRef.current.bottomHeight,
+                extrudedHeight: dangerZoneRef.current.topHeight,
+                material: Cesium.Color.RED.withAlpha(0.3),
+                outline: true,
+                outlineColor: Cesium.Color.RED,
+              }
+            : undefined,
+      });
+    }
+    */
+  };
+  const toggleAddingPoints = () => {
+    if (isDrawingRef.current) {
+      stopAddingPoints();
+      return;
+    }
+    if (!viewerRef.current) return;
+
+    const viewer = viewerRef.current;
+    setIsDrawing(true);
+    isDrawingRef.current = true;
+
+    const zoneName = dangerZoneRef.current.zoneName;
+    dangerZonePolylineManagerRef.current?.createPolyline(zoneName);
+    dangerZonePolylineManagerRef.current?.createClosingPolyline(zoneName);
+
+    // Set the closing polyline to *transparent* red
+    dangerZonePolylineManagerRef.current?.setPlanePolylineColorTransparentRed(zoneName);
+    if (dangerZoneRef.current.points.length > 0) {
+      tryCreateTempLine(); // Try create the temp line (last point -> mouse) 
+      tryCreateTempClosingLine(); // Try create the temp closing line (first point -> mouse)
+    }
+
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+    handler.setInputAction((click: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+      const earthPosition = viewer.scene.pickPosition(click.position);
+      if (!Cesium.defined(earthPosition)) return;
+
+      const carto = Cesium.Cartographic.fromCartesian(earthPosition);
+      const newPoint: GeoPoint = {
+        longitude: Cesium.Math.toDegrees(carto.longitude),
+        latitude: Cesium.Math.toDegrees(carto.latitude),
+        altitude: carto.height + 5,
+      };
+
+      dangerZonePolylineManagerRef.current?.addPoint(zoneName, newPoint);
+
+      const newZone = {
+        ...dangerZoneRef.current,
+        points: [...dangerZoneRef.current.points, newPoint],
+      };
+      setDangerZone(newZone);
+      dangerZoneRef.current = newZone; 
+
+      if (tempLineRef.current) {
+        viewer.entities.remove(tempLineRef.current);
+        tempLineRef.current = null;
+      }
+
+      lastPointRef.current = Cesium.Cartesian3.fromDegrees(
+        newPoint.longitude,
+        newPoint.latitude,
+        newPoint.altitude
+      );
+      currentMousePositionRef.current = null;
+
+      // Set the closing polyline to *constant* red
+      dangerZonePolylineManagerRef.current?.setPlanePolylineColorConstantRed(zoneName);
+
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    handler.setInputAction((movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+      if (!lastPointRef.current) return;
+
+      const newPosition = viewer.scene.pickPosition(movement.endPosition);
+      if (!Cesium.defined(newPosition)) return;
+
+      const zoneName = dangerZoneRef.current.zoneName;
+      // Set the closing polyline to *transparent* red
+      dangerZonePolylineManagerRef.current?.setPlanePolylineColorTransparentRed(zoneName);
+
+      currentMousePositionRef.current = newPosition;
+
+      // Try create the temp line (last point -> mouse) 
+      tryCreateTempLine();
+
+      // Try create the temp closing line (first point -> mouse)
+      tryCreateTempClosingLine();
+
+
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+    handler.setInputAction(() => {
+      stopAddingPoints();
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+    handlerRef.current = handler;
+  };
+
+  // clean on unmount
+  useEffect(() => {
+    return () => {
+      if (handlerRef.current) {
+        handlerRef.current.destroy();
+        handlerRef.current = null;
+        if (tempLineRef.current) viewerRef.current?.entities.remove(tempLineRef.current);
+        if (tempClosingLineRef.current) viewerRef.current?.entities.remove(tempClosingLineRef.current);
+      }
     };
   }, []);
 
 
-  const toggleAddingPoints = (): void => {
-  if (isAddingPoints) {
-    // If we are already in point adding mode — stop and clean up listener
-    if (handlerRef.current) {
-      handlerRef.current.destroy();
-      handlerRef.current = null;
-    }
-    setIsAddingPoints(false);
-    return; // stop here
-  }
-
-  if (!viewerRef.current) return;
-
-  setIsAddingPoints(true);
-
-  const viewer = viewerRef.current;
-
-  // Create a new listener for map clicks
-  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-  handler.setInputAction((click: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-    const earthPosition = viewer.scene.pickPosition(click.position);
-    if (Cesium.defined(earthPosition)) {
-      const cartographic = Cesium.Cartographic.fromCartesian(earthPosition);
-      const longitude = Cesium.Math.toDegrees(cartographic.longitude);
-      const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      const altitude = cartographic.height;
-
-      const newPoint: GeoPoint = { longitude, latitude, altitude };
-
-      // Update the current DangerZone's points
-      setDangerZone(prev => {
-        if (!prev) return prev;
-
-        // Avoid duplicate points
-        const exists = prev.points.some(
-          p => p.longitude === newPoint.longitude && p.latitude === newPoint.latitude && p.altitude === newPoint.altitude
-        );
-        if (exists) return prev;
-
-        const updatedPoints = [...prev.points, newPoint];
-
-        dangerZoneEntityRef.current?.UpdateZonePositions(updatedPoints); // update the 3D polygon positions
-        return { ...prev, points: updatedPoints };
+  const tryCreateTempLine = () =>{
+    // following line (last point -> mouse) 
+    if (!tempLineRef.current) {
+      tempLineRef.current = viewerRef.current!.entities.add({
+        polyline: {
+          positions: new Cesium.CallbackProperty(() => {
+            if (!lastPointRef.current || !currentMousePositionRef.current) return undefined;
+            return [lastPointRef.current, currentMousePositionRef.current];
+          }, false),
+          width: 3,
+          material: Cesium.Color.RED,
+        },
       });
     }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }
 
-  handlerRef.current = handler;
-};
+  const tryCreateTempClosingLine = () =>{
+    // closing line (first point -> mouse)
+    if (dangerZoneRef.current.points.length > 0) {
+      const firstPoint = dangerZoneRef.current.points[0];
+      const firstCartesian = Cesium.Cartesian3.fromDegrees(
+        firstPoint.longitude,
+        firstPoint.latitude,
+        firstPoint.altitude
+      );
 
-// Clean up listener when component unmounts or toggles
-useEffect(() => {
-  return () => {
-    if (handlerRef.current) {
-      handlerRef.current.destroy();
-      handlerRef.current = null;
+      if (!tempClosingLineRef.current) {
+        tempClosingLineRef.current = viewerRef.current!.entities.add({
+          polyline: {
+            positions: new Cesium.CallbackProperty(() => {
+              if (!currentMousePositionRef.current) return undefined;
+              return [firstCartesian, currentMousePositionRef.current];
+            }, false),
+            width: 3,
+            material: Cesium.Color.RED, 
+          },
+        });
+      }
     }
-  };
-}, []);
-
-
+  }
 
   const handleInputChange = (field: keyof DangerZone, value: any) => {
     setDangerZone(prev => ({ ...prev, [field]: value }));
@@ -161,7 +313,7 @@ useEffect(() => {
             className="startAddingPoints-button"
             onClick={toggleAddingPoints}
             >
-                {isAddingPoints ? "Stop adding points" : "Add points"}
+                {isDrawing ? "Stop adding points" : "Add points"}
         </button>
         
         <div className="points-section">
