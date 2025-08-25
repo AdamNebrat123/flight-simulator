@@ -1,46 +1,43 @@
 import * as Cesium from "cesium";
-import type { GeoPoint } from "../Messages/AllTypes";
+import type { DangerZone, GeoPoint } from "../Messages/AllTypes";
 
 export class DangerZoneEntity {
   private viewer: Cesium.Viewer | null;
   private entity: Cesium.Entity | null;
-  private points: GeoPoint[];
-  private bottomHeight: number;
-  private topHeight: number;
-  private name: string;
+  private dangerZone: DangerZone;
 
   constructor(
     viewer: Cesium.Viewer,
-    positions: GeoPoint[],
-    bottomHeight: number,
-    topHeight: number,
-    name: string
+    dangerZone: DangerZone
   ) {
     this.viewer = viewer;
-    this.points = positions;
-    this.bottomHeight = bottomHeight;
-    this.topHeight = topHeight;
-    this.name = name;
-    
-    // If there are not enough points, don't create a polygon yet
-    this.entity = viewer.entities.add({
-      name,
-      polygon: positions.length >= 3 ? {
-        hierarchy: Cesium.Cartesian3.fromDegreesArray(
-          positions.flatMap((p) => [p.longitude, p.latitude])
-        ),
-        perPositionHeight: true,
-        height: bottomHeight,
-        extrudedHeight: topHeight,
-        material: Cesium.Color.RED.withAlpha(0.3),
-        outline: true,
-        outlineColor: Cesium.Color.RED,
-      } : undefined
-    });
+    this.entity = null;
+    this.dangerZone = dangerZone;
   }
 
+  tryCreatePolygon(){
+    if(this.entity !== null || this.dangerZone === null)
+      return; // entity already exists.
+    // If there are not enough points, don't create the polygon itself yet
+    this.entity = this.viewer!.entities.add({
+      name: this.dangerZone.zoneName,
+      polygon: this.dangerZone.points.length >= 3
+        ? {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(
+              this.dangerZone.points.flatMap((p) => [p.longitude, p.latitude])
+            ),
+            perPositionHeight: true,
+            height: this.dangerZone.bottomHeight,
+            extrudedHeight: this.dangerZone.topHeight,
+            material: Cesium.Color.RED.withAlpha(0.3),
+            outline: true,
+            outlineColor: Cesium.Color.RED,
+          }
+        : undefined
+    });
+  }
   UpdateZonePositions(positions: GeoPoint[]) {
-    this.points = positions;
+    this.dangerZone.points = positions;
     if (!this.entity) return;
 
     // If there are not enough points, remove the polygon if it exists
@@ -59,8 +56,8 @@ export class DangerZoneEntity {
       this.entity.polygon = new Cesium.PolygonGraphics({
         hierarchy: new Cesium.ConstantProperty(new Cesium.PolygonHierarchy(updatedPositions)),
         perPositionHeight: true,
-        height: this.bottomHeight,
-        extrudedHeight: this.topHeight,
+        height: this.dangerZone.bottomHeight,
+        extrudedHeight: this.dangerZone.topHeight,
         material: Cesium.Color.RED.withAlpha(0.3),
         outline: true,
         outlineColor: Cesium.Color.RED,
@@ -74,20 +71,20 @@ export class DangerZoneEntity {
   }
 
   UpdateZoneBottomHeight(bottomHeight: number){
-    this.bottomHeight = bottomHeight;
+    this.dangerZone.bottomHeight = bottomHeight;
     if (!this.entity || !this.entity.polygon) return;
-    this.entity.polygon.height = new Cesium.ConstantProperty(this.bottomHeight);
+    this.entity.polygon.height = new Cesium.ConstantProperty(this.dangerZone.bottomHeight);
   }
 
   UpdateZoneTopHeight(topHeight: number){
-    this.topHeight = topHeight
+    this.dangerZone.topHeight = topHeight
     if (!this.entity || !this.entity.polygon) return;
-    this.entity.polygon.extrudedHeight = new Cesium.ConstantProperty(this.topHeight);
+    this.entity.polygon.extrudedHeight = new Cesium.ConstantProperty(this.dangerZone.topHeight);
   }
-  UpdateZoneName(name: string) {
-    this.name = name
+  UpdateZoneName(zoneName: string) {
+    this.dangerZone.zoneName = zoneName
     if (!this.entity) return;
-    this.entity.name = this.name;
+    this.entity.name = this.dangerZone.zoneName;
   }
   SetEntityNull(){
     this.entity = null;
@@ -97,5 +94,17 @@ export class DangerZoneEntity {
   }
   GetEntity(): Cesium.Entity | null {
     return this.entity;
+  }
+
+  showEntity(){
+    if(!this.entity)
+      return
+    this.entity.show = true;
+  }
+
+  hideEntity(){
+    if(!this.entity)
+      return
+    this.entity.show = false;
   }
 }

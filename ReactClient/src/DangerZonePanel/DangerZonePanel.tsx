@@ -6,6 +6,7 @@ import "./DangerZonePanel.css";
 import { DangerZoneEntity } from "./DangerZoneEntity";
 import type { DangerZoneEntityManager } from "./DangerZoneEntityManager";
 import { DangerZonePolylineManager } from "./DangerZonePolylineManager";
+import { DangerZoneManager } from "./DangerZoneManager";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -24,6 +25,7 @@ export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: 
   const [isDrawing, setIsDrawing] = useState(false);
   const isDrawingRef = useRef(isDrawing);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
+  const dangerZoneManagerRef = useRef<DangerZoneManager | null>(new DangerZoneManager());
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
   const dangerZonePolylineManagerRef = useRef<DangerZonePolylineManager | null>(null);
   const currentMousePositionRef = useRef<Cesium.Cartesian3 | null>(null);
@@ -65,10 +67,7 @@ const handleDangerZonePointChange = (
     if (viewerRef.current) {
       dangerZoneEntityRef.current = new DangerZoneEntity(
         viewerRef.current,
-        dangerZoneRef.current.points,
-        dangerZoneRef.current.bottomHeight,
-        dangerZoneRef.current.topHeight,
-        dangerZoneRef.current.zoneName
+        dangerZone
       );
       dangerZonePolylineManagerRef.current = new DangerZonePolylineManager(viewerRef.current);
     }
@@ -98,28 +97,13 @@ const handleDangerZonePointChange = (
     // Set the closing polyline to *constant* red
     const zoneName = dangerZoneRef.current.zoneName;
     dangerZonePolylineManagerRef.current?.setPlanePolylineColorConstantRed(zoneName);
+  
+    //create the actual zone:
+    dangerZoneEntityRef.current?.tryCreatePolygon();
+    
+    // if there is a visul polygon, we hide him (for comfort)
+    dangerZoneEntityRef.current?.showEntity();
 
-    /*
-    if (viewerRef.current) {
-      // create polygon
-      viewerRef.current.entities.add({
-        polygon:
-          dangerZoneRef.current.points.length >= 3
-            ? {
-                hierarchy: Cesium.Cartesian3.fromDegreesArray(
-                  dangerZoneRef.current.points.flatMap((p) => [p.longitude, p.latitude])
-                ),
-                perPositionHeight: true,
-                height: dangerZoneRef.current.bottomHeight,
-                extrudedHeight: dangerZoneRef.current.topHeight,
-                material: Cesium.Color.RED.withAlpha(0.3),
-                outline: true,
-                outlineColor: Cesium.Color.RED,
-              }
-            : undefined,
-      });
-    }
-    */
   };
   const toggleAddingPoints = () => {
     if (isDrawingRef.current) {
@@ -127,6 +111,9 @@ const handleDangerZonePointChange = (
       return;
     }
     if (!viewerRef.current) return;
+
+    // if there is a visul polygon, we hide him (for comfort)
+    dangerZoneEntityRef.current?.hideEntity();
 
     const viewer = viewerRef.current;
     setIsDrawing(true);
@@ -156,7 +143,9 @@ const handleDangerZonePointChange = (
         altitude: carto.height + 5,
       };
 
+      // update where needed
       dangerZonePolylineManagerRef.current?.addPoint(zoneName, newPoint);
+      dangerZoneEntityRef.current?.UpdateZonePositions([...dangerZoneRef.current.points, newPoint])
 
       const newZone = {
         ...dangerZoneRef.current,
@@ -265,18 +254,20 @@ const handleDangerZonePointChange = (
   }
 
   const handleInputChange = (field: keyof DangerZone, value: any) => {
-    setDangerZone(prev => ({ ...prev, [field]: value }));
-      switch (field) {
-        case "bottomHeight":
-          dangerZoneEntityRef.current?.UpdateZoneBottomHeight(value); // update the 3D polygon bottomHeight
-          break;
-        case "topHeight":
-          dangerZoneEntityRef.current?.UpdateZoneTopHeight(value); // update the 3D polygon topHeight
-          break;
-        case "zoneName":
-          dangerZoneEntityRef.current?.UpdateZoneName(value); // update the 3D polygon name
-          break;
-      }
+    const newZone = { ...dangerZone, [field]: value }
+    setDangerZone(newZone);
+    dangerZoneRef.current = newZone;
+    switch (field) {
+      case "bottomHeight":
+        dangerZoneEntityRef.current?.UpdateZoneBottomHeight(value); // update the 3D polygon bottomHeight
+        break;
+      case "topHeight":
+        dangerZoneEntityRef.current?.UpdateZoneTopHeight(value); // update the 3D polygon topHeight
+        break;
+      case "zoneName":
+        dangerZoneEntityRef.current?.UpdateZoneName(value); // update the 3D polygon name
+        break;
+    }
   };
 
   return (
@@ -363,6 +354,7 @@ const handleDangerZonePointChange = (
               dangerZoneEntityManagerRef.current?.tryAddDangerZone(dangerZone.zoneName, entity)
             console.log(entity)
             dangerZoneEntityRef.current?.SetEntityNull();
+            dangerZoneManagerRef.current?.tryAddDangerZone(dangerZone.zoneName, dangerZone)
             onSave(dangerZone)
           }
         }>
@@ -370,6 +362,7 @@ const handleDangerZonePointChange = (
           </button>
           <button className="cancel-button" onClick={() =>
               {
+                dangerZonePolylineManagerRef.current?.removePolyline(dangerZone.zoneName)
                 dangerZoneEntityRef.current?.RemoveEntity();
                 dangerZoneEntityRef.current?.SetEntityNull();
                 onClose()

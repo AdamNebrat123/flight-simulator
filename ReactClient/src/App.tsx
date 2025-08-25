@@ -180,7 +180,9 @@ const handlePlaySpeedChange = (playSpeed: number) => {
     setShowDangerZonePanel(false);
   };
 
-  const handleSaveDangerZonePanel = (data: DangerZone) => {
+  const handleSaveDangerZonePanel = (data: DangerZone | null) => {
+    if(data === null)
+      return;
     console.log('sent danger zone:', data);
     send("DangerZone", data)
     //send to server!!!!!!!!!!!!!!!!

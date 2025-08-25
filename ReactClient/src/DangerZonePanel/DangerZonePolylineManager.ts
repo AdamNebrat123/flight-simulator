@@ -129,6 +129,18 @@ export class DangerZonePolylineManager {
     }
     this.zoneNameToPolyline.delete(zoneName);
     this.zoneNameToPoints.delete(zoneName);
+    const closingEntity = this.zoneNameToClosingPolyline.get(zoneName);
+    if(closingEntity){
+        this.viewer.entities.remove(closingEntity);
+    }
+    this.zoneNameToClosingPolyline.delete(zoneName);
+    const entities = this.zoneNameToPointEntities.get(zoneName)
+    if (entities) {
+        for(const entity of entities){
+            this.viewer.entities.remove(entity);
+        }
+    }
+    this.zoneNameToPointEntities.delete(zoneName)
   }
 
   setClosingPolylineColor(zoneName: string, color: Cesium.Color) {
