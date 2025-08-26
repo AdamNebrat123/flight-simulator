@@ -10,6 +10,9 @@ public class Program
 
     public static async Task Main(string[] args)
     {
+        // load existing data (if existing)
+        LoadDataFromFiles();
+
         var builder = WebApplication.CreateBuilder(args);
         var app = builder.Build();
 
@@ -36,7 +39,7 @@ public class Program
                     var jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     Console.WriteLine("Received: " + jsonString);
                     _uiMsgHandler.HandleIncomingMessage(jsonString);
-                    
+
                 }
             }
             else
@@ -70,5 +73,20 @@ public class Program
 
         await _webSocket.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
         System.Console.WriteLine("sent: " + jsonString);
+    }
+    public static void LoadDataFromFiles()
+    {
+        ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
+        DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
+        scenariosDataManager.ReadData();
+        dangerZonesDataManager.ReadData();
+
+        List<PlanesTrajectoryPointsScenario> AllSceanrios = scenariosDataManager.GetScenarios();
+        PlanesTrajectoryPointsScenarioHandler scenarioHandler = PlanesTrajectoryPointsScenarioHandler.GetInstance();
+        // calculate results of existing scenarios
+        foreach (var scenario in AllSceanrios)
+        {
+            scenarioHandler.CalculateScenarioReuslts(scenario);
+        }
     }
 }

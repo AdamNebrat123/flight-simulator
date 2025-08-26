@@ -1,26 +1,35 @@
-
 using System.Text.Json;
 
 public class PlaySelectedScenarioHandler
 {
     private const double timeStepSeconds = 0.1;
-    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
+    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance();
     private readonly DangerZoneChecker dangerZoneChecker = new();
 
-    public PlaySelectedScenarioHandler(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
+    private static PlaySelectedScenarioHandler _instance;
+
+    private PlaySelectedScenarioHandler()
     {
-        this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
     }
+
+    public static PlaySelectedScenarioHandler GetInstance()
+    {
+        if (_instance == null)
+            _instance = new PlaySelectedScenarioHandler();
+        return _instance;
+    }
+
     public void HandlePlaySelectedScenarioCmd(JsonElement data)
     {
         PlaySelectedScenarioCmd playSelecedScenario = data.Deserialize<PlaySelectedScenarioCmd>();
         string scenarioName = playSelecedScenario.scenarioName;
-        ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetResults(scenarioName);
+        ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
         if (scenarioResults != null)
             SendCalculatedTrajectoryPointsAsync(scenarioResults);
         else
             System.Console.WriteLine(scenarioName + " doesnt exist.....");
     }
+
     public async Task SendCalculatedTrajectoryPointsAsync(ScenarioResults scenario)
     {
         Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
@@ -49,34 +58,32 @@ public class PlaySelectedScenarioHandler
 
                     // Check if point is in danger zone
                     List<string> dangerZonesIn = dangerZoneChecker.GetZonesContainingPoint(currentPoint.position);
-                    plane.dangerZonesIn = dangerZonesIn; // set the danger zone in (null if he isnt in any zone)
+                    plane.dangerZonesIn = dangerZonesIn; // null if not in any zone
 
                     // set the boolean isInDangerZone
-                    plane.isInDangerZone = dangerZonesIn.Count > 0; // if the list is empty its false
+                    plane.isInDangerZone = dangerZonesIn.Count > 0;
 
-
-                    // If i have passed 30 points  i will discard the oldest one
+                    // Keep max 30 points in history
                     if (history[plane.planeName].Count > 30)
                         history[plane.planeName].Dequeue();
                 }
 
-                // Update tailPoints from historyy
+                // Update tailPoints from history
                 plane.tailPoints = history[plane.planeName].ToList();
             }
-
 
             string responseJson = Program.prepareMessageToServer(
                 MsgTypesEnum.MultiPlaneTrajectoryResult,
                 result
             );
-            // send
+
             Program.SendMsgToClient(responseJson);
 
             int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);
             await Task.Delay(adjustedDelay);
         }
 
-        //set everything to deafult, so if scenario is played again its back to normal
+        // reset scenario defaults
         scenario.Resume();
         scenario.SetPlaySpeed(1.0);
     }

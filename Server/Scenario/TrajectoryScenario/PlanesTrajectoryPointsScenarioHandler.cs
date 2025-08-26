@@ -2,22 +2,33 @@ using System.Text.Json;
 
 public class PlanesTrajectoryPointsScenarioHandler
 {
-    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
+    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance();
+    private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
     private const double timeStepSeconds = 0.1;
-    public PlanesTrajectoryPointsScenarioHandler(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
+
+    private static PlanesTrajectoryPointsScenarioHandler _instance;
+
+    private PlanesTrajectoryPointsScenarioHandler()
     {
-        this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
     }
+
+    public static PlanesTrajectoryPointsScenarioHandler GetInstance()
+    {
+        if (_instance == null)
+            _instance = new PlanesTrajectoryPointsScenarioHandler();
+        return _instance;
+    }
+
     public void HandlePlanesTrajectoryPointsScenario(JsonElement data)
     {
-        handleTrajectoryPointsEvent(data);
-        
-        //_ = SendCalculatedTrajectoryPointsAsync(allCalculatedTrajectoryPoints);
+        PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent = data.Deserialize<PlanesTrajectoryPointsScenario>();
+        // save in the file
+        scenariosDataManager.AddScenario(planesTrajectoryPointsEvent);
+        CalculateScenarioReuslts(planesTrajectoryPointsEvent);
     }
-    private void handleTrajectoryPointsEvent(JsonElement data)
+    public void CalculateScenarioReuslts(PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent)
     {
         TrajectoryManager trajectoryManager = new TrajectoryManager();
-        PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent = data.Deserialize<PlanesTrajectoryPointsScenario>();
         List<PlaneTrajectoryPoints> planesTrajectoryPoints = planesTrajectoryPointsEvent.planes;
 
         foreach (PlaneTrajectoryPoints plane in planesTrajectoryPoints)
@@ -32,19 +43,18 @@ public class PlanesTrajectoryPointsScenarioHandler
 
         ScenarioResults scenarioResult = new ScenarioResults
         {
+            scenarioName = planesTrajectoryPointsEvent.scenarioName,
             points = trajectoryManager.CalculatedTrajectoryPoints,
             isPaused = false,
             playSpeed = 1.0
         };
 
-        // Store the scenarion
-        bool isAdded = trajectoryScenarioResultsManager.TryAddScenario(
-            planesTrajectoryPointsEvent.scenarioName,
-            scenarioResult);
+        // Store the scenario
+        bool isAdded = trajectoryScenarioResultsManager.TryAddScenario(planesTrajectoryPointsEvent.scenarioName, scenarioResult);
         if (isAdded)
             System.Console.WriteLine("Successfully saved scenario: " + planesTrajectoryPointsEvent.scenarioName);
         else
-            System.Console.WriteLine(planesTrajectoryPointsEvent.scenarioName + " alreard exists.");
+            System.Console.WriteLine(planesTrajectoryPointsEvent.scenarioName + " already exists.");
     }
 
     private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)
@@ -57,7 +67,7 @@ public class PlanesTrajectoryPointsScenarioHandler
             GeoPoint end = plane.geoPoints[i + 1];
 
             TrajectoryCalculator calculator = new TrajectoryCalculator();
-            List<TrajectoryPoint> segment = calculator.ComputeTrajectory(start, end, plane.velocity, timeStepSeconds); //timeStepSeconds is a const
+            List<TrajectoryPoint> segment = calculator.ComputeTrajectory(start, end, plane.velocity, timeStepSeconds);
 
             if (i > 0 && segment.Count > 0)
             {

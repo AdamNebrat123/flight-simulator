@@ -2,18 +2,28 @@ using System.Text.Json;
 
 public class ScenarioPlayControlHandler
 {
-    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
-    public ScenarioPlayControlHandler(TrajectoryScenarioResultsManager trajectoryScenarioResultsManager)
+    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance();
+
+    private static ScenarioPlayControlHandler _instance;
+
+    private ScenarioPlayControlHandler()
     {
-        this.trajectoryScenarioResultsManager = trajectoryScenarioResultsManager;
     }
+
+    public static ScenarioPlayControlHandler GetInstance()
+    {
+        if (_instance == null)
+            _instance = new ScenarioPlayControlHandler();
+        return _instance;
+    }
+
     public void HandlePauseScenarioCmd(JsonElement data)
     {
         try
         {
             PauseScenarioCmd pauseScenarioCmd = data.Deserialize<PauseScenarioCmd>();
             string scenarioName = pauseScenarioCmd.scenarioName;
-            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetResults(scenarioName);
+            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
             scenarioResults.Pause();
             System.Console.WriteLine(scenarioName + " paused");
         }
@@ -29,7 +39,7 @@ public class ScenarioPlayControlHandler
         {
             ResumeScenarioCmd resumeScenarioCmd = data.Deserialize<ResumeScenarioCmd>();
             string scenarioName = resumeScenarioCmd.scenarioName;
-            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetResults(scenarioName);
+            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
             scenarioResults.Resume();
             System.Console.WriteLine(scenarioName + " resumed");
         }
@@ -46,7 +56,7 @@ public class ScenarioPlayControlHandler
             ChangeScenarioPlaySpeedCmd changeScenarioPlaySpeedCmd = data.Deserialize<ChangeScenarioPlaySpeedCmd>();
             string scenarioName = changeScenarioPlaySpeedCmd.scenarioName;
             double playSpeed = changeScenarioPlaySpeedCmd.playSpeed;
-            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetResults(scenarioName);
+            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
             scenarioResults.SetPlaySpeed(playSpeed);
             System.Console.WriteLine(scenarioName + " play speed is set to: " + playSpeed);
         }

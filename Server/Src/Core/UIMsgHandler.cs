@@ -4,23 +4,18 @@ using System.Text.Json;
 public class UIMsgHandler
 {
     // managers
-    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager;
+    private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
+    private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
     private readonly DangerZoneManager dangerZoneManager;
 
     // Handlers
-    private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler;
-    private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler;
-    private readonly ScenarioPlayControlHandler scenarioPlayControlHandler;
+    private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler = PlanesTrajectoryPointsScenarioHandler.GetInstance();
+    private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler = PlaySelectedScenarioHandler.GetInstance();
+    private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
+    private readonly GetReadyScenariosRequestHandler getReadyScenariosRequestHandler = GetReadyScenariosRequestHandler.GetInstance();
     private readonly DangerZoneHandler dangerZoneHandler;
     public UIMsgHandler()
     {
-        // Trajectory related things.
-        trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance(); // manager
-        // Handlers:
-        scenarioHandler = new PlanesTrajectoryPointsScenarioHandler(trajectoryScenarioResultsManager);
-        playSelecedScenarioHandler = new PlaySelectedScenarioHandler(trajectoryScenarioResultsManager);
-        scenarioPlayControlHandler = new ScenarioPlayControlHandler(trajectoryScenarioResultsManager);
-
         // Danger zones related things.
         dangerZoneManager = DangerZoneManager.GetInstance(); // manager
         // Handlers:
@@ -47,14 +42,7 @@ public class UIMsgHandler
                         break;
 
                     case MsgTypesEnum.GetReadyScenariosRequestCmd:
-                        // testing
-                        List<string> allScenariosNames = trajectoryScenarioResultsManager.GetAllScenariosNames();
-                        ScenariosReadyToPlay scenariosReadyToPlay = new ScenariosReadyToPlay
-                        {
-                            scenariosNames = allScenariosNames,
-                        };
-                        string response = Program.prepareMessageToServer(MsgTypesEnum.ScenariosReadyToPlay, scenariosReadyToPlay);
-                        Program.SendMsgToClient(response);
+                        getReadyScenariosRequestHandler.HandleGetReadyScenariosRequestCmd(wrapper.data);
                         break;
 
                     case MsgTypesEnum.PlaySelectedScenarioCmd:
