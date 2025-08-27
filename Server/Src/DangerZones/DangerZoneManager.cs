@@ -2,54 +2,59 @@ public class DangerZoneManager
 {
     private static DangerZoneManager instance;
     private readonly Dictionary<string, DangerZone> _zones = new();
-    private DangerZoneManager()
-    {
-    }
+
+    private DangerZoneManager() { }
+
     public static DangerZoneManager GetInstance()
     {
         if (instance == null)
             instance = new DangerZoneManager();
         return instance;
     }
+
     public IEnumerable<DangerZone> GetAllZones()
     {
         return _zones.Values;
     }
 
-    public bool TryAddZone(string zoneName, DangerZone zone)
+    public bool TryAddZone(DangerZone zone)
     {
-        if (string.IsNullOrWhiteSpace(zoneName) || zone == null) return false;
-
-        if (_zones.ContainsKey(zoneName))
+        if (zone == null || string.IsNullOrWhiteSpace(zone.zoneId))
             return false;
 
-        _zones[zoneName] = zone;
+        if (_zones.ContainsKey(zone.zoneId))
+            return false;
+
+        _zones[zone.zoneId] = zone;
         return true;
     }
 
-    public DangerZone? TryGetZone(string zoneName)
+    public DangerZone? TryGetZone(string zoneId)
     {
-        if (string.IsNullOrWhiteSpace(zoneName)) return null;
+        if (string.IsNullOrWhiteSpace(zoneId))
+            return null;
 
-        _zones.TryGetValue(zoneName, out var zone);
+        _zones.TryGetValue(zoneId, out var zone);
         return zone;
     }
 
-    public bool TryRemoveZone(string zoneName)
+    public bool TryRemoveZone(string zoneId)
     {
-        if (string.IsNullOrWhiteSpace(zoneName)) return false;
+        if (string.IsNullOrWhiteSpace(zoneId))
+            return false;
 
-        return _zones.Remove(zoneName);
+        return _zones.Remove(zoneId);
     }
-    public bool TryEditDangerZone(string zoneName, DangerZone updatedZone)
+
+    public bool TryEditDangerZone(string zoneId, DangerZone updatedZone)
     {
-        if (string.IsNullOrWhiteSpace(zoneName) || updatedZone == null)
+        if (string.IsNullOrWhiteSpace(zoneId) || updatedZone == null)
             return false;
 
-        if (!_zones.ContainsKey(zoneName))
+        if (!_zones.ContainsKey(zoneId))
             return false;
 
-        _zones[zoneName] = updatedZone;
+        _zones[zoneId] = updatedZone;
         return true;
     }
 }

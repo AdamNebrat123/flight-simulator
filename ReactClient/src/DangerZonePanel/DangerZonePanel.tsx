@@ -21,6 +21,7 @@ export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: 
     points: [],
     topHeight: 100,
     bottomHeight: 0,
+    zoneId: ""
   });
   const [isDrawing, setIsDrawing] = useState(false);
   const isDrawingRef = useRef(isDrawing);

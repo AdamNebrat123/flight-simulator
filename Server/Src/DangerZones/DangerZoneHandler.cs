@@ -10,11 +10,14 @@ public class DangerZoneHandler
     public void HandleAddDangerZone(JsonElement data)
     {
         DangerZone dangerZone = data.Deserialize<DangerZone>();
+        Guid uuid = Guid.NewGuid();
+        string uuidString = uuid.ToString();
+        dangerZone.zoneId = uuidString;
         string zoneName = dangerZone.zoneName;
         // add in file
         dangerZonesDataManager.AddDangerZone(dangerZone);
         // add in a map 
-        bool isAdded = dangerZoneManager.TryAddZone(zoneName, dangerZone);
+        bool isAdded = dangerZoneManager.TryAddZone(dangerZone);
         if (isAdded)
         {
             System.Console.WriteLine(zoneName + " - Added zone successfully.");

@@ -93,6 +93,7 @@ export interface ChangeScenarioPlaySpeedCmd {
 }
 
 export interface DangerZone {
+  zoneId: string;
   zoneName: string;
   points: GeoPoint[];
   topHeight: number;

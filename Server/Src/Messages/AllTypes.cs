@@ -167,8 +167,6 @@ public partial class ResumeScenarioCmd
 }
 public partial class ChangeScenarioPlaySpeedCmd
 {
-    [JsonPropertyName("zoneId")]
-    public string zoneId { get; set; }
     [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
     [JsonPropertyName("playSpeed")]
@@ -176,6 +174,8 @@ public partial class ChangeScenarioPlaySpeedCmd
 }
 public class DangerZone
 {
+    [JsonPropertyName("zoneId")]
+    public string zoneId { get; set; }
     [JsonPropertyName("zoneName")]
     public string zoneName { get; set; }
     [JsonPropertyName("points")]

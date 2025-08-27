@@ -96,7 +96,7 @@ public class Program
         // store all existing danger zones in a map from a file
         foreach (var dangerZone in allDangerZones)
         {
-            bool isAdded = dangerZoneManager.TryAddZone(dangerZone.zoneName, dangerZone);
+            bool isAdded = dangerZoneManager.TryAddZone(dangerZone);
             if (isAdded)
                 System.Console.WriteLine(dangerZone.zoneName + " - Added zone successfully.");
             else
