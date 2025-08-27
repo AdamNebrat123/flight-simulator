@@ -67,7 +67,7 @@ public class UIMsgHandler
                         break;
 
                     case C2SMessageType.EditDangerZone:
-                        dangerZoneHandler.HandleEditDanger(wrapper.data);
+                        dangerZoneHandler.HandleEditDangerZone(wrapper.data);
                         break;
 
                     default:

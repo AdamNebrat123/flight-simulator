@@ -2,6 +2,8 @@ public enum S2CMessageType
 {
     MultiPlaneTrajectoryResult,
     ScenariosReadyToPlay,
-    DangerZoneData,
+    AddDangerZone,
+    RemoveDangerZone,
+    EditDangerZone,
     DangerZoneError,
 }

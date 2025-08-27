@@ -4,18 +4,15 @@ import type { GeoPoint } from "../Messages/AllTypes";
 import type { DangerZone } from "../Messages/AllTypes";
 import "./DangerZonePanel.css";
 import { DangerZoneEntity } from "./DangerZoneEntity";
-import type { DangerZoneEntityManager } from "./DangerZoneEntityManager";
-import { DangerZonePolylineManager } from "./DangerZonePolylineManager";
-import { DangerZoneManager } from "./DangerZoneManager";
+import { DangerZonePolyline } from "./DangerZonePolylineManager";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
-  dangerZoneEntityManagerRef: React.MutableRefObject<DangerZoneEntityManager | null>;
   onClose: () => void;
   onSave: (zone: DangerZone) => void;
 }
 
-export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: dangerZoneEntityManagerRef, onClose, onSave }: DangerZonePanelProps) {
+export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZonePanelProps) {
   const [dangerZone, setDangerZone] = useState<DangerZone>({
     zoneName: "ZoneName",
     points: [],
@@ -26,9 +23,8 @@ export default function DangerZonePanel({viewerRef, dangerZoneEntityManagerRef: 
   const [isDrawing, setIsDrawing] = useState(false);
   const isDrawingRef = useRef(isDrawing);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
-  const dangerZoneManagerRef = useRef<DangerZoneManager | null>(new DangerZoneManager());
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
-  const dangerZonePolylineManagerRef = useRef<DangerZonePolylineManager | null>(null);
+  const dangerZonePolylineRef = useRef<DangerZonePolyline | null>(null);
   const currentMousePositionRef = useRef<Cesium.Cartesian3 | null>(null);
   
   // Temporary polylines for the lines that follow the mouse
@@ -57,8 +53,7 @@ const handleDangerZonePointChange = (
     setDangerZone(newZone);
     dangerZoneRef.current = newZone; 
 
-    dangerZonePolylineManagerRef.current?.updatePoint(
-      newZone.zoneName,
+    dangerZonePolylineRef.current?.updatePoint(
       pointIndex,
       updatedPoints[pointIndex]
     );
@@ -70,7 +65,7 @@ const handleDangerZonePointChange = (
         viewerRef.current,
         dangerZone
       );
-      dangerZonePolylineManagerRef.current = new DangerZonePolylineManager(viewerRef.current);
+      dangerZonePolylineRef.current = new DangerZonePolyline(viewerRef.current);
     }
     return () => {
       dangerZoneEntityRef.current?.SetEntityNull();
@@ -96,8 +91,7 @@ const handleDangerZonePointChange = (
     currentMousePositionRef.current = null;
 
     // Set the closing polyline to *constant* red
-    const zoneName = dangerZoneRef.current.zoneName;
-    dangerZonePolylineManagerRef.current?.setPlanePolylineColorConstantRed(zoneName);
+    dangerZonePolylineRef.current?.setColorConstantRed();
   
     //create the actual zone:
     dangerZoneEntityRef.current?.tryCreatePolygon();
@@ -120,12 +114,11 @@ const handleDangerZonePointChange = (
     setIsDrawing(true);
     isDrawingRef.current = true;
 
-    const zoneName = dangerZoneRef.current.zoneName;
-    dangerZonePolylineManagerRef.current?.createPolyline(zoneName);
-    dangerZonePolylineManagerRef.current?.createClosingPolyline(zoneName);
+    dangerZonePolylineRef.current?.createPolyline();
+    dangerZonePolylineRef.current?.createClosingPolyline();
 
     // Set the closing polyline to *transparent* red
-    dangerZonePolylineManagerRef.current?.setPlanePolylineColorTransparentRed(zoneName);
+    dangerZonePolylineRef.current?.setColorTransparentRed();
     if (dangerZoneRef.current.points.length > 0) {
       tryCreateTempLine(); // Try create the temp line (last point -> mouse) 
       tryCreateTempClosingLine(); // Try create the temp closing line (first point -> mouse)
@@ -141,12 +134,10 @@ const handleDangerZonePointChange = (
       const newPoint: GeoPoint = {
         longitude: Cesium.Math.toDegrees(carto.longitude),
         latitude: Cesium.Math.toDegrees(carto.latitude),
-        altitude: carto.height + 5,
+        altitude: carto.height + 20,
       };
 
-      // update where needed
-      dangerZonePolylineManagerRef.current?.addPoint(zoneName, newPoint);
-      dangerZoneEntityRef.current?.UpdateZonePositions([...dangerZoneRef.current.points, newPoint])
+      
 
       const newZone = {
         ...dangerZoneRef.current,
@@ -154,6 +145,11 @@ const handleDangerZonePointChange = (
       };
       setDangerZone(newZone);
       dangerZoneRef.current = newZone; 
+
+
+      // update where needed
+      dangerZonePolylineRef.current?.addPoint(newPoint);
+      dangerZoneEntityRef.current?.UpdateZonePositions([...dangerZoneRef.current.points])
 
       if (tempLineRef.current) {
         viewer.entities.remove(tempLineRef.current);
@@ -168,7 +164,7 @@ const handleDangerZonePointChange = (
       currentMousePositionRef.current = null;
 
       // Set the closing polyline to *constant* red
-      dangerZonePolylineManagerRef.current?.setPlanePolylineColorConstantRed(zoneName);
+      dangerZonePolylineRef.current?.setColorConstantRed();
 
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -178,9 +174,8 @@ const handleDangerZonePointChange = (
       const newPosition = viewer.scene.pickPosition(movement.endPosition);
       if (!Cesium.defined(newPosition)) return;
 
-      const zoneName = dangerZoneRef.current.zoneName;
       // Set the closing polyline to *transparent* red
-      dangerZonePolylineManagerRef.current?.setPlanePolylineColorTransparentRed(zoneName);
+      dangerZonePolylineRef.current?.setColorTransparentRed();
 
       currentMousePositionRef.current = newPosition;
 
@@ -309,68 +304,65 @@ const handleDangerZonePointChange = (
         </button>
         
         <div className="points-section">
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Longitude</th>
-        <th>Latitude</th>
-      </tr>
-    </thead>
-    <tbody>
-      {dangerZone.points.map((p, idx) => (
-        <tr key={idx}>
-          <td>{idx + 1}</td>
-          <td>
-            <input
-              type="number"
-              value={p.longitude}
-              step="0.000001"
-              onChange={(e) =>
-                handleDangerZonePointChange(idx, "longitude", Number(e.target.value))
-              }
-            />
-          </td>
-          <td>
-            <input
-              type="number"
-              value={p.latitude}
-              step="0.000001"
-              onChange={(e) =>
-                handleDangerZonePointChange(idx, "latitude", Number(e.target.value))
-              }
-            />
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Longitude</th>
+                <th>Latitude</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dangerZone.points.map((p, idx) => (
+                <tr key={idx}>
+                  <td>{idx + 1}</td>
+                  <td>
+                    <input
+                      type="number"
+                      value={p.longitude}
+                      step="0.000001"
+                      onChange={(e) =>
+                        handleDangerZonePointChange(idx, "longitude", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={p.latitude}
+                      step="0.000001"
+                      onChange={(e) =>
+                        handleDangerZonePointChange(idx, "latitude", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="dangerzone-actions">
           <button className="save-button" onClick={() => 
-          {
-            const entity = dangerZoneEntityRef.current?.GetEntity()
-            if(entity)
-              dangerZoneEntityManagerRef.current?.tryAddDangerZone(dangerZone.zoneName, entity)
-            console.log(entity)
-            dangerZoneEntityRef.current?.SetEntityNull();
-            dangerZoneManagerRef.current?.tryAddDangerZone(dangerZone.zoneName, dangerZone)
-            onSave(dangerZone)
-          }
-        }>
-          Save
+              {
+                dangerZonePolylineRef.current?.remove()
+                dangerZoneEntityRef.current?.RemoveEntity();
+                dangerZoneEntityRef.current?.SetEntityNull();
+                onSave(dangerZone)
+              }
+            }>
+              Save
           </button>
           <button className="cancel-button" onClick={() =>
               {
-                dangerZonePolylineManagerRef.current?.removePolyline(dangerZone.zoneName)
+                dangerZonePolylineRef.current?.remove()
                 dangerZoneEntityRef.current?.RemoveEntity();
                 dangerZoneEntityRef.current?.SetEntityNull();
                 onClose()
               }
               }>
                 Cancel
-                </button>
+          </button>
         </div>
       </div>
     </div>

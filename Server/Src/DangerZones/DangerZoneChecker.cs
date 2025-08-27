@@ -15,7 +15,7 @@ public class DangerZoneChecker
         {
             if (IsPointInZone(point, zone))
             {
-                zonesContainingPoint.Add(zone.zoneName);
+                zonesContainingPoint.Add(zone.zoneId);
             }
         }
 

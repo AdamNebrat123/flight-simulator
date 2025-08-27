@@ -14,6 +14,8 @@ import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
 import { PlaneTailManager } from './Handlers/PlaneTailManager';
 import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajectoryResultHandler';
 import { DangerZoneEntityManager } from './DangerZonePanel/DangerZoneEntityManager';
+import { DangerZoneHandler } from './Handlers/DangerZoneHandler';
+import { S2CMessageType } from './Messages/S2CMessageType';
 
 
 export default function App() {
@@ -34,32 +36,38 @@ export default function App() {
   const planeTailManagerRef = useRef<PlaneTailManager | null>(null);
   const dangerZoneEntityManagerRef = useRef<DangerZoneEntityManager | null>(null)
   const multiPlaneTrajectoryResultHandler = useRef<MultiPlaneTrajectoryResultHandler | null>(null) 
+  const dangerZoneHandlerRef =  useRef<DangerZoneHandler | null>(null);
 
   // when a viewer it initialized, this function is run, everything that need the viewer should be put here
   const handleViewerReady = () => {
     if (viewerRef.current && !planeManagerRef.current) {
       planeManagerRef.current = new PlaneEntityManager(viewerRef.current);
       planeTailManagerRef.current = new PlaneTailManager(viewerRef.current)
-      dangerZoneEntityManagerRef.current = new DangerZoneEntityManager(viewerRef.current)
+      dangerZoneEntityManagerRef.current = DangerZoneEntityManager.GetInstance(viewerRef.current);
+
       multiPlaneTrajectoryResultHandler.current = new MultiPlaneTrajectoryResultHandler(
         planeManagerRef.current,
         planeTailManagerRef.current, 
         dangerZoneEntityManagerRef.current
       );
-      
+
+      dangerZoneHandlerRef.current = new DangerZoneHandler(viewerRef.current)
+
+      // register to all of the events
+      RegisterHandlers();
     }
   };
 
-  // register to all the events (give a handler for each type of msg.)
+  // register to all of the events (give a handler for each type of msg.)
   // =================================================================
   // =================================================================
-  useEffect(() => {
+  const RegisterHandlers = () => {
     // type : MultiPlaneTrajectoryResult
-    const unsubMultiPlaneTrajectoryResult = on("MultiPlaneTrajectoryResult", (data) => {
+    const unsubMultiPlaneTrajectoryResult = on(S2CMessageType.MultiPlaneTrajectoryResult , (data) => {
       multiPlaneTrajectoryResultHandler.current?.HandleMultiPlaneTrajectoryResult(data);
     });
     // type : ScenariosReadyToPlay
-    const unsubScenariosReadyToPlay = on("ScenariosReadyToPlay", (data) => {
+    const unsubScenariosReadyToPlay = on(S2CMessageType.ScenariosReadyToPlay, (data) => {
       try{
       const scenariosReadyToPlay = data as ScenariosReadyToPlay;
       setScenarios(scenariosReadyToPlay.scenariosNames);
@@ -70,12 +78,37 @@ export default function App() {
       }
     });
 
+    // type : AddDanerZone
+    const unsubAddDanerZone = on(S2CMessageType.AddDangerZone , (data) => {
+      dangerZoneHandlerRef.current?.HandleAddDangerZone(data);
+    });
+
+    // type : RemoveDangerZone
+    const unsubRemoveDangerZone = on(S2CMessageType.RemoveDangerZone , (data) => {
+      dangerZoneHandlerRef.current?.HandleRemoveDangerZone(data);
+    });
+
+    // type : EditDangerZone
+    const unsubEditDangerZone = on(S2CMessageType.EditDangerZone , (data) => {
+      dangerZoneHandlerRef.current?.HandleEditDangerZone(data);
+    });
+
+    // type : DangerZoneError
+    const unsubDangerZoneError = on(S2CMessageType.DangerZoneError , (data) => {
+      dangerZoneHandlerRef.current?.HandleDangerZoneError(data);
+    });
+
     //clean up
     return () => {
       unsubMultiPlaneTrajectoryResult();
       unsubScenariosReadyToPlay();
+      unsubAddDanerZone();
+      unsubRemoveDangerZone();
+      unsubEditDangerZone();
+      unsubDangerZoneError();
+
     };
-  }, []);
+  }
   // =================================================================
   // =================================================================
 
@@ -237,7 +270,6 @@ const handlePlaySpeedChange = (playSpeed: number) => {
           onClose={handleCloseDangerZonePanel}
           onSave={handleSaveDangerZonePanel}
           viewerRef={viewerRef}
-          dangerZoneEntityManagerRef={dangerZoneEntityManagerRef}
         />
       )}
 

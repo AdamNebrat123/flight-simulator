@@ -1,93 +1,128 @@
 import * as Cesium from "cesium";
 import { toast } from "react-toastify";
+import type { DangerZone } from "../Messages/AllTypes";
 
 export class DangerZoneEntityManager {
+  private static instance: DangerZoneEntityManager | null = null;
+
   private viewer: Cesium.Viewer;
-  private zoneNameToEntity: Map<string, Cesium.Entity>;
+  private zoneIdToEntity: Map<string, Cesium.Entity>;
   private blinkingZones = new Set<string>();
 
-  constructor(viewer: Cesium.Viewer) {
+  // Private constructor for singleton
+  private constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
-    this.zoneNameToEntity = new Map<string, Cesium.Entity>();
+    this.zoneIdToEntity = new Map<string, Cesium.Entity>();
   }
 
-  tryAddDangerZone(name: string, entity: Cesium.Entity) {
-    if (this.zoneNameToEntity.has(name)) {
-        // already exists
-        toast.error("A danger zone with that name already exists. Couldn't save.");
-        console.log("Not added to zoneNameToEntity");
-        // Remove the new entity from Cesium
-        this.viewer?.entities.remove(entity);
-        return;
+  public static GetInstance(viewer?: Cesium.Viewer): DangerZoneEntityManager {
+    if (!DangerZoneEntityManager.instance) {
+      if (!viewer) {
+        throw new Error("Viewer must be provided for the first GetInstance call");
+      }
+      DangerZoneEntityManager.instance = new DangerZoneEntityManager(viewer);
+    }
+    return DangerZoneEntityManager.instance;
+  }
+
+  tryAddDangerZone(dangerZone: DangerZone) {
+    if (!dangerZone || !dangerZone.zoneId) {
+      toast.error("Invalid DangerZone or missing zoneId");
+      return;
     }
 
-    // Add the entity if the name is unique
-    this.zoneNameToEntity.set(name, entity);
-    console.log("Added to zoneNameToEntity");
+    if (this.zoneIdToEntity.has(dangerZone.zoneId)) {
+      toast.error(
+        `A danger zone with id ${dangerZone.zoneId} already exists. Couldn't save.`
+      );
+      return;
+    }
+
+    const entity = this.tryCreatePolygon(dangerZone);
+    this.zoneIdToEntity.set(dangerZone.zoneId, entity);
   }
 
-  getDangerZone(name: string): Cesium.Entity | null {
-    return this.zoneNameToEntity.get(name) ?? null;
+  getDangerZone(zoneId: string): Cesium.Entity | null {
+    return this.zoneIdToEntity.get(zoneId) ?? null;
   }
 
-  removeDangerZone(name: string) {
-    if (!this.viewer) return;
-
-    const entity = this.zoneNameToEntity.get(name);
+  removeDangerZone(zoneId: string) {
+    const entity = this.zoneIdToEntity.get(zoneId);
     if (entity) {
       this.viewer.entities.remove(entity);
-      this.zoneNameToEntity.delete(name);
+      this.zoneIdToEntity.delete(zoneId);
+      this.blinkingZones.delete(zoneId);
     }
   }
 
-  getAllDangerZoneNames(): string[] {
-    return Array.from(this.zoneNameToEntity.keys());
+  getAllDangerZoneIds(): string[] {
+    return Array.from(this.zoneIdToEntity.keys());
   }
 
   clearAllDangerZones() {
-    if (!this.viewer) return;
-
-    for (const entity of this.zoneNameToEntity.values()) {
+    for (const entity of this.zoneIdToEntity.values()) {
       this.viewer.entities.remove(entity);
     }
-    this.zoneNameToEntity.clear();
+    this.zoneIdToEntity.clear();
     this.blinkingZones.clear();
   }
 
-    startBlinking(name: string) {
-        const entity = this.zoneNameToEntity.get(name);
-        if (!entity || !entity.polygon) return;
+  startBlinking(zoneId: string) {
+    const entity = this.zoneIdToEntity.get(zoneId);
+    if (!entity || !entity.polygon) return;
+    if (this.blinkingZones.has(zoneId)) return;
 
-        if (this.blinkingZones.has(name)) return; // already blinking
-        this.blinkingZones.add(name);
+    this.blinkingZones.add(zoneId);
 
-        // Swap between red and yellow
-        entity.polygon.material = new Cesium.ColorMaterialProperty(
-        new Cesium.CallbackProperty(() => {
-            const seconds = Date.now() / 500;
-            const isRed = Math.floor(seconds) % 2 === 0;
-            return isRed ? Cesium.Color.RED.withAlpha(0.3) : Cesium.Color.YELLOW.withAlpha(0.3);
-        }, false)
-        );
+    entity.polygon.material = new Cesium.ColorMaterialProperty(
+      new Cesium.CallbackProperty(() => {
+        const seconds = Date.now() / 500;
+        const isRed = Math.floor(seconds) % 2 === 0;
+        return isRed
+          ? Cesium.Color.RED.withAlpha(0.3)
+          : Cesium.Color.YELLOW.withAlpha(0.3);
+      }, false)
+    );
 
-        entity.polygon.outlineColor = new Cesium.CallbackProperty(() => {
-            const seconds = Date.now() / 500;
-            const isRed = Math.floor(seconds) % 2 === 0;
-            return isRed ? Cesium.Color.RED : Cesium.Color.YELLOW;
-        }, false);
-    }
+    entity.polygon.outlineColor = new Cesium.CallbackProperty(() => {
+      const seconds = Date.now() / 500;
+      const isRed = Math.floor(seconds) % 2 === 0;
+      return isRed ? Cesium.Color.RED : Cesium.Color.YELLOW;
+    }, false);
+  }
 
-    stopBlinking(name: string) {
-        const entity = this.zoneNameToEntity.get(name);
-        if (!entity || !entity.polygon) return;
+  stopBlinking(zoneId: string) {
+    const entity = this.zoneIdToEntity.get(zoneId);
+    if (!entity || !entity.polygon) return;
+    if (!this.blinkingZones.has(zoneId)) return;
 
-        if (!this.blinkingZones.has(name)) return;
-        this.blinkingZones.delete(name);
+    this.blinkingZones.delete(zoneId);
 
-        // Return to constant red
-        entity.polygon.material = new Cesium.ColorMaterialProperty(
-            Cesium.Color.RED.withAlpha(0.3)
-        );
-        entity.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.RED);
-    }
+    entity.polygon.material = new Cesium.ColorMaterialProperty(
+      Cesium.Color.RED.withAlpha(0.3)
+    );
+    entity.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.RED);
+  }
+
+  private tryCreatePolygon(dangerZone: DangerZone): Cesium.Entity {
+    const entity = this.viewer!.entities.add({
+      name: dangerZone.zoneName,
+      polygon:
+        dangerZone.points.length >= 3
+          ? {
+              hierarchy: Cesium.Cartesian3.fromDegreesArray(
+                dangerZone.points.flatMap((p) => [p.longitude, p.latitude])
+              ),
+              perPositionHeight: true,
+              height: dangerZone.bottomHeight,
+              extrudedHeight: dangerZone.topHeight,
+              material: Cesium.Color.RED.withAlpha(0.3),
+              outline: true,
+              outlineColor: Cesium.Color.RED,
+            }
+          : undefined,
+    });
+
+    return entity;
+  }
 }

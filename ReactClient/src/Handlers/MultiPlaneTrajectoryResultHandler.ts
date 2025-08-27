@@ -65,12 +65,13 @@ export class MultiPlaneTrajectoryResultHandler {
       }
     }
     // After processing all planes, check all danger zones to know what danger zone(s) should blink
-    const allDangerZoneNames = this.dangerZoneEntityManager.getAllDangerZoneNames();
-    for (const zoneName of allDangerZoneNames) {
-        if (uniqueDangerZones.has(zoneName)) {
-            this.dangerZoneEntityManager.startBlinking(zoneName);
+    const allDangerIds = this.dangerZoneEntityManager.getAllDangerZoneIds();
+    console.log(allDangerIds)
+    for (const zoneId of allDangerIds) {
+        if (uniqueDangerZones.has(zoneId)) {
+            this.dangerZoneEntityManager.startBlinking(zoneId);
         } else {
-            this.dangerZoneEntityManager.stopBlinking(zoneName);
+            this.dangerZoneEntityManager.stopBlinking(zoneId);
         }
     }
   }

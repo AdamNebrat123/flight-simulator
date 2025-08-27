@@ -1,36 +1,62 @@
 import { toast } from "react-toastify";
 import type { DangerZone } from "../Messages/AllTypes";
 
+export class DangerZoneManager {
+    private zoneIdToDangerZone: Map<string, DangerZone>;
 
-export class DangerZoneManager{
-    private zoneNameToDangerZone: Map<string, DangerZone>
-
-    constructor(){
-        this.zoneNameToDangerZone = new Map<string, DangerZone>();
+    constructor() {
+        this.zoneIdToDangerZone = new Map<string, DangerZone>();
     }
 
-    tryAddDangerZone(zoneName: string, zone: DangerZone): boolean {
-        if (this.zoneNameToDangerZone.has(zoneName)) {
-            toast.error(zoneName + " - Zone name already exists")
-            return false; // already exists
+    tryAddDangerZone(zone: DangerZone): boolean {
+        if (!zone || !zone.zoneId) {
+            toast.error("Invalid DangerZone or missing zoneId");
+            return false;
         }
-        this.zoneNameToDangerZone.set(zoneName, zone);
+
+        if (this.zoneIdToDangerZone.has(zone.zoneId)) {
+            toast.error(`Zone with id ${zone.zoneId} already exists`);
+            return false;
+        }
+
+        this.zoneIdToDangerZone.set(zone.zoneId, zone);
         return true;
     }
 
-    tryRemoveDangerZone(zoneName: string): boolean {
-        return this.zoneNameToDangerZone.delete(zoneName);
+    tryRemoveDangerZone(zoneId: string): boolean {
+        if (!zoneId) return false;
+        return this.zoneIdToDangerZone.delete(zoneId);
     }
 
-    getDangerZone(zoneName: string): DangerZone | undefined {
-        return this.zoneNameToDangerZone.get(zoneName);
+    tryEditDangerZone(zone: DangerZone): boolean {
+    if (!zone || !zone.zoneId) {
+        console.log("Invalid DangerZone or missing zoneId");
+        return false;
     }
-    
-    getAllDangerZonesNames(): string[] {
-        return Array.from(this.zoneNameToDangerZone.keys());
+
+    if (!this.zoneIdToDangerZone.has(zone.zoneId)) {
+        console.log(`Zone with id ${zone.zoneId} does not exist`);
+        return false;
+    }
+
+    this.zoneIdToDangerZone.set(zone.zoneId, zone);
+    return true;
+}
+
+    getDangerZone(zoneId: string): DangerZone | undefined {
+        if (!zoneId) return undefined;
+        return this.zoneIdToDangerZone.get(zoneId);
+    }
+
+    getAllDangerZones(): DangerZone[] {
+        return Array.from(this.zoneIdToDangerZone.values());
+    }
+
+    getAllDangerZoneIds(): string[] {
+        return Array.from(this.zoneIdToDangerZone.keys());
     }
 
     clearAll(): void {
-        this.zoneNameToDangerZone.clear();
+        this.zoneIdToDangerZone.clear();
     }
 }
