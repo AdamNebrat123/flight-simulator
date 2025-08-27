@@ -50,7 +50,7 @@ public class Program
 
         app.Run();
     }
-    public static string prepareMessageToServer<T>(MsgTypesEnum msgType, T msg)
+    public static string prepareMessageToClient<T>(S2CMessageType msgType, T msg)
     {
         var message = new
         {
@@ -77,16 +77,30 @@ public class Program
     public static void LoadDataFromFiles()
     {
         ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
-        DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
         scenariosDataManager.ReadData();
-        dangerZonesDataManager.ReadData();
 
-        List<PlanesTrajectoryPointsScenario> AllSceanrios = scenariosDataManager.GetScenarios();
+        List<PlanesTrajectoryPointsScenario> allSceanrios = scenariosDataManager.GetScenarios();
         PlanesTrajectoryPointsScenarioHandler scenarioHandler = PlanesTrajectoryPointsScenarioHandler.GetInstance();
         // calculate results of existing scenarios
-        foreach (var scenario in AllSceanrios)
+        foreach (var scenario in allSceanrios)
         {
             scenarioHandler.CalculateScenarioReuslts(scenario);
+        }
+
+        DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
+        dangerZonesDataManager.ReadData();
+
+        List<DangerZone> allDangerZones = dangerZonesDataManager.GetDangerZones();
+        DangerZoneManager dangerZoneManager = DangerZoneManager.GetInstance();
+
+        // store all existing danger zones in a map from a file
+        foreach (var dangerZone in allDangerZones)
+        {
+            bool isAdded = dangerZoneManager.TryAddZone(dangerZone.zoneName, dangerZone);
+            if (isAdded)
+                System.Console.WriteLine(dangerZone.zoneName + " - Added zone successfully.");
+            else
+                System.Console.WriteLine(dangerZone.zoneName + " - Failed to add zone.");
         }
     }
 }

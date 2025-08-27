@@ -3,10 +3,9 @@ using System.Text.Json;
 
 public class UIMsgHandler
 {
-    // managers
+    // data managers
     private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
     private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
-    private readonly DangerZoneManager dangerZoneManager;
 
     // Handlers
     private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler = PlanesTrajectoryPointsScenarioHandler.GetInstance();
@@ -16,10 +15,8 @@ public class UIMsgHandler
     private readonly DangerZoneHandler dangerZoneHandler;
     public UIMsgHandler()
     {
-        // Danger zones related things.
-        dangerZoneManager = DangerZoneManager.GetInstance(); // manager
         // Handlers:
-        dangerZoneHandler = new DangerZoneHandler(dangerZoneManager);
+        dangerZoneHandler = new DangerZoneHandler();
     }
 
     public async Task HandleIncomingMessage(string json)
@@ -32,37 +29,45 @@ public class UIMsgHandler
             });
             Console.WriteLine("Deserialized Type: " + wrapper?.type);
 
-            if (!string.IsNullOrWhiteSpace(wrapper.type) && Enum.TryParse<MsgTypesEnum>(wrapper.type.Trim(), ignoreCase: true, out var messageType))
+            if (!string.IsNullOrWhiteSpace(wrapper.type) && Enum.TryParse<C2SMessageType>(wrapper.type.Trim(), ignoreCase: true, out var messageType))
             {
                 switch (messageType)
                 {
-                    case MsgTypesEnum.PlanesTrajectoryPointsScenario:
+                    case C2SMessageType.PlanesTrajectoryPointsScenario:
                         // Handle
                         scenarioHandler.HandlePlanesTrajectoryPointsScenario(wrapper.data);
                         break;
 
-                    case MsgTypesEnum.GetReadyScenariosRequestCmd:
+                    case C2SMessageType.GetReadyScenariosRequestCmd:
                         getReadyScenariosRequestHandler.HandleGetReadyScenariosRequestCmd(wrapper.data);
                         break;
 
-                    case MsgTypesEnum.PlaySelectedScenarioCmd:
+                    case C2SMessageType.PlaySelectedScenarioCmd:
                         playSelecedScenarioHandler.HandlePlaySelectedScenarioCmd(wrapper.data);
                         break;
 
-                    case MsgTypesEnum.PauseScenarioCmd:
+                    case C2SMessageType.PauseScenarioCmd:
                         scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data);
                         break;
                     
-                    case MsgTypesEnum.ResumeScenarioCmd:
+                    case C2SMessageType.ResumeScenarioCmd:
                         scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data);
                         break;
                     
-                    case MsgTypesEnum.ChangeScenarioPlaySpeedCmd:
+                    case C2SMessageType.ChangeScenarioPlaySpeedCmd:
                         scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
                         break;
 
-                    case MsgTypesEnum.DangerZone:
-                        dangerZoneHandler.handleDangerZone(wrapper.data);
+                    case C2SMessageType.AddDangerZone:
+                        dangerZoneHandler.HandleAddDangerZone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.RemoveDangerZone:
+                        dangerZoneHandler.HandleRemoveDangerZone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.EditDangerZone:
+                        dangerZoneHandler.HandleEditDanger(wrapper.data);
                         break;
 
                     default:

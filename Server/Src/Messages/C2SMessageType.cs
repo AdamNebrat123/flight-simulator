@@ -1,14 +1,12 @@
-/*
-public enum MsgTypesEnum
+public enum C2SMessageType
 {
     PlanesTrajectoryPointsScenario,
-    MultiPlaneTrajectoryResult,
-    ScenariosReadyToPlay,
     GetReadyScenariosRequestCmd,
     PlaySelectedScenarioCmd,
     PauseScenarioCmd,
     ResumeScenarioCmd,
     ChangeScenarioPlaySpeedCmd,
-    DangerZone
+    AddDangerZone,
+    RemoveDangerZone,
+    EditDangerZone,
 }
-*/

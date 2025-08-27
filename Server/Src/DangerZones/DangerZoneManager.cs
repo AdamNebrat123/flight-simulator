@@ -41,4 +41,15 @@ public class DangerZoneManager
 
         return _zones.Remove(zoneName);
     }
+    public bool TryEditDangerZone(string zoneName, DangerZone updatedZone)
+    {
+        if (string.IsNullOrWhiteSpace(zoneName) || updatedZone == null)
+            return false;
+
+        if (!_zones.ContainsKey(zoneName))
+            return false;
+
+        _zones[zoneName] = updatedZone;
+        return true;
+    }
 }

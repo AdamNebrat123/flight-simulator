@@ -98,3 +98,7 @@ export interface DangerZone {
   topHeight: number;
   bottomHeight: number; 
 }
+
+export interface DangerZoneError {
+    errorMsg: string;
+}

@@ -72,8 +72,8 @@ public class PlaySelectedScenarioHandler
                 plane.tailPoints = history[plane.planeName].ToList();
             }
 
-            string responseJson = Program.prepareMessageToServer(
-                MsgTypesEnum.MultiPlaneTrajectoryResult,
+            string responseJson = Program.prepareMessageToClient(
+                S2CMessageType.MultiPlaneTrajectoryResult,
                 result
             );
 

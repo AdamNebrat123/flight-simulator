@@ -23,7 +23,7 @@ public class GetReadyScenariosRequestHandler
         {
             scenariosNames = allScenariosNames,
         };
-        string response = Program.prepareMessageToServer(MsgTypesEnum.ScenariosReadyToPlay, scenariosReadyToPlay);
+        string response = Program.prepareMessageToClient(S2CMessageType.ScenariosReadyToPlay, scenariosReadyToPlay);
         Program.SendMsgToClient(response);
     }
 }

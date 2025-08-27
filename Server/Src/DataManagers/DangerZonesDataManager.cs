@@ -37,7 +37,7 @@ public class DangerZonesDataManager
 
         // Ensure Data folder exists
         Directory.CreateDirectory(dataDir);
-        
+
         // Full path for the JSON file
         _dataFilePath = Path.Combine(dataDir, "DangerZonesData.json");
         if (!File.Exists(_dataFilePath))
@@ -93,6 +93,11 @@ public class DangerZonesDataManager
     {
         return _dangerZonesData.data.FirstOrDefault(z => z.zoneName == zoneName);
     }
+
+    public List<DangerZone> GetDangerZones()
+    {
+        return _dangerZonesData.data;
+    }
     public List<string> GetAllDangerZoneNames()
     {
         return _dangerZonesData.data.Select(z => z.zoneName).ToList();
@@ -103,6 +108,20 @@ public class DangerZonesDataManager
         if (zone != null)
         {
             _dangerZonesData.data.Remove(zone);
+            Save();
+            return true;
+        }
+        return false;
+    }
+    public bool EditDangerZone(string zoneName, DangerZone updatedZone)
+    {
+        // Find the existing region by name
+        var existingZone = _dangerZonesData.data.FirstOrDefault(z => z.zoneName == zoneName);
+        if (existingZone != null)
+        {
+            int index = _dangerZonesData.data.IndexOf(existingZone);
+            _dangerZonesData.data[index] = updatedZone;
+
             Save();
             return true;
         }
