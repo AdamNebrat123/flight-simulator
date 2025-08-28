@@ -5,4 +5,5 @@ export enum S2CMessageType {
     RemoveDangerZone = "RemoveDangerZone",
     EditDangerZone = "EditDangerZone",
     DangerZoneError = "DangerZoneError",
+    InitData = "InitData"
 }

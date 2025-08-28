@@ -55,6 +55,36 @@ export class DangerZoneEntityManager {
     }
   }
 
+  editDangerZone(dangerZone: DangerZone) {
+    if (!dangerZone || !dangerZone.zoneId) {
+      toast.error("Invalid DangerZone or missing zoneId");
+      return false;
+    }
+
+    if (!this.zoneIdToEntity.has(dangerZone.zoneId)) {
+      toast.error(`Danger zone with id ${dangerZone.zoneId} does not exist`);
+      return false;
+    }
+
+    // remove the old entity
+    const oldEntity = this.zoneIdToEntity.get(dangerZone.zoneId);
+    if (oldEntity) {
+      this.viewer.entities.remove(oldEntity);
+    }
+
+    // create and save new entity
+    const newEntity = this.tryCreatePolygon(dangerZone);
+    this.zoneIdToEntity.set(dangerZone.zoneId, newEntity);
+
+    // if this zone was blinking, restart its blinking effect
+    if (this.blinkingZones.has(dangerZone.zoneId)) {
+      this.startBlinking(dangerZone.zoneId);
+    }
+
+    return true;
+  }
+
+
   getAllDangerZoneIds(): string[] {
     return Array.from(this.zoneIdToEntity.keys());
   }

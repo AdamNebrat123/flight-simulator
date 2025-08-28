@@ -103,3 +103,8 @@ export interface DangerZone {
 export interface DangerZoneError {
     errorMsg: string;
 }
+
+export interface InitData {
+    scenarios: PlanesTrajectoryPointsScenario[];
+    dangerZones: DangerZone[];
+}

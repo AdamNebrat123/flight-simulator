@@ -2,10 +2,18 @@ import { toast } from "react-toastify";
 import type { DangerZone } from "../Messages/AllTypes";
 
 export class DangerZoneManager {
+    private static instance: DangerZoneManager | null = null;
     private zoneIdToDangerZone: Map<string, DangerZone>;
 
-    constructor() {
+     private constructor() {
         this.zoneIdToDangerZone = new Map<string, DangerZone>();
+    }
+
+    public static getInstance(): DangerZoneManager {
+        if (this.instance === null) {
+            this.instance = new DangerZoneManager();
+        }
+        return this.instance;
     }
 
     tryAddDangerZone(zone: DangerZone): boolean {

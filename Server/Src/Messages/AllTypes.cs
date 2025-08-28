@@ -190,3 +190,12 @@ public class DangerZoneError
     [JsonPropertyName("errorMsg")]
     public string errorMsg { get; set; }
 }
+
+public class InitData
+{
+    [JsonPropertyName("scenarios")]
+    public List<PlanesTrajectoryPointsScenario> scenarios { get; set; }
+    [JsonPropertyName("dangerZones")]
+    public List<DangerZone> dangerZones{ get; set; }
+
+}

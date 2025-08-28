@@ -16,6 +16,7 @@ import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajecto
 import { DangerZoneEntityManager } from './DangerZonePanel/DangerZoneEntityManager';
 import { DangerZoneHandler } from './Handlers/DangerZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
+import { handleInitData } from './Handlers/InitDataHandler';
 
 
 export default function App() {
@@ -51,7 +52,7 @@ export default function App() {
         dangerZoneEntityManagerRef.current
       );
 
-      dangerZoneHandlerRef.current = new DangerZoneHandler(viewerRef.current)
+      dangerZoneHandlerRef.current = DangerZoneHandler.getInstance(viewerRef.current);
 
       // register to all of the events
       RegisterHandlers();
@@ -98,6 +99,11 @@ export default function App() {
       dangerZoneHandlerRef.current?.HandleDangerZoneError(data);
     });
 
+    const unsubInitData = on(S2CMessageType.InitData, (data) => {
+      console.log("handleInitData");
+      handleInitData(data, viewerRef.current!);
+    });
+
     //clean up
     return () => {
       unsubMultiPlaneTrajectoryResult();
@@ -106,6 +112,7 @@ export default function App() {
       unsubRemoveDangerZone();
       unsubEditDangerZone();
       unsubDangerZoneError();
+      unsubInitData();
 
     };
   }

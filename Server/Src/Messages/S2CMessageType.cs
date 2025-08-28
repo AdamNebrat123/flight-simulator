@@ -6,4 +6,6 @@ public enum S2CMessageType
     RemoveDangerZone,
     EditDangerZone,
     DangerZoneError,
+    InitData,
+    
 }
