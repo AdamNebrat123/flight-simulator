@@ -18,7 +18,7 @@ Once sent to the server, the server calculates the positions of each plane at an
 
 Example visualization:
 
-<img width="1920" height="1080" alt="CreateTrajectoryScenario" src="https://github.com/user-attachments/assets/b2ee287e-bdc6-4332-b426-1572742bb275" />
+![CreateTrajectory](https://github.com/user-attachments/assets/e95facdb-ae60-4f68-a654-99a47bf89887)
 
 
 ---
@@ -50,7 +50,7 @@ These zones can be added and they are fully interactive, and their visual repres
 
 Example visualization:
 
-![CreateDangerZone](https://github.com/user-attachments/assets/e34512ba-6f39-4e9a-8b60-a6eee6b6273d)
+![CreateDangerZoneNew](https://github.com/user-attachments/assets/65c997b1-fc5e-448b-baf1-483abe780796)
 
 ---
 
