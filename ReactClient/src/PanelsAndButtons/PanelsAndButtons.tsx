@@ -6,7 +6,6 @@ import CreateTrajectoryPanel from '../CreateTrajectoryPanel/CreateTrajectoryPane
 import PlayScenarioPanel from '../PlayScenarioPanel/PlayScenarioPanel';
 import ScenarioPlayControlPanel from '../ScenarioPlayControlPanel/ScenarioPlayControlPanel';
 import DangerZonePanel from '../DangerZonePanel/DangerZonePanel';
-import { ScenarioPlayer } from '../ScenarioPlayControlPanel/ScenarioPlayer';
 import { PlaneEntityManager } from '../Handlers/PlaneEntityManager';
 import { PlaneTailManager } from '../Handlers/PlaneTailManager';
 import { C2SMessageType } from '../Messages/C2SMessageType';
