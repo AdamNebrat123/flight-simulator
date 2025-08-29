@@ -1,43 +1,54 @@
+import { useWebSocket } from "../WebSocket/WebSocketProvider";
+import { useState, useEffect, useContext } from "react";
 import "./ScenarioPlayControlPanel.css";
+import { ScenarioPlayer } from "./ScenarioPlayer";
+import { SimState } from "../SimState/SimState";
 
-interface Props {
-  scenarioName: string;
-  isPaused: boolean;
-  playSpeed: number;
-  onPause: () => void;
-  onResume: () => void;
-  onChangeSpeed: (speed: number) => void;
-  onClose: () => void;
-}
 
-export default function ScenarioPlayControlPanel({
-  scenarioName,
-  isPaused,
-  playSpeed,
-  onPause,
-  onResume,
-  onChangeSpeed,
-  onClose,
-}: Props) {
-    return (
+export default function ScenarioPlayControlPanel() {
+
+  const simStateContext  = useContext(SimState);
+  const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
+  
+  const onPause = () => {
+    scenarioPlayer.pause();
+    simStateContext?.setSimState({...simStateContext.simState})
+  };
+
+  const onResume = () => {
+    scenarioPlayer.resume();
+    simStateContext?.setSimState({...simStateContext.simState})
+  };
+
+  const onChangeSpeed = (speed: number) => {
+    scenarioPlayer.changeSpeed(speed);
+    simStateContext?.setSimState({...simStateContext.simState})
+  };
+
+  const onClose = () => {
+    scenarioPlayer.closeScenario();
+    simStateContext?.setSimState({...simStateContext.simState})
+  }
+
+  return (
     <div className="scenarioPlayControlPanel">
-        <h3>Playing: {scenarioName}</h3>
+      <h3>Playing: {scenarioPlayer.playingScenarioName}</h3>
 
-        <button onClick={onPause} disabled={isPaused}>
+      <button onClick={onPause} disabled={scenarioPlayer.isPaused}>
         Pause
-        </button>
-        <button onClick={onResume} disabled={!isPaused}>
+      </button>
+      <button onClick={onResume} disabled={!scenarioPlayer.isPaused}>
         Resume
-        </button>
+      </button>
 
-        <label htmlFor="playSpeedSelect" style={{ whiteSpace: "nowrap" }}>
+      <label htmlFor="playSpeedSelect" style={{ whiteSpace: "nowrap" }}>
         Play Speed:
-        </label>
-        <select
+      </label>
+      <select
         id="playSpeedSelect"
-        value={playSpeed}
+        value={scenarioPlayer.playSpeed}
         onChange={(e) => onChangeSpeed(Number(e.target.value))}
-        >
+      >
         <option value={0.1}>0.1x</option>
         <option value={0.2}>0.2x</option>
         <option value={0.5}>0.5x</option>
@@ -45,11 +56,9 @@ export default function ScenarioPlayControlPanel({
         <option value={2}>2x</option>
         <option value={5}>5x</option>
         <option value={10}>10x</option>
-        </select>
+      </select>
 
-        <button onClick={onClose}>
-        Close
-        </button>
+      <button onClick={onClose}>Close</button>
     </div>
-    );
+  );
 }

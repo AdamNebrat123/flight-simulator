@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
 import TopLeftButtons from './TopLeftButtons/TopLeftButtons';
@@ -17,6 +17,9 @@ import { DangerZoneEntityManager } from './DangerZonePanel/DangerZoneEntityManag
 import { DangerZoneHandler } from './Handlers/DangerZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
 import { handleInitData } from './Handlers/InitDataHandler';
+import PanelsAndButtons from './PanelsAndButtons/PanelsAndButtons';
+import { ScenarioPlayer } from './ScenarioPlayControlPanel/ScenarioPlayer';
+import { SimState } from './SimState/SimState';
 
 
 export default function App() {
@@ -33,22 +36,26 @@ export default function App() {
 
 
   //needed for MultiPlaneTrajectoryResult
-  const planeManagerRef = useRef<PlaneEntityManager | null>(null);
-  const planeTailManagerRef = useRef<PlaneTailManager | null>(null);
+  let planeManager: PlaneEntityManager | null;
+  let planeTailManager: PlaneTailManager | null;
   const dangerZoneEntityManagerRef = useRef<DangerZoneEntityManager | null>(null)
   const multiPlaneTrajectoryResultHandler = useRef<MultiPlaneTrajectoryResultHandler | null>(null) 
   const dangerZoneHandlerRef =  useRef<DangerZoneHandler | null>(null);
+  const simStateContext  = useContext(SimState);
+  const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
+
 
   // when a viewer it initialized, this function is run, everything that need the viewer should be put here
   const handleViewerReady = () => {
-    if (viewerRef.current && !planeManagerRef.current) {
-      planeManagerRef.current = new PlaneEntityManager(viewerRef.current);
-      planeTailManagerRef.current = new PlaneTailManager(viewerRef.current)
+    if (viewerRef.current) {
+      
+      planeManager = PlaneEntityManager.getInstance(viewerRef.current);
+      planeTailManager = PlaneTailManager.getInstance(viewerRef.current)
       dangerZoneEntityManagerRef.current = DangerZoneEntityManager.GetInstance(viewerRef.current);
 
       multiPlaneTrajectoryResultHandler.current = new MultiPlaneTrajectoryResultHandler(
-        planeManagerRef.current,
-        planeTailManagerRef.current, 
+        planeManager,
+        planeTailManager, 
         dangerZoneEntityManagerRef.current
       );
 
@@ -71,8 +78,9 @@ export default function App() {
     const unsubScenariosReadyToPlay = on(S2CMessageType.ScenariosReadyToPlay, (data) => {
       try{
       const scenariosReadyToPlay = data as ScenariosReadyToPlay;
-      setScenarios(scenariosReadyToPlay.scenariosNames);
-      setSelectedScenario(null); // reset selection on new list
+      scenarioPlayer.setScenarios(scenariosReadyToPlay.scenariosNames)
+      scenarioPlayer.selectScenario(null);
+      simStateContext?.setSimState({...simStateContext.simState})
       }
       catch (err){
         console.log("data could not be parsed to ScenariosReadyToPlay")
@@ -99,7 +107,7 @@ export default function App() {
       dangerZoneHandlerRef.current?.HandleDangerZoneError(data);
     });
 
-    const unsubInitData = on(S2CMessageType.InitData, (data) => {
+    const unsubInitData = on(S2CMessageType.InitData,(data) => {
       console.log("handleInitData");
       handleInitData(data, viewerRef.current!);
     });
@@ -140,9 +148,9 @@ export default function App() {
     console.log(data);
     send("PlaySelectedScenarioCmd", data)
     // clear of previous scenarios planes!!
-    planeManagerRef.current?.clearAllEntities();
+    planeManager!.clearAllEntities();
     // clear all tail of previous scenarios planes!!
-    planeTailManagerRef.current?.clearAllTails();
+    planeTailManager!.clearAllTails();
     //close selecting panel
     handleClosePlayPanel();
     // Set playing scenario to show control panel
@@ -236,6 +244,9 @@ const handlePlaySpeedChange = (playSpeed: number) => {
   return (
     <>
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
+      <PanelsAndButtons viewerRef={viewerRef} />
+
+                                                                  { /*
       {!showDangerZonePanel && !showCreateTrajectoryPanel && !showPlayPanel && (
         <TopLeftButtons
           onCreateClick={handleOpenCreateTrajectoryPanel}
@@ -279,17 +290,9 @@ const handlePlaySpeedChange = (playSpeed: number) => {
           viewerRef={viewerRef}
         />
       )}
+                                                                  */}
 
 
-      <div
-  style={{
-    position: 'absolute',
-    top: '120px',
-    left: '20px',
-    zIndex: 9999, // make sure it’s above Cesium canvas
-  }}
->
-</div>
       <ToastContainer
         position="top-right"
         autoClose={3000}
