@@ -1,6 +1,4 @@
 export enum C2SMessageType {
-    PlanesTrajectoryPointsScenario = "PlanesTrajectoryPointsScenario",
-    GetReadyScenariosRequestCmd = "GetReadyScenariosRequestCmd",
     PlaySelectedScenarioCmd = "PlaySelectedScenarioCmd",
     PauseScenarioCmd = "PauseScenarioCmd",
     ResumeScenarioCmd = "ResumeScenarioCmd",
@@ -8,4 +6,7 @@ export enum C2SMessageType {
     AddDangerZone = "AddDangerZone",
     RemoveDangerZone = "RemoveDangerZone",
     EditDangerZone = "EditDangerZone",
+    AddScenario = "AddScenario",
+    RemoveScenario = "RemoveScenario",
+    EditScenario = "EditScenario"
 }

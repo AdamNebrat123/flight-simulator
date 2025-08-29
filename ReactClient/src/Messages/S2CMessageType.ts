@@ -1,9 +1,12 @@
 export enum S2CMessageType {
-    MultiPlaneTrajectoryResult = "MultiPlaneTrajectoryResult",
-    ScenariosReadyToPlay = "ScenariosReadyToPlay",
+    ScenarioPlanesSnapshot = "ScenarioPlanesSnapshot",
     AddDangerZone = "AddDangerZone",
     RemoveDangerZone = "RemoveDangerZone",
     EditDangerZone = "EditDangerZone",
     DangerZoneError = "DangerZoneError",
-    InitData = "InitData"
+    InitData = "InitData",
+    AddScenario = "AddScenario",
+    RemoveScenario = "RemoveScenario",
+    EditScenario = "EditScenario",
+    ScenarioError = "ScenarioError"
 }

@@ -6,5 +6,5 @@ public class ScenariosData
     public DataTypes dataType { get; } = DataTypes.ScenariosData;
 
     [JsonPropertyName("data")]
-    public List<PlanesTrajectoryPointsScenario> data { get; set; } = new();
+    public List<Scenario> data { get; set; } = new();
 }

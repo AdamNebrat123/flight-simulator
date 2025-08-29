@@ -1,38 +1,38 @@
 import * as Cesium from "cesium";
-import type { MultiPlaneTrajectoryResult } from "../Messages/AllTypes";
+import type { ScenarioPlanesSnapshot } from "../Messages/AllTypes";
 import { PlaneEntityManager } from "./PlaneEntityManager";
 import { PlaneTailManager } from "./PlaneTailManager";
 import type { DangerZoneEntityManager } from "../DangerZonePanel/DangerZoneEntityManager";
 
-export class MultiPlaneTrajectoryResultHandler {
-  private planeManager: PlaneEntityManager;
+export class ScenarioPlanesSnapshotHandler {
+  private planeEntityManager: PlaneEntityManager;
   private tailManager: PlaneTailManager;
   private dangerZoneEntityManager: DangerZoneEntityManager;
 
   constructor(planeManager: PlaneEntityManager, tailManager: PlaneTailManager, dangerZoneEntityManager: DangerZoneEntityManager) {
-    this.planeManager = planeManager;
+    this.planeEntityManager = planeManager;
     this.tailManager = tailManager;
     this.dangerZoneEntityManager = dangerZoneEntityManager;
   }
 
   // Public entry point for raw data
-  public HandleMultiPlaneTrajectoryResult(data: any) {
+  public HandleScenarioPlanesSnapshot(data: any) {
     try {
-      const multiPlaneTrajectoryResult = data as MultiPlaneTrajectoryResult;
-      console.log("ALL PLANE POINTS:", multiPlaneTrajectoryResult);
+      const scenarioPlanesSnapshot = data as ScenarioPlanesSnapshot;
+      console.log("ALL PLANE POINTS:", scenarioPlanesSnapshot);
 
-      this.processTrajectoryResult(multiPlaneTrajectoryResult);
+      this.processTrajectoryResult(scenarioPlanesSnapshot);
     } catch (err) {
-      console.log("data could not be parsed to MultiPlaneTrajectoryResult");
+      console.log("data could not be parsed to ScenarioPlanesSnapshot");
     }
   }
 
   private async processTrajectoryResult(
-    multiPlaneTrajectoryResult: MultiPlaneTrajectoryResult
+    scenarioPlanesSnapshot: ScenarioPlanesSnapshot
   ): Promise<void> {
     const uniqueDangerZones = new Set<string>();
-    
-    for (const plane of multiPlaneTrajectoryResult.planes) {
+
+    for (const plane of scenarioPlanesSnapshot.planes) {
       for (const point of plane.trajectoryPoints) {
         const position = Cesium.Cartesian3.fromDegrees(
           point.position.longitude,
@@ -41,7 +41,7 @@ export class MultiPlaneTrajectoryResultHandler {
         );
 
         // Update the plane itself
-        this.planeManager.updateOrCreateEntity(
+        this.planeEntityManager.updateOrCreateEntity(
           plane.planeName,
           position,
           point.heading,
@@ -50,9 +50,9 @@ export class MultiPlaneTrajectoryResultHandler {
 
         // Check if plane is in danger zone - to make the plane blink
         if (plane.isInDangerZone) {
-          this.planeManager.startBlinking(plane.planeName);
+          this.planeEntityManager.startBlinking(plane.planeName);
         } else {
-          this.planeManager.stopBlinking(plane.planeName);
+          this.planeEntityManager.stopBlinking(plane.planeName);
         }
 
         // Add every danger zone name to the set

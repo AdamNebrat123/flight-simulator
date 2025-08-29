@@ -7,13 +7,14 @@ import { ToastContainer } from 'react-toastify';
 //handler imports
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
 import { PlaneTailManager } from './Handlers/PlaneTailManager';
-import { MultiPlaneTrajectoryResultHandler } from './Handlers/MultiPlaneTrajectoryResultHandler';
+import { ScenarioPlanesSnapshotHandler } from './Handlers/ScenarioPlanesSnapshotHandler';
 import { DangerZoneEntityManager } from './DangerZonePanel/DangerZoneEntityManager';
 import { DangerZoneHandler } from './Handlers/DangerZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
 import { handleInitData } from './Handlers/InitDataHandler';
 import PanelsAndButtons from './PanelsAndButtons/PanelsAndButtons';
 import { SimState } from './SimState/SimState';
+import { ScenarioHandler } from './Handlers/ScenarioHandler';
 
 
 export default function App() {
@@ -21,56 +22,52 @@ export default function App() {
   const { on } = useWebSocket()
 
 
-  //needed for MultiPlaneTrajectoryResult
-  let planeManager: PlaneEntityManager | null;
+  //needed for ScenarioPlanesSnapshotHandler
+  let planeEntityManager: PlaneEntityManager | null;
   let planeTailManager: PlaneTailManager | null;
   const dangerZoneEntityManagerRef = useRef<DangerZoneEntityManager | null>(null)
-  const multiPlaneTrajectoryResultHandler = useRef<MultiPlaneTrajectoryResultHandler | null>(null) 
+  const ScenarioPlanesSnapshotHandlerRef = useRef<ScenarioPlanesSnapshotHandler | null>(null)
   const dangerZoneHandlerRef =  useRef<DangerZoneHandler | null>(null);
   const simStateContext  = useContext(SimState);
   const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
+  const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
 
 
   // when a viewer it initialized, this function is run, everything that need the viewer should be put here
   const handleViewerReady = () => {
     if (viewerRef.current) {
       
-      planeManager = PlaneEntityManager.getInstance(viewerRef.current);
+      planeEntityManager = PlaneEntityManager.getInstance(viewerRef.current);
       planeTailManager = PlaneTailManager.getInstance(viewerRef.current)
       dangerZoneEntityManagerRef.current = DangerZoneEntityManager.GetInstance(viewerRef.current);
 
-      multiPlaneTrajectoryResultHandler.current = new MultiPlaneTrajectoryResultHandler(
-        planeManager,
+      ScenarioPlanesSnapshotHandlerRef.current = new ScenarioPlanesSnapshotHandler(
+        planeEntityManager,
         planeTailManager, 
         dangerZoneEntityManagerRef.current
       );
 
       dangerZoneHandlerRef.current = DangerZoneHandler.getInstance(viewerRef.current);
+      scenarioHandlerRef.current = ScenarioHandler.getInstance();
 
       // register to all of the events
-      RegisterHandlers();
+      registerHandlers();
     }
   };
 
   // register to all of the events (give a handler for each type of msg.)
   // =================================================================
   // =================================================================
-  const RegisterHandlers = () => {
-    // type : MultiPlaneTrajectoryResult
-    const unsubMultiPlaneTrajectoryResult = on(S2CMessageType.MultiPlaneTrajectoryResult , (data) => {
-      multiPlaneTrajectoryResultHandler.current?.HandleMultiPlaneTrajectoryResult(data);
+  const registerHandlers = () => {
+    // type : InitData
+    const unsubInitData = on(S2CMessageType.InitData,(data) => {
+      console.log("handleInitData");
+      handleInitData(data, viewerRef.current!);
     });
-    // type : ScenariosReadyToPlay
-    const unsubScenariosReadyToPlay = on(S2CMessageType.ScenariosReadyToPlay, (data) => {
-      try{
-      const scenariosReadyToPlay = data as ScenariosReadyToPlay;
-      scenarioPlayer.setScenarios(scenariosReadyToPlay.scenariosNames)
-      scenarioPlayer.selectScenario(null);
-      simStateContext?.setSimState({...simStateContext.simState})
-      }
-      catch (err){
-        console.log("data could not be parsed to ScenariosReadyToPlay")
-      }
+
+    // type : ScenarioPlanesSnapshot
+    const unsubScenarioPlanesSnapshot = on(S2CMessageType.ScenarioPlanesSnapshot , (data) => {
+      ScenarioPlanesSnapshotHandlerRef.current?.HandleScenarioPlanesSnapshot(data);
     });
 
     // type : AddDanerZone
@@ -93,21 +90,38 @@ export default function App() {
       dangerZoneHandlerRef.current?.HandleDangerZoneError(data);
     });
 
-    const unsubInitData = on(S2CMessageType.InitData,(data) => {
-      console.log("handleInitData");
-      handleInitData(data, viewerRef.current!);
+    // type : AddScenario
+    const unsubAddScenario = on(S2CMessageType.AddScenario, (data) => {
+      scenarioHandlerRef.current?.HandleAddScenario(data);
+    });
+
+    // type : RemoveScenario
+    const unsubRemoveScenario = on(S2CMessageType.RemoveScenario, (data) => {
+      scenarioHandlerRef.current?.HandleRemoveScenario(data);
+    });
+
+    // type : EditScenario
+    const unsubEditScenario = on(S2CMessageType.EditScenario, (data) => {
+      scenarioHandlerRef.current?.HandleEditScenario(data);
+    });
+
+    // type : ScenarioError
+    const unsubScenarioError = on(S2CMessageType.ScenarioError , (data) => {
+      scenarioHandlerRef.current?.HandleScenarioError(data);
     });
 
     //clean up
     return () => {
-      unsubMultiPlaneTrajectoryResult();
-      unsubScenariosReadyToPlay();
+      unsubInitData();
+      unsubScenarioPlanesSnapshot();
       unsubAddDanerZone();
       unsubRemoveDangerZone();
       unsubEditDangerZone();
       unsubDangerZoneError();
-      unsubInitData();
-
+      unsubAddScenario();
+      unsubRemoveScenario();
+      unsubEditScenario();
+      unsubScenarioError();
     };
   }
   // =================================================================

@@ -2,11 +2,23 @@ using System.Text.Json;
 
 public class DangerZoneHandler
 {
+    private static DangerZoneHandler instance;
     private readonly DangerZoneManager dangerZoneManager = DangerZoneManager.GetInstance();
     private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
-    public DangerZoneHandler()
+    private readonly ScenarioResultsCalculator scenarioResultsCalculator = ScenarioResultsCalculator.GetInstance();
+
+    private DangerZoneHandler()
     {
     }
+    public static DangerZoneHandler GetInstance()
+    {
+        if (instance == null)
+        {
+            instance = new DangerZoneHandler();
+        }
+        return instance;
+    }
+
     public void HandleAddDangerZone(JsonElement data)
     {
         try
@@ -15,7 +27,7 @@ public class DangerZoneHandler
             Guid uuid = Guid.NewGuid();
             string uuidString = uuid.ToString();
             dangerZone.zoneId = uuidString;
-            string zoneName = dangerZone.zoneName;
+
 
             // add in file
             dangerZonesDataManager.AddAndSaveDangerZone(dangerZone);
@@ -24,13 +36,13 @@ public class DangerZoneHandler
             bool isAdded = dangerZoneManager.TryAddZone(dangerZone);
             if (isAdded)
             {
-                System.Console.WriteLine(zoneName + " - Added zone successfully.");
+                System.Console.WriteLine("{0} ({1}) - Added zone successfully.", dangerZone.zoneId, dangerZone.zoneName);
                 SendAddDangerZone(dangerZone);
             }
             else
             {
-                System.Console.WriteLine(zoneName + " - Failed to add zone.");
-                SendDangerZoneError(zoneName + " - Failed to add zone.");
+                System.Console.WriteLine("{0} ({1}) - Failed to add zone.", dangerZone.zoneId, dangerZone.zoneName);
+                SendDangerZoneError($"{dangerZone.zoneId} ({dangerZone.zoneName}) - Failed to add zone.");
             }
         }
         catch (Exception ex)
@@ -44,26 +56,27 @@ public class DangerZoneHandler
         try
         {
             DangerZone dangerZone = data.Deserialize<DangerZone>();
-            string zoneName = dangerZone.zoneName;
+            string zoneId = dangerZone.zoneId;
 
-            bool isRemoved = dangerZonesDataManager.RemoveAndSaveDangerZone(zoneName);
+            bool isRemoved = dangerZonesDataManager.RemoveAndSaveDangerZone(zoneId);
             if (isRemoved)
             {
-                isRemoved = dangerZoneManager.TryRemoveZone(zoneName);
+                isRemoved = dangerZoneManager.TryRemoveZone(zoneId); 
                 if (isRemoved)
                 {
-                    System.Console.WriteLine(zoneName + " - Removed zone successfully.");
+                    System.Console.WriteLine("{0} ({1}) - Removed zone successfully.", zoneId, dangerZone.zoneName);
                     SendRemoveDangerZone(dangerZone);
                 }
                 else
                 {
-                    System.Console.WriteLine(zoneName + " - Failed to remove zone.");
-                    SendDangerZoneError(zoneName + " - Failed to remove zone.");
+                    System.Console.WriteLine("{0} ({1}) - Failed to remove zone.", zoneId, dangerZone.zoneName);
+                    SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone.");
                 }
             }
             else
             {
-                SendDangerZoneError(zoneName + " - Failed to remove zone.");
+                System.Console.WriteLine("{0} ({1}) - Failed to remove zone.", zoneId, dangerZone.zoneName);
+                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone.");
             }
         }
         catch (Exception ex)
@@ -77,26 +90,27 @@ public class DangerZoneHandler
         try
         {
             DangerZone dangerZone = data.Deserialize<DangerZone>();
-            string zoneName = dangerZone.zoneName;
+            string zoneId = dangerZone.zoneId;
 
-            bool isEdited = dangerZonesDataManager.EditAndSaveDangerZone(zoneName, dangerZone);
+            bool isEdited = dangerZonesDataManager.EditAndSaveDangerZone(zoneId, dangerZone); 
             if (isEdited)
             {
-                isEdited = dangerZoneManager.TryEditDangerZone(zoneName, dangerZone);
+                isEdited = dangerZoneManager.TryEditDangerZone(zoneId, dangerZone); 
                 if (isEdited)
                 {
-                    System.Console.WriteLine(zoneName + " - Edited zone successfully.");
+                    System.Console.WriteLine("{0} ({1}) - Edited zone successfully.", zoneId, dangerZone.zoneName);
                     SendEditDangerZone(dangerZone);
                 }
                 else
                 {
-                    System.Console.WriteLine(zoneName + " - Failed to edit zone.");
-                    SendDangerZoneError(zoneName + " - Failed to edit zone.");
+                    System.Console.WriteLine("{0} ({1}) - Failed to edit zone.", zoneId, dangerZone.zoneName);
+                    SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone.");
                 }
             }
             else
             {
-                SendDangerZoneError(zoneName + " - Failed to edit zone.");
+                System.Console.WriteLine("{0} ({1}) - Failed to edit zone.", zoneId, dangerZone.zoneName);
+                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone.");
             }
         }
         catch (Exception ex)
@@ -107,18 +121,18 @@ public class DangerZoneHandler
 
     public void SendAddDangerZone(DangerZone dangerZone)
     {
-        string dangerZoneData =  Program.prepareMessageToClient(S2CMessageType.AddDangerZone, dangerZone);
-        Program.SendMsgToClient(dangerZoneData);
+        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.AddDangerZone, dangerZone);
+        WebSocketServer.SendMsgToClient(dangerZoneData);
     }
     public void SendRemoveDangerZone(DangerZone dangerZone)
     {
-        string dangerZoneData =  Program.prepareMessageToClient(S2CMessageType.RemoveDangerZone, dangerZone);
-        Program.SendMsgToClient(dangerZoneData);
+        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDangerZone, dangerZone);
+        WebSocketServer.SendMsgToClient(dangerZoneData);
     }
     public void SendEditDangerZone(DangerZone dangerZone)
     {
-        string dangerZoneData =  Program.prepareMessageToClient(S2CMessageType.EditDangerZone, dangerZone);
-        Program.SendMsgToClient(dangerZoneData);
+        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.EditDangerZone, dangerZone);
+        WebSocketServer.SendMsgToClient(dangerZoneData);
     }
     public void SendDangerZoneError(string errorMsg)
     {
@@ -126,7 +140,7 @@ public class DangerZoneHandler
         {
             errorMsg = errorMsg
         };
-        string dangerZoneErrorData = Program.prepareMessageToClient(S2CMessageType.DangerZoneError, dangerZoneError);
-        Program.SendMsgToClient(dangerZoneErrorData);
+        string dangerZoneErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.DangerZoneError, dangerZoneError);
+        WebSocketServer.SendMsgToClient(dangerZoneErrorData);
     }
 }

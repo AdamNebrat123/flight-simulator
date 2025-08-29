@@ -1,9 +1,9 @@
 export interface AllTypes {
     geoPoint:                        GeoPoint;
     messageWrapper:                  MessageWrapper;
-    multiPlaneTrajectoryResult:      MultiPlaneTrajectoryResult;
+    multiPlaneTrajectoryResult:      ScenarioPlanesSnapshot;
     planeCalculatedTrajectoryPoints: PlaneCalculatedTrajectoryPoints;
-    planesTrajectoryPointsEvent:     PlanesTrajectoryPointsScenario;
+    planesTrajectoryPointsEvent:     Scenario;
     planeTrajectoryPoints:           PlaneTrajectoryPoints;
     trajectoryPoint:                 TrajectoryPoint;
     //[property: string]: any;
@@ -32,12 +32,14 @@ export interface MessageWrapper {
     //[property: string]: any;
 }
 
-export interface MultiPlaneTrajectoryResult {
+export interface ScenarioPlanesSnapshot {
+    scenarioId: string;
     planes: PlaneCalculatedTrajectoryPoints[];
     //[property: string]: any;
 }
 
 export interface PlaneCalculatedTrajectoryPoints {
+    planeId:          string;
     planeName:        string;
     trajectoryPoints: TrajectoryPoint[]; // it's usually one point
     tailPoints: TrajectoryPoint[];
@@ -54,20 +56,22 @@ export interface TrajectoryPoint {
 }
 
 export interface PlaneTrajectoryPoints {
+    planeId: string;
     geoPoints: GeoPoint[];
     planeName: string;
     velocity:  number;
     //[property: string]: any;
 }
 
-export interface PlanesTrajectoryPointsScenario {
+export interface Scenario {
+    scenarioId: string;
     planes: PlaneTrajectoryPoints[];
     scenarioName: string;
     //[property: string]: any;
 }
 
 export interface ScenariosReadyToPlay {
-  scenariosNames: string[];
+  scenariosIds: string[];
   //[property: string]: any;
 }
 
@@ -76,19 +80,19 @@ export interface GetReadyScenariosRequestCmd {
 }
 
 export interface PlaySelectedScenario {
-    scenarioName: string;
+    scenarioId: string;
 }
 
 export interface PauseScenarioCmd {
-  scenarioName: string;
+  scenarioId: string;
 }
 
 export interface ResumeScenarioCmd {
-  scenarioName: string;
+  scenarioId: string;
 }
 
 export interface ChangeScenarioPlaySpeedCmd {
-  scenarioName: string;
+  scenarioId: string;
   playSpeed: number;
 }
 
@@ -105,6 +109,10 @@ export interface DangerZoneError {
 }
 
 export interface InitData {
-    scenarios: PlanesTrajectoryPointsScenario[];
+    scenarios: Scenario[];
     dangerZones: DangerZone[];
+}
+
+export interface ScenarioError {
+    errorMsg: string;
 }

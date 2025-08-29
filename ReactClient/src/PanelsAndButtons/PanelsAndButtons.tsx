@@ -1,6 +1,6 @@
 import  { useState, useRef, useContext } from 'react';
 import { useWebSocket } from '../WebSocket/WebSocketProvider';
-import type { DangerZone, GetReadyScenariosRequestCmd, PlanesTrajectoryPointsScenario, PlaySelectedScenario } from '../Messages/AllTypes';
+import type { DangerZone, GetReadyScenariosRequestCmd, Scenario, PlaySelectedScenario } from '../Messages/AllTypes';
 import TopLeftButtons from '../TopLeftButtons/TopLeftButtons';
 import CreateTrajectoryPanel from '../CreateTrajectoryPanel/CreateTrajectoryPanel';
 import PlayScenarioPanel from '../PlayScenarioPanel/PlayScenarioPanel';
@@ -33,17 +33,15 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
     // Handlers for opening panels
     const openCreateTrajectoryPanel = () => setShowCreateTrajectoryPanel(true);
     const openDangerZonePanel = () => setShowDangerZonePanel(true);
-    const openPlayPanel = () => {
-        setShowPlayPanel(true);
-        const data: GetReadyScenariosRequestCmd = {};
-        send(C2SMessageType.GetReadyScenariosRequestCmd, data);
-    }
+    const openPlayPanel = () => setShowPlayPanel(true);
 
 
     // Handlers for closing panels
     const closeCreateTrajectoryPanel = () => setShowCreateTrajectoryPanel(false);
     const closePlayPanel = () => {
         setShowPlayPanel(false);
+        scenarioPlayer.selectScenario(null);
+        simStateContext?.setSimState({...simStateContext.simState})
     }
     const closeDangerZonePanel = () => setShowDangerZonePanel(false);
 
@@ -52,14 +50,15 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
 
 
     // Save/cancel handlers
-    const handleSaveTrajectory = (data: PlanesTrajectoryPointsScenario) => {
-        send(C2SMessageType.PlanesTrajectoryPointsScenario, data);
+    const handleSaveTrajectory = (data: Scenario) => {
+        send(C2SMessageType.AddScenario, data);
         setShowCreateTrajectoryPanel(false);
     };
 
-    const handlePlayScenarioClick = () => {
+    const handlePlayScenarioClick = (scenarioId: string, scenarioName: string) => {
         if (!scenarioPlayer.selectedScenario) return;
-        scenarioPlayer.startScenario(scenarioPlayer.selectedScenario);
+        scenarioPlayer.startScenario(scenarioId, scenarioName);
+        scenarioPlayer.selectScenario(null);
         simStateContext?.setSimState({...simStateContext.simState})
         // clear of previous scenarios planes!!
         planeManager!.clearAllEntities();

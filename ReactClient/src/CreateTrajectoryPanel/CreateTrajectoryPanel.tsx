@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
-import type { GeoPoint, PlaneTrajectoryPoints, PlanesTrajectoryPointsScenario } from "../Messages/AllTypes";
+import type { GeoPoint, PlaneTrajectoryPoints, Scenario } from "../Messages/AllTypes";
 import "./CreateTrajectoryPanel.css";
 import { toast } from "react-toastify";
 import { PlanePolylineManager } from "./PlanePolylineManager";
@@ -9,12 +9,12 @@ import AerialUnitSelection from "./AerialUnitSelection";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
-  onSave: (data: PlanesTrajectoryPointsScenario) => void;
-  onCancel: (data: PlanesTrajectoryPointsScenario) => void;
+  onSave: (data: Scenario) => void;
+  onCancel: (data: Scenario) => void;
 }
 
 export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: Props) {
-    const [eventData, setEventData] = useState<PlanesTrajectoryPointsScenario>({ planes: [],scenarioName: "ScenarioName"});
+    const [eventData, setEventData] = useState<Scenario>({ planes: [],scenarioName: "ScenarioName", scenarioId: ""});
     const [isDrawing, setIsDrawing] = useState(false);
     const isDrawingRef = useRef(isDrawing);
 
@@ -65,6 +65,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         planeName: `Plane ${eventData.planes.length + 1}`,
         velocity: 50,
         geoPoints: [],
+        planeId: ""
         };
         setEventData(prev => ({
         ...prev,
@@ -77,13 +78,13 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
     const handlePlaneNameChange = (index: number, newName: string) => {
         const updatedPlanes = [...eventData.planes];
         updatedPlanes[index].planeName = newName;
-        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName});
+        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName, scenarioId: eventData.scenarioId });
     };
 
     const handleVelocityChange = (index: number, newVelocity: number) => {
         const updatedPlanes = [...eventData.planes];
         updatedPlanes[index].velocity = newVelocity;
-        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName });
+        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName, scenarioId: eventData.scenarioId });
     };
 
     const handleGeoPointChange = (
@@ -95,7 +96,7 @@ export default function CreateTrajectoryPanel({ viewerRef, onSave, onCancel }: P
         const updatedPlanes = [...eventData.planes];
         updatedPlanes[planeIndex].geoPoints[pointIndex][field] = value;
         const updatedPoint = updatedPlanes[planeIndex].geoPoints[pointIndex];
-        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName });
+        setEventData({ planes: updatedPlanes, scenarioName: eventData.scenarioName, scenarioId: eventData.scenarioId });
         const planeName = updatedPlanes[planeIndex].planeName;
         polylineManagerRef.current?.updatePoint(planeName, pointIndex, updatedPoint)
     };

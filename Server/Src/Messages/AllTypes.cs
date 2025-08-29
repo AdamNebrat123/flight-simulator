@@ -14,13 +14,13 @@ public partial class AllTypes
     public MessageWrapper messageWrapper { get; set; }
 
     [JsonPropertyName("multiPlaneTrajectoryResult")]
-    public MultiPlaneTrajectoryResult multiPlaneTrajectoryResult { get; set; }
+    public ScenarioPlanesSnapshot multiPlaneTrajectoryResult { get; set; }
 
     [JsonPropertyName("planeCalculatedTrajectoryPoints")]
     public PlaneCalculatedTrajectoryPoints planeCalculatedTrajectoryPoints { get; set; }
 
     [JsonPropertyName("planesTrajectoryPointsEvent")]
-    public PlanesTrajectoryPointsScenario planesTrajectoryPointsEvent { get; set; }
+    public Scenario planesTrajectoryPointsEvent { get; set; }
 
     [JsonPropertyName("planeTrajectoryPoints")]
     public PlaneTrajectoryPoints planeTrajectoryPoints { get; set; }
@@ -72,11 +72,14 @@ public partial class MessageWrapper
     public string type { get; set; }
 }
 
-public partial class MultiPlaneTrajectoryResult
+public partial class ScenarioPlanesSnapshot
 {
+    [JsonPropertyName("scenarioId")]
+    public string scenarioId { get; set; }
+
     [JsonPropertyName("planes")]
     public List<PlaneCalculatedTrajectoryPoints> planes { get; set; }
-    public MultiPlaneTrajectoryResult(List<PlaneCalculatedTrajectoryPoints> planes)
+    public ScenarioPlanesSnapshot(List<PlaneCalculatedTrajectoryPoints> planes)
     {
         this.planes = planes;
     }
@@ -84,6 +87,9 @@ public partial class MultiPlaneTrajectoryResult
 
 public partial class PlaneCalculatedTrajectoryPoints
 {
+    [JsonPropertyName("planeId")]
+    public string planeId { get; set; }
+
     [JsonPropertyName("planeName")]
     public string planeName { get; set; }
 
@@ -122,6 +128,9 @@ public partial class TrajectoryPoint
 
 public partial class PlaneTrajectoryPoints
 {
+    [JsonPropertyName("planeId")]
+    public string planeId { get; set; }
+
     [JsonPropertyName("geoPoints")]
     public List<GeoPoint> geoPoints { get; set; }
 
@@ -132,8 +141,10 @@ public partial class PlaneTrajectoryPoints
     public double velocity { get; set; }
 }
 
-public partial class PlanesTrajectoryPointsScenario
+public partial class Scenario
 {
+    [JsonPropertyName("scenarioId")]
+    public string scenarioId { get; set; }
     [JsonPropertyName("planes")]
     public List<PlaneTrajectoryPoints> planes { get; set; }
     [JsonPropertyName("scenarioName")]
@@ -142,8 +153,8 @@ public partial class PlanesTrajectoryPointsScenario
 }
 public partial class ScenariosReadyToPlay
 {
-    [JsonPropertyName("scenariosNames")]
-    public List<string> scenariosNames { get; set; }
+    [JsonPropertyName("scenariosIds")]
+    public List<string> scenariosIds { get; set; }
 }
 public partial class GetReadyScenariosRequestCmd
 {
@@ -151,24 +162,24 @@ public partial class GetReadyScenariosRequestCmd
 }
 public partial class PlaySelectedScenarioCmd
 {
-    [JsonPropertyName("scenarioName")]
-    public string scenarioName { get; set; }
+    [JsonPropertyName("scenarioId")]
+    public string scenarioId { get; set; }
 }
 
 public partial class PauseScenarioCmd
 {
-    [JsonPropertyName("scenarioName")]
-    public string scenarioName { get; set; }
+    [JsonPropertyName("scenarioId")]
+    public string scenarioId { get; set; }
 }
 public partial class ResumeScenarioCmd
 {
-    [JsonPropertyName("scenarioName")]
-    public string scenarioName { get; set; }
+    [JsonPropertyName("scenarioId")]
+    public string scenarioId { get; set; }
 }
 public partial class ChangeScenarioPlaySpeedCmd
 {
-    [JsonPropertyName("scenarioName")]
-    public string scenarioName { get; set; }
+    [JsonPropertyName("scenarioId")]
+    public string scenarioId { get; set; }
     [JsonPropertyName("playSpeed")]
     public double playSpeed { get; set; }
 }
@@ -194,8 +205,14 @@ public class DangerZoneError
 public class InitData
 {
     [JsonPropertyName("scenarios")]
-    public List<PlanesTrajectoryPointsScenario> scenarios { get; set; }
+    public List<Scenario> scenarios { get; set; }
     [JsonPropertyName("dangerZones")]
     public List<DangerZone> dangerZones{ get; set; }
 
+}
+
+public class ScenarioError
+{
+    [JsonPropertyName("errorMsg")]
+    public string errorMsg { get; set; }
 }

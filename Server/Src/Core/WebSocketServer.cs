@@ -1,11 +1,11 @@
-
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using System.Collections.Concurrent;
 
-public class Program
+public class WebSocketServer
 {
-    private static WebSocket? _webSocket;
+    private static readonly ConcurrentBag<WebSocket> _webSockets = new();
     private static readonly UIMsgHandler _uiMsgHandler = new();
 
     public static async Task Main(string[] args)
@@ -24,7 +24,8 @@ public class Program
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                _webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                _webSockets.Add(webSocket);
                 Console.WriteLine("WebSocket connected");
 
                 // send init data to client
@@ -34,11 +35,12 @@ public class Program
                 var buffer = new byte[1024 * 4];
                 while (true)
                 {
-                    var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         Console.WriteLine("WebSocket closed");
-                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by server", CancellationToken.None);
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by server", CancellationToken.None);
+                        _webSockets.TryTake(out webSocket); // Remove closed socket
                         break;
                     }
 
@@ -69,28 +71,31 @@ public class Program
 
     public static async Task SendMsgToClient(string jsonString)
     {
-        if (_webSocket == null || _webSocket.State != WebSocketState.Open)
+        foreach (var ws in _webSockets.ToArray())
         {
-            Console.WriteLine("WebSocket is not connected.");
-            return;
+            if (ws.State == WebSocketState.Open)
+            {
+                var encoded = Encoding.UTF8.GetBytes(jsonString);
+                await ws.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
+                System.Console.WriteLine("sent: " + jsonString);
+            }
         }
-
-        var encoded = Encoding.UTF8.GetBytes(jsonString);
-
-        await _webSocket.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
-        System.Console.WriteLine("sent: " + jsonString);
     }
     public static void LoadDataFromFiles()
     {
         ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
         scenariosDataManager.ReadData();
 
-        List<PlanesTrajectoryPointsScenario> allSceanrios = scenariosDataManager.GetScenarios();
-        PlanesTrajectoryPointsScenarioHandler scenarioHandler = PlanesTrajectoryPointsScenarioHandler.GetInstance();
+        List<Scenario> allSceanrios = scenariosDataManager.GetScenarios();
+        ScenarioResultsCalculator scenarioHandler = ScenarioResultsCalculator.GetInstance();
+        ScenarioResultsManager scenarioResultsManager = ScenarioResultsManager.GetInstance();
+
         // calculate results of existing scenarios
         foreach (var scenario in allSceanrios)
         {
-            scenarioHandler.CalculateScenarioReuslts(scenario);
+            ScenarioResults scenarioResults = scenarioHandler.CalculateScenarioResults(scenario)!;
+            // save the calculated scenario
+            scenarioResultsManager.TryAddScenario(scenario.scenarioId, scenarioResults);
         }
 
         DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();

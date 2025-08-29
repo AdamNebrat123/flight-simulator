@@ -8,15 +8,13 @@ public class UIMsgHandler
     private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
 
     // Handlers
-    private readonly PlanesTrajectoryPointsScenarioHandler scenarioHandler = PlanesTrajectoryPointsScenarioHandler.GetInstance();
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler = PlaySelectedScenarioHandler.GetInstance();
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
-    private readonly GetReadyScenariosRequestHandler getReadyScenariosRequestHandler = GetReadyScenariosRequestHandler.GetInstance();
-    private readonly DangerZoneHandler dangerZoneHandler;
+    private readonly DangerZoneHandler dangerZoneHandler = DangerZoneHandler.GetInstance();
+    private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
+
     public UIMsgHandler()
     {
-        // Handlers:
-        dangerZoneHandler = new DangerZoneHandler();
     }
 
     public async Task HandleIncomingMessage(string json)
@@ -33,13 +31,28 @@ public class UIMsgHandler
             {
                 switch (messageType)
                 {
-                    case C2SMessageType.PlanesTrajectoryPointsScenario:
-                        // Handle
-                        scenarioHandler.HandlePlanesTrajectoryPointsScenario(wrapper.data);
+                    case C2SMessageType.AddScenario:
+                        scenarioHandler.HandleAddScenario(wrapper.data);
                         break;
 
-                    case C2SMessageType.GetReadyScenariosRequestCmd:
-                        getReadyScenariosRequestHandler.HandleGetReadyScenariosRequestCmd(wrapper.data);
+                    case C2SMessageType.RemoveScenario:
+                        scenarioHandler.HandleRemoveScenario(wrapper.data);
+                        break;
+
+                    case C2SMessageType.EditScenario:
+                        scenarioHandler.HandleEditScenario(wrapper.data);
+                        break;
+
+                    case C2SMessageType.AddDangerZone:
+                        dangerZoneHandler.HandleAddDangerZone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.RemoveDangerZone:
+                        dangerZoneHandler.HandleRemoveDangerZone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.EditDangerZone:
+                        dangerZoneHandler.HandleEditDangerZone(wrapper.data);
                         break;
 
                     case C2SMessageType.PlaySelectedScenarioCmd:
@@ -56,18 +69,6 @@ public class UIMsgHandler
                     
                     case C2SMessageType.ChangeScenarioPlaySpeedCmd:
                         scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
-                        break;
-
-                    case C2SMessageType.AddDangerZone:
-                        dangerZoneHandler.HandleAddDangerZone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.RemoveDangerZone:
-                        dangerZoneHandler.HandleRemoveDangerZone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.EditDangerZone:
-                        dangerZoneHandler.HandleEditDangerZone(wrapper.data);
                         break;
 
                     default:

@@ -3,7 +3,7 @@ using System.Text.Json;
 public class PlaySelectedScenarioHandler
 {
     private const double timeStepSeconds = 0.1;
-    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance();
+    private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
     private readonly DangerZoneChecker dangerZoneChecker = new();
 
     private static PlaySelectedScenarioHandler _instance;
@@ -22,22 +22,23 @@ public class PlaySelectedScenarioHandler
     public void HandlePlaySelectedScenarioCmd(JsonElement data)
     {
         PlaySelectedScenarioCmd playSelecedScenario = data.Deserialize<PlaySelectedScenarioCmd>();
-        string scenarioName = playSelecedScenario.scenarioName;
-        ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
+        string scenarioId = playSelecedScenario.scenarioId;
+        ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioId);
         if (scenarioResults != null)
             SendCalculatedTrajectoryPointsAsync(scenarioResults);
         else
-            System.Console.WriteLine(scenarioName + " doesnt exist.....");
+            System.Console.WriteLine(scenarioId + " doesnt exist.....");
     }
 
     public async Task SendCalculatedTrajectoryPointsAsync(ScenarioResults scenario)
     {
         Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
-
+        scenario.Resume();
+        scenario.SetPlaySpeed(1.0);
+        
         // a history of points for each plane by its name
         Dictionary<string, Queue<TrajectoryPoint>> history = new();
-
-        foreach (MultiPlaneTrajectoryResult result in scenario.points)
+        foreach (ScenarioPlanesSnapshot result in scenario.points)
         {
             while (scenario.isPaused)
             {
@@ -72,12 +73,12 @@ public class PlaySelectedScenarioHandler
                 plane.tailPoints = history[plane.planeName].ToList();
             }
 
-            string responseJson = Program.prepareMessageToClient(
-                S2CMessageType.MultiPlaneTrajectoryResult,
+            string responseJson = WebSocketServer.prepareMessageToClient(
+                S2CMessageType.ScenarioPlanesSnapshot,
                 result
             );
 
-            Program.SendMsgToClient(responseJson);
+            WebSocketServer.SendMsgToClient(responseJson);
 
             int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);
             await Task.Delay(adjustedDelay);

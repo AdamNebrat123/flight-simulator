@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 public class ScenariosDataManager
 {
@@ -68,7 +69,7 @@ public class ScenariosDataManager
         }
     }
 
-    public List<PlanesTrajectoryPointsScenario> GetScenarios()
+    public List<Scenario> GetScenarios()
     {
         return _scenariosData.data;
     }
@@ -78,14 +79,15 @@ public class ScenariosDataManager
         return _dataFilePath;
     }
 
-    public void AddScenario(PlanesTrajectoryPointsScenario scenario)
+    public void AddScenario(Scenario scenario)
     {
         _scenariosData.data.Add(scenario);
         Save();
     }
-    public bool RemoveScenario(string scenarioName)
+
+    public bool RemoveScenario(string scenarioId)
     {
-        var scenario = _scenariosData.data.FirstOrDefault(s => s.scenarioName == scenarioName);
+        var scenario = _scenariosData.data.FirstOrDefault(s => s.scenarioId == scenarioId);
         if (scenario != null)
         {
             _scenariosData.data.Remove(scenario);
@@ -93,5 +95,23 @@ public class ScenariosDataManager
             return true;
         }
         return false;
+    }
+
+    public bool EditScenario(string scenarioId, Scenario updatedScenario)
+    {
+        var existingScenario = _scenariosData.data.FirstOrDefault(s => s.scenarioId == scenarioId);
+        if (existingScenario != null)
+        {
+            int index = _scenariosData.data.IndexOf(existingScenario);
+            _scenariosData.data[index] = updatedScenario;
+            Save();
+            return true;
+        }
+        return false;
+    }
+
+    public List<string> GetAllScenarioIds()
+    {
+        return _scenariosData.data.Select(s => s.scenarioId).ToList();
     }
 }

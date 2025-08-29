@@ -1,43 +1,49 @@
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { useContext, useState } from "react";
 import "./PlayScenarioPanel.css";
-import { ScenarioPlayer } from "../ScenarioPlayControlPanel/ScenarioPlayer";
 import { SimState } from "../SimState/SimState";
+import { ScenarioManager } from "../Managers/ScenarioManager";
 
 interface Props {
-  onPlay: () => void;
+  onPlay: (scenarioId: string, scenarioName: string) => void;
   onClose: () => void;
 }
 
 export default function PlayScenarioPanel({ onPlay, onClose }: Props) {
-  const { send } = useWebSocket();
   const simStateContext  = useContext(SimState);
   const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
+  const scenarioManager = ScenarioManager.getInstance();
+  const scenarios = scenarioManager.getAllScenarios();
 
-  const handleSelect = (name: string) => {
-    scenarioPlayer.selectScenario(name);
-    simStateContext?.setSimState({...simStateContext.simState})
+  const [selectedScenarioName, setSelectedScenarioName] = useState("");
+  const [selectedScenarioId, setSelectedScenarioId] = useState("");
+
+  const handleSelect = (scenarioId: string, scenarioName: string) => {
+    scenarioPlayer.selectScenario(scenarioId);
+    simStateContext?.setSimState({ ...simStateContext.simState });
+    setSelectedScenarioName(scenarioName);
+    setSelectedScenarioId(scenarioId);
   };
 
   return (
     <div className="playScenario-panel">
       <h3>Play Scenario</h3>
 
-      {scenarioPlayer.scenarios.length === 0 && <p>No scenarios ready.</p>}
+      {scenarios.length === 0 && <p>No scenarios ready.</p>}
 
       <ul className="scenario-list">
-        {scenarioPlayer.scenarios.map((name) => (
+        {scenarios.map((scenario) => (
           <li
-            key={name}
-            className={`scenario-item ${scenarioPlayer.selectedScenario === name ? "selected" : ""}`}
-            onClick={() => handleSelect(name)}
+            key={scenario.scenarioId}
+            className={`scenario-item ${scenarioPlayer.selectedScenario === scenario.scenarioId ? "selected" : ""}`}
+            onClick={() => handleSelect(scenario.scenarioId, scenario.scenarioName)}
           >
-            {name}
+            {scenario.scenarioName}
           </li>
         ))}
       </ul>
 
-      <button onClick={onPlay} disabled={!scenarioPlayer.selectedScenario}>
+      <button onClick={() => onPlay(selectedScenarioId, selectedScenarioName)} disabled={!scenarioPlayer.selectedScenario}>
         Play
       </button>
       <button onClick={onClose} style={{ marginLeft: 8 }}>

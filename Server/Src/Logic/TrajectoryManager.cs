@@ -1,7 +1,7 @@
-public class TrajectoryManager
+public class TemporaryCalculatedPointsStorage
 {
     // Each element in the list is a result at a certain time with all planes
-    public List<MultiPlaneTrajectoryResult> CalculatedTrajectoryPoints { get; } = new();
+    public List<ScenarioPlanesSnapshot> CalculatedTrajectoryPoints { get; } = new();
 
     // Saving routes for each plane separately
     private readonly List<List<TrajectoryPoint>> _allTrajectories = new();
@@ -17,7 +17,7 @@ public class TrajectoryManager
             // If there is no snapshot for this point in time yet - create a new one
             if (CalculatedTrajectoryPoints.Count <= i)
             {
-                CalculatedTrajectoryPoints.Add(new MultiPlaneTrajectoryResult(new List<PlaneCalculatedTrajectoryPoints>()));
+                CalculatedTrajectoryPoints.Add(new ScenarioPlanesSnapshot(new List<PlaneCalculatedTrajectoryPoints>()));
             }
 
             var point = newTrajectory[i];

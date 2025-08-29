@@ -2,7 +2,7 @@ import { DangerZoneEntityManager } from "../DangerZonePanel/DangerZoneEntityMana
 import * as Cesium from "cesium";
 import type { DangerZone, DangerZoneError } from "../Messages/AllTypes";
 import { toast } from "react-toastify";
-import { DangerZoneManager } from "../DangerZonePanel/DangerZoneManager";
+import { DangerZoneManager } from "../Managers/DangerZoneManager";
 
 export class DangerZoneHandler{
     private static instance: DangerZoneHandler | null = null;

@@ -22,7 +22,7 @@ public class InitDataHandler
     {
         // get scenarios
         scenariosDataManager.ReadData();
-        List<PlanesTrajectoryPointsScenario> scenarios = scenariosDataManager.GetScenarios();
+        List<Scenario> scenarios = scenariosDataManager.GetScenarios();
 
         // get DangerZones
         dangerZonesDataManager.ReadData();
@@ -34,7 +34,7 @@ public class InitDataHandler
             dangerZones = dangerZones
         };
 
-        string initDataMsg = Program.prepareMessageToClient(S2CMessageType.InitData, initData);
-        Program.SendMsgToClient(initDataMsg);
+        string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData);
+        WebSocketServer.SendMsgToClient(initDataMsg);
     }
 }

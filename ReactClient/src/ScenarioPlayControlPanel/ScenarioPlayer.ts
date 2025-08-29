@@ -7,11 +7,11 @@ export class ScenarioPlayer {
 
   // Scenario play state
   public playingScenarioName: string | null = null;
+  public playingScenarioId: string | null = null;
   public isPaused: boolean = false;
   public playSpeed: number = 1;
 
   // Scenario selection state
-  public scenarios: string[] = [];
   public selectedScenario: string | null = null;
 
   public constructor(send: (type: string, data: any) => void) {
@@ -20,44 +20,40 @@ export class ScenarioPlayer {
 
 
   // Methods to manage scenario play
-  startScenario(scenarioName: string) {
+  startScenario(scenarioId: string, scenarioName: string) {
     this.playingScenarioName = scenarioName;
+    this.playingScenarioId = scenarioId;
     this.isPaused = false;
     this.playSpeed = 1;
-    this.send(C2SMessageType.PlaySelectedScenarioCmd, { scenarioName } as PlaySelectedScenario);
+    this.send(C2SMessageType.PlaySelectedScenarioCmd, { scenarioId: this.playingScenarioId } as PlaySelectedScenario);
   }
 
   pause() {
-    if (!this.playingScenarioName) return;
+    if (!this.playingScenarioId) return;
     this.isPaused = true;
-    this.send(C2SMessageType.PauseScenarioCmd, { scenarioName: this.playingScenarioName } as PauseScenarioCmd);
+    this.send(C2SMessageType.PauseScenarioCmd, { scenarioId : this.playingScenarioId } as PauseScenarioCmd);
   }
 
   resume() {
-    if (!this.playingScenarioName) return;
+    if (!this.playingScenarioId) return;
     this.isPaused = false;
-    this.send(C2SMessageType.ResumeScenarioCmd, { scenarioName: this.playingScenarioName } as ResumeScenarioCmd);
+    this.send(C2SMessageType.ResumeScenarioCmd, { scenarioId : this.playingScenarioId } as ResumeScenarioCmd);
   }
 
   changeSpeed(speed: number) {
-    if (!this.playingScenarioName) return;
+    if (!this.playingScenarioId) return;
     this.playSpeed = speed;
-    this.send(C2SMessageType.ChangeScenarioPlaySpeedCmd, { scenarioName: this.playingScenarioName, playSpeed: speed } as ChangeScenarioPlaySpeedCmd);
+    this.send(C2SMessageType.ChangeScenarioPlaySpeedCmd, { scenarioId : this.playingScenarioId, playSpeed: speed } as ChangeScenarioPlaySpeedCmd);
   }
 
   closeScenario() {
+    this.playingScenarioId = null;
     this.playingScenarioName = null;
     this.isPaused = false;
     this.playSpeed = 1;
   }
 
-  // Methods to manage scenario selection
-  setScenarios(scenarios: string[]) {
-    this.scenarios = scenarios;
-    this.selectedScenario = null;
-  }
-
-  selectScenario(name: string | null) {
-    this.selectedScenario = name;
+  selectScenario(scenarioId: string | null) {
+    this.selectedScenario = scenarioId;
   }
 }

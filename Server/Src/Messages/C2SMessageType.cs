@@ -1,7 +1,5 @@
 public enum C2SMessageType
 {
-    PlanesTrajectoryPointsScenario,
-    GetReadyScenariosRequestCmd,
     PlaySelectedScenarioCmd,
     PauseScenarioCmd,
     ResumeScenarioCmd,
@@ -9,4 +7,7 @@ public enum C2SMessageType
     AddDangerZone,
     RemoveDangerZone,
     EditDangerZone,
+    AddScenario,
+    RemoveScenario,
+    EditScenario
 }

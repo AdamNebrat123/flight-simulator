@@ -2,7 +2,7 @@ using System.Text.Json;
 
 public class ScenarioPlayControlHandler
 {
-    private readonly TrajectoryScenarioResultsManager trajectoryScenarioResultsManager = TrajectoryScenarioResultsManager.GetInstance();
+    private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
 
     private static ScenarioPlayControlHandler _instance;
 
@@ -22,10 +22,10 @@ public class ScenarioPlayControlHandler
         try
         {
             PauseScenarioCmd pauseScenarioCmd = data.Deserialize<PauseScenarioCmd>();
-            string scenarioName = pauseScenarioCmd.scenarioName;
-            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
+            string scenarioId = pauseScenarioCmd.scenarioId;
+            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioId);
             scenarioResults.Pause();
-            System.Console.WriteLine(scenarioName + " paused");
+            System.Console.WriteLine(scenarioId + " paused");
         }
         catch (Exception ex)
         {
@@ -38,10 +38,10 @@ public class ScenarioPlayControlHandler
         try
         {
             ResumeScenarioCmd resumeScenarioCmd = data.Deserialize<ResumeScenarioCmd>();
-            string scenarioName = resumeScenarioCmd.scenarioName;
-            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
+            string scenarioId = resumeScenarioCmd.scenarioId;
+            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioId);
             scenarioResults.Resume();
-            System.Console.WriteLine(scenarioName + " resumed");
+            System.Console.WriteLine(scenarioId + " resumed");
         }
         catch (Exception ex)
         {
@@ -54,11 +54,11 @@ public class ScenarioPlayControlHandler
         try
         {
             ChangeScenarioPlaySpeedCmd changeScenarioPlaySpeedCmd = data.Deserialize<ChangeScenarioPlaySpeedCmd>();
-            string scenarioName = changeScenarioPlaySpeedCmd.scenarioName;
+            string scenarioId = changeScenarioPlaySpeedCmd.scenarioId;
             double playSpeed = changeScenarioPlaySpeedCmd.playSpeed;
-            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioName);
+            ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioId);
             scenarioResults.SetPlaySpeed(playSpeed);
-            System.Console.WriteLine(scenarioName + " play speed is set to: " + playSpeed);
+            System.Console.WriteLine(scenarioId + " play speed is set to: " + playSpeed);
         }
         catch (Exception ex)
         {
