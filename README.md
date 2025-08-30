@@ -10,10 +10,11 @@ You can:
 **Note: install instructions are at the bottom of the readme**
 
 ---
-## Create Trajectories
+## Create Scenarios
 
 The platform allows you to design custom aircraft trajectories directly on the 3D globe.
 You can place waypoints by selecting points on the map and build a continuous path that represents the aircraft’s planned route.
+Each scenario can be removed or edited whenever you wish.
 Once sent to the server, the server calculates the positions of each plane at any point, based on its trajectory and configured velocity.
 
 Example visualization:
