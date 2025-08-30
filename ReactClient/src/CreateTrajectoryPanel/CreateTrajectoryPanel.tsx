@@ -38,6 +38,12 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         polylineManagerRef.current = new PlanePolylineManager(viewerRef.current);
         polylineInteractionRef.current = new PlanePolylineInteraction(viewerRef.current,polylineManagerRef.current)
     }
+    if(scenario.planes.length > 0){
+        // TODO: load existing polylines
+        //polylineManagerRef.current?.loadExistingPolylines(scenario.planes);
+        setSelectedPlaneIndex(0);
+    }
+
     return () => {
         polylineManagerRef.current?.clearAll();
         polylineInteractionRef.current?.destroy();

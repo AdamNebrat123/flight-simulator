@@ -80,6 +80,7 @@ public class ScenarioHandler
             bool isRemoved = scenariosDataManager.RemoveScenario(scenarioId);
             if (isRemoved)
             {
+                System.Console.WriteLine("{0} ({1}) - Removed scenario from file successfully.", scenarioId, scenario.scenarioName);
                 isRemoved = scenarioManager.TryRemoveScenario(scenarioId);
                 if (isRemoved)
                 {
@@ -111,14 +112,23 @@ public class ScenarioHandler
             Scenario scenario = data.Deserialize<Scenario>();
             string scenarioId = scenario.scenarioId;
 
+            System.Console.WriteLine("{0} ({1}) - edited scenario in file successfully.", scenarioId, scenario.scenarioName);
             bool isEdited = scenariosDataManager.EditScenario(scenarioId, scenario);
             if (isEdited)
             {
                 isEdited = scenarioManager.TryEditScenario(scenarioId, scenario);
+
                 if (isEdited)
                 {
                     System.Console.WriteLine("{0} ({1}) - Edited scenario successfully.", scenarioId, scenario.scenarioName);
-                    SendEditScenario(scenario);
+                    // calculate scenario results
+                    ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
+                    if (scenarioResults != null)
+                    {
+                        // save the calculated scenario
+                        scenarioResultsManager.TryEditScenario(scenario.scenarioId, scenarioResults);
+                        SendEditScenario(scenario);
+                    }
                 }
                 else
                 {

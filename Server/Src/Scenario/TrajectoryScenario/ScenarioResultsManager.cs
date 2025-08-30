@@ -25,6 +25,20 @@ public class ScenarioResultsManager
         _scenarios[scenarioId] = scenarioResult;
         return true; // added successfully
     }
+    
+    public bool TryEditScenario(string scenarioId, ScenarioResults newScenarioResult)
+    {
+        if (_scenarios.ContainsKey(scenarioId))
+        {
+            // TryUpdate takes the key, the new value, and the expected old value.
+            // We need the current value first.
+            if (_scenarios.TryGetValue(scenarioId, out var oldScenario))
+            {
+                return _scenarios.TryUpdate(scenarioId, newScenarioResult, oldScenario);
+            }
+        }
+        return false; // not found
+    }
 
     public ScenarioResults? GetScenarioResult(string scenarioId)
     {
