@@ -7,6 +7,7 @@ import { PlanePolylineManager } from "./PlanePolylineManager";
 import { PlanePolylineInteraction } from "./PlanePolylineInteraction";
 import AerialUnitSelection from "./AerialUnitSelection";
 
+
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
   initialScenario: Scenario;
@@ -15,7 +16,9 @@ interface Props {
 }
 
 export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSave, onCancel }: Props) {
-    const [scenario, setScenario] = useState<Scenario>({ ...initialScenario });
+    const [scenario, setScenario] = useState<Scenario>(
+        JSON.parse(JSON.stringify(initialScenario)) // deep copy to avoid mutating the prop
+    );
     const [isDrawing, setIsDrawing] = useState(false);
     const isDrawingRef = useRef(isDrawing);
 
@@ -38,9 +41,9 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         polylineManagerRef.current = new PlanePolylineManager(viewerRef.current);
         polylineInteractionRef.current = new PlanePolylineInteraction(viewerRef.current,polylineManagerRef.current)
     }
-    if(scenario.planes.length > 0){
-        // TODO: load existing polylines
-        //polylineManagerRef.current?.loadExistingPolylines(scenario.planes);
+    if(scenario.planes && scenario.planes.length > 0){
+        // load existing polylines
+        polylineManagerRef.current?.loadExistingPolylines(scenario);
         setSelectedPlaneIndex(0);
     }
 
@@ -129,6 +132,8 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         polylineManagerRef.current?.setPlanePolylineColorCyan(planeName);
     };
 
+
+
     const toggleAddingPoints = () => {
         if (isDrawingRef.current) {
             stopAddingPoints();
@@ -143,13 +148,36 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
 
         const viewer = viewerRef.current;
         setIsDrawing(true);
-        isDrawingRef.current = true; // sync immediately
+        isDrawingRef.current = true;
 
-        const planeName = scenario.planes[selectedPlaneIndex].planeName;
+        const plane = scenario.planes[selectedPlaneIndex];
+        const planeName = plane.planeName;
         polylineManagerRef.current?.createPolyline(planeName);
         polylineManagerRef.current?.setPlanePolylineColorYellow(planeName);
 
         const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+        // If plane already has points, use last one as start for temp line
+        if (plane.geoPoints.length > 0) {
+            const lastGeo = plane.geoPoints[plane.geoPoints.length - 1];
+            lastPointRef.current = Cesium.Cartesian3.fromDegrees(
+                lastGeo.longitude,
+                lastGeo.latitude,
+                lastGeo.altitude
+            );
+
+            // Create temp line immediately
+            tempLineRef.current = viewer.entities.add({
+                polyline: {
+                    positions: new Cesium.CallbackProperty(() => {
+                        if (!lastPointRef.current || !currentMousePositionRef.current) return undefined;
+                        return [lastPointRef.current, currentMousePositionRef.current];
+                    }, false),
+                    width: 3,
+                    material: Cesium.Color.YELLOW,
+                },
+            });
+        }
 
         // LEFT_CLICK adds point
         handler.setInputAction((click: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
@@ -167,16 +195,12 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
 
             setScenario((prev) => {
                 const newPlanes = [...prev.planes];
-                const currentPoints = newPlanes[selectedPlaneIndex].geoPoints;
-                newPlanes[selectedPlaneIndex].geoPoints = [...currentPoints, newPoint];
+                newPlanes[selectedPlaneIndex].geoPoints = [
+                    ...newPlanes[selectedPlaneIndex].geoPoints,
+                    newPoint,
+                ];
                 return { ...prev, planes: newPlanes };
             });
-
-            // Reset temporary line
-            if (tempLineRef.current) {
-                viewer.entities.remove(tempLineRef.current);
-                tempLineRef.current = null;
-            }
 
             lastPointRef.current = Cesium.Cartesian3.fromDegrees(
                 newPoint.longitude,
@@ -186,7 +210,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
             currentMousePositionRef.current = null;
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-        // Mouse move - temporary line
+        // MOUSE_MOVE updates temp line
         handler.setInputAction((movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
             if (!lastPointRef.current) return;
 
@@ -194,29 +218,15 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
             if (!Cesium.defined(newPosition)) return;
 
             currentMousePositionRef.current = newPosition;
-
-            if (!tempLineRef.current) {
-                tempLineRef.current = viewer.entities.add({
-                    polyline: {
-                        positions: new Cesium.CallbackProperty(() => {
-                            if (!lastPointRef.current || !currentMousePositionRef.current) return undefined;
-                            return [lastPointRef.current, currentMousePositionRef.current];
-                        }, false),
-                        width: 3,
-                        material: Cesium.Color.YELLOW,
-                    },
-                });
-            }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-        // RIGHT_CLICK stops drawing
-        handler.setInputAction(() => {
-            stopAddingPoints();
-        }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-
         handlerRef.current = handler;
-    };
 
+        // RIGHT_CLICK stops drawing 
+        handler.setInputAction(() => {
+             stopAddingPoints(); 
+            }, Cesium.ScreenSpaceEventType.RIGHT_CLICK); handlerRef.current = handler;
+    };
     // Cleans up listener when component is disassembled or state changes
     useEffect(() => {
         return () => {

@@ -1,6 +1,6 @@
 // PlanePolylineManager.ts
 import * as Cesium from "cesium";
-import type { GeoPoint } from "../Messages/AllTypes";
+import type { GeoPoint, Scenario } from "../Messages/AllTypes";
 
 export class PlanePolylineManager {
   private viewer: Cesium.Viewer;
@@ -20,7 +20,6 @@ export class PlanePolylineManager {
 
     // Initialize points array
     this.planeToPoints.set(planeName, []);
-
     const entity = this.viewer.entities.add({
       name: planeName,
       polyline: {
@@ -88,6 +87,26 @@ export class PlanePolylineManager {
           );
           entity.label!.text = new Cesium.ConstantProperty(`Point ${index + 1}`);
       }
+  }
+
+  loadExistingPolylines(scenario: Scenario) {
+    if (!scenario || !scenario.planes) return;
+
+    for (const plane of scenario.planes) {
+      const { planeName, geoPoints } = plane;
+
+      // Create a new polyline for this plane
+      this.createPolyline(planeName);
+
+      if (geoPoints && geoPoints.length > 0) {
+        for (const point of geoPoints) {
+          this.addPoint(planeName, point);
+        }
+      }
+
+      // Set default color to cyan (since that's your baseline)
+      this.setPlanePolylineColorCyan(planeName);
+    }
   }
 
   getPoints(planeName: string): GeoPoint[] {
