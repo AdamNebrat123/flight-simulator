@@ -79,13 +79,13 @@ public class ScenariosDataManager
         return _dataFilePath;
     }
 
-    public void AddScenario(Scenario scenario)
+    public void AddAndSaveScenario(Scenario scenario)
     {
         _scenariosData.data.Add(scenario);
         Save();
     }
 
-    public bool RemoveScenario(string scenarioId)
+    public bool RemoveAndSaveScenario(string scenarioId)
     {
         var scenario = _scenariosData.data.FirstOrDefault(s => s.scenarioId == scenarioId);
         if (scenario != null)
@@ -97,7 +97,7 @@ public class ScenariosDataManager
         return false;
     }
 
-    public bool EditScenario(string scenarioId, Scenario updatedScenario)
+    public bool EditAndSaveScenario(string scenarioId, Scenario updatedScenario)
     {
         var existingScenario = _scenariosData.data.FirstOrDefault(s => s.scenarioId == scenarioId);
         if (existingScenario != null)

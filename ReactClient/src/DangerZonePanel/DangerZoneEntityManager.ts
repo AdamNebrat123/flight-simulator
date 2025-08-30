@@ -85,6 +85,17 @@ export class DangerZoneEntityManager {
   }
 
 
+  hideEntityById(zoneId: string) {
+    const entity = this.zoneIdToEntity.get(zoneId);
+    if (!entity) return;
+    entity.show = false;
+  }
+  
+  showEntityById(zoneId: string) {
+    const entity = this.zoneIdToEntity.get(zoneId);
+    if (!entity) return;
+    entity.show = true;
+  }
   getAllDangerZoneIds(): string[] {
     return Array.from(this.zoneIdToEntity.keys());
   }

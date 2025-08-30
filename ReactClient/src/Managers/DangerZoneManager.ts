@@ -4,8 +4,9 @@ import type { DangerZone } from "../Messages/AllTypes";
 export class DangerZoneManager {
     private static instance: DangerZoneManager | null = null;
     private zoneIdToDangerZone: Map<string, DangerZone>;
+    private listeners: ((zones: DangerZone[]) => void)[] = [];
 
-     private constructor() {
+    private constructor() {
         this.zoneIdToDangerZone = new Map<string, DangerZone>();
     }
 
@@ -14,6 +15,18 @@ export class DangerZoneManager {
             this.instance = new DangerZoneManager();
         }
         return this.instance;
+    }
+
+    public subscribe(cb: (zones: DangerZone[]) => void): () => void {
+        this.listeners.push(cb);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== cb);
+        };
+    }
+
+    private notify() {
+        const snapshot = this.getAllDangerZones();
+        this.listeners.forEach(cb => cb(snapshot));
     }
 
     tryAddDangerZone(zone: DangerZone): boolean {
@@ -28,28 +41,32 @@ export class DangerZoneManager {
         }
 
         this.zoneIdToDangerZone.set(zone.zoneId, zone);
+        this.notify();
         return true;
     }
 
     tryRemoveDangerZone(zoneId: string): boolean {
         if (!zoneId) return false;
-        return this.zoneIdToDangerZone.delete(zoneId);
+        const removed = this.zoneIdToDangerZone.delete(zoneId);
+        if (removed) this.notify();
+        return removed;
     }
 
     tryEditDangerZone(zone: DangerZone): boolean {
-    if (!zone || !zone.zoneId) {
-        console.log("Invalid DangerZone or missing zoneId");
-        return false;
-    }
+        if (!zone || !zone.zoneId) {
+            console.log("Invalid DangerZone or missing zoneId");
+            return false;
+        }
 
-    if (!this.zoneIdToDangerZone.has(zone.zoneId)) {
-        console.log(`Zone with id ${zone.zoneId} does not exist`);
-        return false;
-    }
+        if (!this.zoneIdToDangerZone.has(zone.zoneId)) {
+            console.log(`Zone with id ${zone.zoneId} does not exist`);
+            return false;
+        }
 
-    this.zoneIdToDangerZone.set(zone.zoneId, zone);
-    return true;
-}
+        this.zoneIdToDangerZone.set(zone.zoneId, zone);
+        this.notify();
+        return true;
+    }
 
     getDangerZone(zoneId: string): DangerZone | undefined {
         if (!zoneId) return undefined;
@@ -66,5 +83,6 @@ export class DangerZoneManager {
 
     clearAll(): void {
         this.zoneIdToDangerZone.clear();
+        this.notify();
     }
 }

@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import type { GeoPoint } from "../Messages/AllTypes";
+import type { DangerZone, GeoPoint } from "../Messages/AllTypes";
 
 export class DangerZonePolyline {
   private viewer: Cesium.Viewer;
@@ -50,6 +50,16 @@ export class DangerZonePolyline {
         material: Cesium.Color.RED,
       },
     });
+  }
+
+  loadExistingPolylines(dangerZone: DangerZone) {
+    this.remove(); // clean up any existing junk
+
+    this.createPolyline();
+    this.createClosingPolyline();
+
+    // rebuild all points from the provided DangerZone
+    dangerZone.points.forEach((p) => this.addPoint(p));
   }
 
   addPoint(point: GeoPoint) {

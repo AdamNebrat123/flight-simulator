@@ -19,7 +19,7 @@ import { ScenarioHandler } from './Handlers/ScenarioHandler';
 
 export default function App() {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
-  const { on } = useWebSocket()
+  const { on } = useWebSocket();
 
 
   //needed for ScenarioPlanesSnapshotHandler

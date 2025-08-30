@@ -5,8 +5,7 @@ public class DangerZoneHandler
     private static DangerZoneHandler instance;
     private readonly DangerZoneManager dangerZoneManager = DangerZoneManager.GetInstance();
     private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
-    private readonly ScenarioResultsCalculator scenarioResultsCalculator = ScenarioResultsCalculator.GetInstance();
-
+    
     private DangerZoneHandler()
     {
     }
@@ -76,7 +75,7 @@ public class DangerZoneHandler
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to remove zone.", zoneId, dangerZone.zoneName);
-                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone.");
+                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone from file.");
             }
         }
         catch (Exception ex)
@@ -110,7 +109,7 @@ public class DangerZoneHandler
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to edit zone.", zoneId, dangerZone.zoneName);
-                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone.");
+                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone from file.");
             }
         }
         catch (Exception ex)

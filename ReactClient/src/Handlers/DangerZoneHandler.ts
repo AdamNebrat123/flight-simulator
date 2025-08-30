@@ -31,8 +31,10 @@ export class DangerZoneHandler{
     }
     AddDangerZone(dangerZone: DangerZone){
         const isAdded = this.dangerZoneManager.tryAddDangerZone(dangerZone);
-        if(isAdded)
+        if(isAdded){
             this.dangerZoneEntityManager.tryAddDangerZone(dangerZone);
+            console.log(`danger zone ${dangerZone.zoneId} added successfully.`);
+        }
         else
             console.log("error in HandleAddDangerZone. danger zone adding failed")
     }
@@ -48,8 +50,10 @@ export class DangerZoneHandler{
 
     RemoveDangerZone(dangerZone: DangerZone){
         const isRemoved = this.dangerZoneManager.tryRemoveDangerZone(dangerZone.zoneId);
-        if(isRemoved)
+        if(isRemoved){
             this.dangerZoneEntityManager.removeDangerZone(dangerZone.zoneId);
+            console.log(`danger zone ${dangerZone.zoneId} removed successfully.`);
+        }
         else
             console.log("error in HandleRemoveDangerZone. danger zone removing failed")
     }
@@ -66,8 +70,10 @@ export class DangerZoneHandler{
 
     EditDangerZone(dangerZone: DangerZone){
         const isEdited = this.dangerZoneManager.tryEditDangerZone(dangerZone);
-        if(isEdited)
+        if(isEdited){
             this.dangerZoneEntityManager.editDangerZone(dangerZone);
+            console.log(`danger zone ${dangerZone.zoneId} edited successfully.`);
+        }
         else
             console.log("error in HandleEditDangerZone. danger zone editing failed")
     }
@@ -76,6 +82,7 @@ export class DangerZoneHandler{
         try {
             const dangerZoneError = data as DangerZoneError;
             const errorMsg = dangerZoneError.errorMsg;
+            console.log("Danger zone error from server: " + errorMsg);
             toast.error(errorMsg);
         } catch (err) {
             console.log("data could not be parsed to DangerZoneError");

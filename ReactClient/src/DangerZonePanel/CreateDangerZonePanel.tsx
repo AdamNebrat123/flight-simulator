@@ -2,17 +2,20 @@ import React, { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
 import type { GeoPoint } from "../Messages/AllTypes";
 import type { DangerZone } from "../Messages/AllTypes";
-import "./DangerZonePanel.css";
+import "./CreateDangerZonePanel.css";
 import { DangerZoneEntity } from "./DangerZoneEntity";
 import { DangerZonePolyline } from "./DangerZonePolylineManager";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
+  initialDangerZone: DangerZone;
   onClose: () => void;
   onSave: (zone: DangerZone) => void;
 }
 
-export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZonePanelProps) {
+export default function CreateDangerZonePanel({viewerRef,initialDangerZone, onClose, onSave }: DangerZonePanelProps) {
+const [dangerZone, setDangerZone] = useState<DangerZone>(JSON.parse(JSON.stringify(initialDangerZone)));
+  /*
   const [dangerZone, setDangerZone] = useState<DangerZone>({
     zoneName: "ZoneName",
     points: [],
@@ -20,6 +23,7 @@ export default function DangerZonePanel({viewerRef, onClose, onSave }: DangerZon
     bottomHeight: 0,
     zoneId: ""
   });
+  */
   const [isDrawing, setIsDrawing] = useState(false);
   const isDrawingRef = useRef(isDrawing);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
@@ -66,6 +70,12 @@ const handleDangerZonePointChange = (
         dangerZone
       );
       dangerZonePolylineRef.current = new DangerZonePolyline(viewerRef.current);
+
+      if(dangerZone.points && dangerZone.points.length > 0){
+        // load existing polylines
+        dangerZonePolylineRef.current.loadExistingPolylines(dangerZone)
+      }
+
     }
     return () => {
       dangerZoneEntityRef.current?.SetEntityNull();
@@ -120,6 +130,12 @@ const handleDangerZonePointChange = (
     // Set the closing polyline to *transparent* red
     dangerZonePolylineRef.current?.setColorTransparentRed();
     if (dangerZoneRef.current.points.length > 0) {
+      const lastPoint = dangerZoneRef.current.points[dangerZoneRef.current.points.length - 1];
+        lastPointRef.current = Cesium.Cartesian3.fromDegrees(
+          lastPoint.longitude,
+          lastPoint.latitude,
+          lastPoint.altitude
+        );
       tryCreateTempLine(); // Try create the temp line (last point -> mouse) 
       tryCreateTempClosingLine(); // Try create the temp closing line (first point -> mouse)
     }
@@ -349,6 +365,7 @@ const handleDangerZonePointChange = (
                 dangerZoneEntityRef.current?.RemoveEntity();
                 dangerZoneEntityRef.current?.SetEntityNull();
                 onSave(dangerZone)
+                onClose()
               }
             }>
               Save

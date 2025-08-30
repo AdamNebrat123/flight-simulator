@@ -1,16 +1,9 @@
 import  { useState, useRef, useContext } from 'react';
-import { useWebSocket } from '../WebSocket/WebSocketProvider';
-import type { DangerZone, GetReadyScenariosRequestCmd, Scenario, PlaySelectedScenario } from '../Messages/AllTypes';
 import TopLeftButtons from '../TopLeftButtons/TopLeftButtons';
-import CreateTrajectoryPanel from '../CreateTrajectoryPanel/CreateTrajectoryPanel';
-import PlayScenarioPanel from '../PlayScenarioPanel/PlayScenarioPanel';
 import ScenarioPlayControlPanel from '../ScenarioPlayControlPanel/ScenarioPlayControlPanel';
-import DangerZonePanel from '../DangerZonePanel/DangerZonePanel';
-import { PlaneEntityManager } from '../Handlers/PlaneEntityManager';
-import { PlaneTailManager } from '../Handlers/PlaneTailManager';
-import { C2SMessageType } from '../Messages/C2SMessageType';
 import { SimState } from '../SimState/SimState';
 import ScenariosPanel from '../ScenariosPanel/ScenariosPanel';
+import DangerZonesPanel from '../DangerZonePanel/DangerZonesPanel';
 
 
 interface PanelsAndButtonsProps {
@@ -18,41 +11,33 @@ interface PanelsAndButtonsProps {
 }
 
 export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
-    const { isConnected, send, on } = useWebSocket();
+
     
     const [showSceanriosPanel, setShowSceanriosPanel] = useState(false);
-    const [showDangerZonePanel, setShowDangerZonePanel] = useState(false);
-/*
-    const planeManager = PlaneEntityManager.getInstance(viewerRef.current);
-    const planeTailManager = PlaneTailManager.getInstance(viewerRef.current);
-*/
+    const [showDangerZonesPanel, setShowDangerZonesPanel] = useState(false);
+
     // ScenarioPlayer instance
     const simStateContext  = useContext(SimState);
     const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
 
     // Handlers for opening panels
     const openSceanriosPanel = () => setShowSceanriosPanel(true);
-    const openDangerZonePanel = () => setShowDangerZonePanel(true);
+    const openDangerZonesPanel = () => setShowDangerZonesPanel(true);
 
 
     // Handlers for closing panels
     const closeSceanriosPanel = () => setShowSceanriosPanel(false);
-    const closeDangerZonePanel = () => setShowDangerZonePanel(false);
+    const closeDangerZonesPanel = () => setShowDangerZonesPanel(false);
 
-    const handleSaveDangerZone = (data: DangerZone | null) => {
-        if (!data) return;
-        send(C2SMessageType.AddDangerZone, data);
-        setShowDangerZonePanel(false);
-    };
 
     
     return (
     <>
       {/* Only show buttons if no panels are open */}
-      {!showSceanriosPanel && !showDangerZonePanel && (
+      {!showSceanriosPanel && !showDangerZonesPanel && (
         <TopLeftButtons
           onScenariosClick={openSceanriosPanel}
-          onCreateDangerZoneClick={openDangerZonePanel}
+          onDangerZonesClick={openDangerZonesPanel}
         />
       )}
 
@@ -69,13 +54,13 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
         <ScenarioPlayControlPanel/>
       )}
 
-      {showDangerZonePanel && (
-        <DangerZonePanel
+      {showDangerZonesPanel && (
+        <DangerZonesPanel
+          onClose={closeDangerZonesPanel}
           viewerRef={viewerRef}
-          onClose={closeDangerZonePanel}
-          onSave={handleSaveDangerZone}
         />
       )}
+
     </>
   );
 }

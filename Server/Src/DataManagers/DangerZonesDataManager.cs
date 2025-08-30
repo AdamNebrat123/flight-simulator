@@ -81,17 +81,10 @@ public class DangerZonesDataManager
         return _dataFilePath;
     }
 
-    // ---------------------------
-    // Add / Remove DangerZone
-    // ---------------------------
     public void AddAndSaveDangerZone(DangerZone zone)
     {
         _dangerZonesData.data.Add(zone);
         Save();
-    }
-    public DangerZone? GetDangerZoneByName(string zoneName)
-    {
-        return _dangerZonesData.data.FirstOrDefault(z => z.zoneName == zoneName);
     }
 
     public List<DangerZone> GetDangerZones()
@@ -102,9 +95,9 @@ public class DangerZonesDataManager
     {
         return _dangerZonesData.data.Select(z => z.zoneName).ToList();
     }
-    public bool RemoveAndSaveDangerZone(string zoneName)
+    public bool RemoveAndSaveDangerZone(string zoneId)
     {
-        var zone = _dangerZonesData.data.FirstOrDefault(z => z.zoneName == zoneName);
+        var zone = _dangerZonesData.data.FirstOrDefault(z => z.zoneId == zoneId);
         if (zone != null)
         {
             _dangerZonesData.data.Remove(zone);
@@ -113,10 +106,10 @@ public class DangerZonesDataManager
         }
         return false;
     }
-    public bool EditAndSaveDangerZone(string zoneName, DangerZone updatedZone)
+    public bool EditAndSaveDangerZone(string zoneId, DangerZone updatedZone)
     {
         // Find the existing region by name
-        var existingZone = _dangerZonesData.data.FirstOrDefault(z => z.zoneName == zoneName);
+        var existingZone = _dangerZonesData.data.FirstOrDefault(z => z.zoneId == zoneId);
         if (existingZone != null)
         {
             int index = _dangerZonesData.data.IndexOf(existingZone);

@@ -36,7 +36,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
 
     const [selectedScenarioName, setSelectedScenarioName] = useState("");
     const [selectedScenarioId, setSelectedScenarioId] = useState("");
-    const [selectedScenarioObj, setSelectedScenarioIdObj] = useState<Scenario | null>(null);
+    const [selectedScenarioObj, setSelectedScenarioObj] = useState<Scenario | null>(null);
 
     // create / edit scenario panel
     const [showCreateTrajectoryPanel, setShowCreateTrajectoryPanel] = useState(false);
@@ -50,7 +50,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
     const handleSelect = (scenario: Scenario) => {
         scenarioPlayer.selectScenario(scenario.scenarioId);
         simStateContext?.setSimState({ ...simStateContext.simState });
-        setSelectedScenarioIdObj(scenario);
+        setSelectedScenarioObj(scenario);
         setSelectedScenarioName(scenario.scenarioName);
         setSelectedScenarioId(scenario.scenarioId);
     };
@@ -58,7 +58,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
 
     // Add Scenario
     const handleAddScenarioClick = () => {
-        setSelectedScenarioIdObj({ planes: [], scenarioName: "ScenarioName", scenarioId: "" });
+        setSelectedScenarioObj({ planes: [], scenarioName: "ScenarioName", scenarioId: "" });
         setOnSaveSceanrio(() => SaveTrajectory); // set the onSave to Save function
         scenarioPlayer.selectScenario(null);
         openCreateTrajectoryPanel();
@@ -89,7 +89,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
 
     // On Edit
     const handleEditScenarioClick = () => {
-        setSelectedScenarioIdObj(selectedScenarioObj);
+        setSelectedScenarioObj(selectedScenarioObj);
         setOnSaveSceanrio(() => EditTrajectory); // set the onSave to Edit function
         scenarioPlayer.selectScenario(null);
         openCreateTrajectoryPanel();

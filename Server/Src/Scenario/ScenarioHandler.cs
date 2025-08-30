@@ -41,7 +41,7 @@ public class ScenarioHandler
             }
 
             // add in file
-            scenariosDataManager.AddScenario(scenario);
+            scenariosDataManager.AddAndSaveScenario(scenario);
 
             // add in a map 
             bool isAdded = scenarioManager.TryAddScenario(scenario);
@@ -77,7 +77,7 @@ public class ScenarioHandler
             Scenario scenario = data.Deserialize<Scenario>();
             string scenarioId = scenario.scenarioId;
 
-            bool isRemoved = scenariosDataManager.RemoveScenario(scenarioId);
+            bool isRemoved = scenariosDataManager.RemoveAndSaveScenario(scenarioId);
             if (isRemoved)
             {
                 System.Console.WriteLine("{0} ({1}) - Removed scenario from file successfully.", scenarioId, scenario.scenarioName);
@@ -113,7 +113,7 @@ public class ScenarioHandler
             string scenarioId = scenario.scenarioId;
 
             System.Console.WriteLine("{0} ({1}) - edited scenario in file successfully.", scenarioId, scenario.scenarioName);
-            bool isEdited = scenariosDataManager.EditScenario(scenarioId, scenario);
+            bool isEdited = scenariosDataManager.EditAndSaveScenario(scenarioId, scenario);
             if (isEdited)
             {
                 isEdited = scenarioManager.TryEditScenario(scenarioId, scenario);

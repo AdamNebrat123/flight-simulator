@@ -71,6 +71,7 @@ export class ScenarioHandler {
         try {
             const scenarioError = data as ScenarioError;
             const errorMsg = scenarioError.errorMsg;
+            console.log("Scenario error from server: " + errorMsg);
             toast.error(errorMsg);
         } catch (err) {
             console.log("data could not be parsed to ScenarioError");
