@@ -1,14 +1,17 @@
 import "./TopLeftButtons.css"
-import  { useState } from 'react';
 interface Props {
+  onScenariosClick: () => void;
   onCreateClick: () => void;
   onPlayClick: () => void;
   onCreateDangerZoneClick: () => void;
 }
 
-export default function TopLeftButtons({ onCreateClick, onPlayClick,onCreateDangerZoneClick }: Props) {
+export default function TopLeftButtons({onScenariosClick, onCreateClick, onPlayClick,onCreateDangerZoneClick }: Props) {
   return (
     <div className="top-left-buttons">
+      <button className="top-button" onClick={onScenariosClick}>
+        Scenarios
+      </button>
       <button className="top-button" onClick={onCreateClick}>
         Create trajectory scenario
       </button>

@@ -10,6 +10,7 @@ import { PlaneEntityManager } from '../Handlers/PlaneEntityManager';
 import { PlaneTailManager } from '../Handlers/PlaneTailManager';
 import { C2SMessageType } from '../Messages/C2SMessageType';
 import { SimState } from '../SimState/SimState';
+import ScenariosPanel from '../ScenariosPanel/ScenariosPanel';
 
 
 interface PanelsAndButtonsProps {
@@ -19,24 +20,27 @@ interface PanelsAndButtonsProps {
 export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
     const { isConnected, send, on } = useWebSocket();
     
+    const [showSceanriosPanel, setShowSceanriosPanel] = useState(false);
     const [showCreateTrajectoryPanel, setShowCreateTrajectoryPanel] = useState(false);
     const [showPlayPanel, setShowPlayPanel] = useState(false);
     const [showDangerZonePanel, setShowDangerZonePanel] = useState(false);
-
+/*
     const planeManager = PlaneEntityManager.getInstance(viewerRef.current);
-    const planeTailManager = PlaneTailManager.getInstance(viewerRef.current)
-
+    const planeTailManager = PlaneTailManager.getInstance(viewerRef.current);
+*/
     // ScenarioPlayer instance
     const simStateContext  = useContext(SimState);
     const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
 
     // Handlers for opening panels
+    const openSceanriosPanel = () => setShowSceanriosPanel(true);
     const openCreateTrajectoryPanel = () => setShowCreateTrajectoryPanel(true);
     const openDangerZonePanel = () => setShowDangerZonePanel(true);
     const openPlayPanel = () => setShowPlayPanel(true);
 
 
     // Handlers for closing panels
+    const closeSceanriosPanel = () => setShowSceanriosPanel(false);
     const closeCreateTrajectoryPanel = () => setShowCreateTrajectoryPanel(false);
     const closePlayPanel = () => {
         setShowPlayPanel(false);
@@ -54,7 +58,7 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
         send(C2SMessageType.AddScenario, data);
         setShowCreateTrajectoryPanel(false);
     };
-
+/*
     const handlePlayScenarioClick = (scenarioId: string, scenarioName: string) => {
         if (!scenarioPlayer.selectedScenario) return;
         scenarioPlayer.startScenario(scenarioId, scenarioName);
@@ -66,7 +70,7 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
         planeTailManager!.clearAllTails();
         closePlayPanel();
     };
-
+*/
     const handleSaveDangerZone = (data: DangerZone | null) => {
         if (!data) return;
         send(C2SMessageType.AddDangerZone, data);
@@ -77,29 +81,39 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
     return (
     <>
       {/* Only show buttons if no panels are open */}
-      {!showCreateTrajectoryPanel && !showPlayPanel && !showDangerZonePanel && (
+      {!showSceanriosPanel && !showCreateTrajectoryPanel && !showPlayPanel && !showDangerZonePanel && (
         <TopLeftButtons
+          onScenariosClick={openSceanriosPanel}
           onCreateClick={openCreateTrajectoryPanel}
           onPlayClick={openPlayPanel}
           onCreateDangerZoneClick={openDangerZonePanel}
         />
       )}
 
+
+      {showSceanriosPanel && (
+        <ScenariosPanel
+          onClose={closeSceanriosPanel}
+          viewerRef={viewerRef}
+        />
+      )}
+
       {showCreateTrajectoryPanel && (
         <CreateTrajectoryPanel
+          initialScenario={{ planes: [],scenarioName: "ScenarioName", scenarioId: ""}}
           onSave={handleSaveTrajectory}
           onCancel={closeCreateTrajectoryPanel}
           viewerRef={viewerRef}
         />
       )}
-
+{/*
       {showPlayPanel && (
         <PlayScenarioPanel
           onPlay={handlePlayScenarioClick}
           onClose={closePlayPanel}
         />
       )}
-
+*/}
       {scenarioPlayer.playingScenarioName && (
         
         <ScenarioPlayControlPanel/>
