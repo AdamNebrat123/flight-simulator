@@ -3,6 +3,7 @@ import type { Scenario } from "../Messages/AllTypes";
 export class ScenarioManager {
     private static instance: ScenarioManager | null = null;
     private scenarioIdToScenario: Map<string, Scenario>;
+    private listeners: ((scenarios: Scenario[]) => void)[] = [];
 
     private constructor() {
         this.scenarioIdToScenario = new Map<string, Scenario>();
@@ -13,6 +14,19 @@ export class ScenarioManager {
             this.instance = new ScenarioManager();
         }
         return this.instance;
+    }
+
+    public subscribe(cb: (scenarios: Scenario[]) => void): () => void {
+        this.listeners.push(cb);
+        // unsubscribe function
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== cb);
+        };
+    }
+
+    private notify() {
+        const snapshot = this.getAllScenarios();
+        this.listeners.forEach(cb => cb(snapshot));
     }
 
     tryAddScenario(scenario: Scenario): boolean {
@@ -27,12 +41,15 @@ export class ScenarioManager {
         }
 
         this.scenarioIdToScenario.set(scenario.scenarioId, scenario);
+        this.notify();
         return true;
     }
 
     tryRemoveScenario(scenarioId: string): boolean {
         if (!scenarioId) return false;
-        return this.scenarioIdToScenario.delete(scenarioId);
+        const removed = this.scenarioIdToScenario.delete(scenarioId);
+        if (removed) this.notify();
+        return removed;
     }
 
     tryEditScenario(scenario: Scenario): boolean {
@@ -47,6 +64,7 @@ export class ScenarioManager {
         }
 
         this.scenarioIdToScenario.set(scenario.scenarioId, scenario);
+        this.notify();
         return true;
     }
 

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ScenarioManager } from "../Managers/ScenarioManager";
 import "./ScenariosPanel.css"
 import { SimState } from "../SimState/SimState";
@@ -16,14 +16,23 @@ interface Props {
 }
 
 export default function ScenariosPanel({ onClose, viewerRef }: Props){
-    const { isConnected, send, on } = useWebSocket();
+    const { send } = useWebSocket();
     const simStateContext  = useContext(SimState);
     const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
 
     const planeManager = PlaneEntityManager.getInstance(viewerRef.current);
     const planeTailManager = PlaneTailManager.getInstance(viewerRef.current);
     const scenarioManager = ScenarioManager.getInstance();
-    const scenarios = scenarioManager.getAllScenarios();
+    const [scenarios, setScenarios] = useState<Scenario[]>(scenarioManager.getAllScenarios());
+
+    
+    useEffect(() => {
+    const unsubscribe = scenarioManager.subscribe((newScenarios: Scenario[]) => {
+        setScenarios(newScenarios);
+    });
+
+    return () => unsubscribe();
+    }, [scenarioManager]);
 
     const [selectedScenarioName, setSelectedScenarioName] = useState("");
     const [selectedScenarioId, setSelectedScenarioId] = useState("");
@@ -51,6 +60,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
     const handleAddScenarioClick = () => {
         setSelectedScenarioIdObj({ planes: [], scenarioName: "ScenarioName", scenarioId: "" });
         setOnSaveSceanrio(() => SaveTrajectory); // set the onSave to Save function
+        scenarioPlayer.selectScenario(null);
         openCreateTrajectoryPanel();
     };
     const SaveTrajectory = (data: Scenario) => {
@@ -74,21 +84,28 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
         // clear all tail of previous scenarios planes!!
         planeTailManager!.clearAllTails();
         // close Scenarios panel
-        onClose();
+        handleClose();
     };
 
     // On Edit
     const handleEditScenarioClick = () => {
         setSelectedScenarioIdObj(selectedScenarioObj);
         setOnSaveSceanrio(() => EditTrajectory); // set the onSave to Edit function
+        scenarioPlayer.selectScenario(null);
         openCreateTrajectoryPanel();
     };
 
     // On Remove
     const handleRemoveScenarioClick = () => {
         send(C2SMessageType.RemoveScenario, selectedScenarioObj);
+        scenarioPlayer.selectScenario(null);
     };
     
+    const handleClose = () => {
+        scenarioPlayer.selectScenario(null);
+        simStateContext?.setSimState({...simStateContext.simState})
+        onClose();
+    }
     
 
 
@@ -97,11 +114,35 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
         {/* if not showing create trajectory panel, show the Scenarios default panel */}
         {!showCreateTrajectoryPanel && (
             <div className="scenario-panel">
-            <h3>Play Scenario</h3>
+            <h1 className="scenariosTitle">Scenarios</h1>
 
-            <button onClick={handleAddScenarioClick}>
+            <button className="addScenario-button" onClick={handleAddScenarioClick}>
                 Add scenario
             </button>
+            <div className="button-row">
+                <button 
+                    className="play" 
+                    onClick={() => handlePlayScenarioClick()} 
+                    disabled={!scenarioPlayer.selectedScenario || scenarios.length === 0}
+                >
+                    Play
+                </button>
+
+                <button 
+                    className="edit" 
+                    onClick={() => handleEditScenarioClick()} 
+                    disabled={!scenarioPlayer.selectedScenario || scenarios.length === 0}
+                >
+                    Edit
+                </button>
+                <button 
+                    className="remove" 
+                    onClick={() => handleRemoveScenarioClick()} 
+                    disabled={!scenarioPlayer.selectedScenario || scenarios.length === 0}
+                >
+                    Remove
+                </button>
+            </div>
 
             {scenarios.length === 0 && <p>No scenarios yet.</p>}
 
@@ -117,16 +158,8 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
                 ))}
             </ul>
 
-            <button onClick={() => handlePlayScenarioClick()} disabled={!scenarioPlayer.selectedScenario}>
-                Play
-            </button>
-            <button onClick={() => handleRemoveScenarioClick()} disabled={!scenarioPlayer.selectedScenario}>
-                Remove
-            </button>
-            <button onClick={() => handleEditScenarioClick()} disabled={!scenarioPlayer.selectedScenario}>
-                Edit
-            </button>
-            <button onClick={onClose} style={{ marginLeft: 8 }}>
+
+            <button onClick={handleClose} className="close-button">
                 Close
             </button>
             </div>
