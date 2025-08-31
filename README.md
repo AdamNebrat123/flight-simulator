@@ -10,11 +10,11 @@ You can:
 **Note: install instructions are at the bottom of the readme**
 
 ---
-## Create Scenarios
+## Scenarios
 
 The platform allows you to design custom aircraft trajectories directly on the 3D globe.
 You can place waypoints by selecting points on the map and build a continuous path that represents the aircraft’s planned route.
-Each scenario can be removed or edited whenever you wish.
+**Each scenario can be removed or edited whenever you wish.**
 Once sent to the server, the server calculates the positions of each plane at any point, based on its trajectory and configured velocity.
 
 Example visualization:
@@ -40,7 +40,7 @@ Example visualization:
 
 ---
 
-## Creating Danger Zones
+## Danger Zones
 
 The platform allows you to define 3D restricted airspace volumes directly on the globe.
 Danger zones are created as polygons with:
@@ -48,6 +48,7 @@ Danger zones are created as polygons with:
 - Bottom and top altitude to define the vertical range
 
 These zones can be added and they are fully interactive, and their visual representation is updated in real time on the Cesium globe.
+**Each DangerZone can be removed or edited whenever you wish.**
 
 Example visualization:
 
