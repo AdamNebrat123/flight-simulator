@@ -13,7 +13,6 @@ import { DangerZoneHandler } from './Handlers/DangerZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
 import { handleInitData } from './Handlers/InitDataHandler';
 import PanelsAndButtons from './PanelsAndButtons/PanelsAndButtons';
-import { SimState } from './SimState/SimState';
 import { ScenarioHandler } from './Handlers/ScenarioHandler';
 
 
@@ -28,8 +27,7 @@ export default function App() {
   const dangerZoneEntityManagerRef = useRef<DangerZoneEntityManager | null>(null)
   const ScenarioPlanesSnapshotHandlerRef = useRef<ScenarioPlanesSnapshotHandler | null>(null)
   const dangerZoneHandlerRef =  useRef<DangerZoneHandler | null>(null);
-  const simStateContext  = useContext(SimState);
-  const scenarioPlayer = simStateContext?.simState.scenarioPlayer!;
+
   const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
 
 

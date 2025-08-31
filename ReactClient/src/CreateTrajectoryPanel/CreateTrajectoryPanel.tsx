@@ -291,78 +291,76 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         <div>
         {selectedPlaneIndex !== null && scenario.planes[selectedPlaneIndex] && (
             <div className="plane-block">
-            <details open>
                 <summary>
-                <input
-                    type="text"
-                    value={scenario.planes[selectedPlaneIndex].planeName}
-                    onChange={(e) => handlePlaneNameChange(selectedPlaneIndex, e.target.value)}
-                    className="plane-name-input"
-                />
+                    <input
+                        type="text"
+                        value={scenario.planes[selectedPlaneIndex].planeName}
+                        onChange={(e) => handlePlaneNameChange(selectedPlaneIndex, e.target.value)}
+                        className="plane-name-input"
+                    />
                 </summary>
 
                 <div className="plane-fields" style={{ marginTop: 8 }}>
-                <label>
-                    Velocity:
-                    <input
-                    type="number"
-                    value={scenario.planes[selectedPlaneIndex].velocity}
-                    onChange={(e) => handleVelocityChange(selectedPlaneIndex, Number(e.target.value))}
-                    style={{ marginLeft: 8, width: 60 }}
-                    />
-                </label>
+                    <label>
+                        Velocity:
+                        <input
+                        type="number"
+                        value={scenario.planes[selectedPlaneIndex].velocity}
+                        onChange={(e) => handleVelocityChange(selectedPlaneIndex, Number(e.target.value))}
+                        style={{ marginLeft: 8, width: 60 }}
+                        />
+                    </label>
 
-                {scenario.planes[selectedPlaneIndex].geoPoints.length > 0 && (
-                    <div className="points-section">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Longitude</th>
-                            <th>Latitude</th>
-                            <th>Altitude</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {scenario.planes[selectedPlaneIndex].geoPoints.map((point, pIndex) => (
-                            <tr key={pIndex}>
-                            <td>
-                                <input
-                                type="number"
-                                value={point.longitude}
-                                step="0.000001"
-                                onChange={(e) =>
-                                    handleGeoPointChange(selectedPlaneIndex, pIndex, "longitude", Number(e.target.value))
-                                }
-                                />
-                            </td>
-                            <td>
-                                <input
-                                type="number"
-                                value={point.latitude}
-                                step="0.000001"
-                                onChange={(e) =>
-                                    handleGeoPointChange(selectedPlaneIndex, pIndex, "latitude", Number(e.target.value))
-                                }
-                                />
-                            </td>
-                            <td>
-                                <input
-                                type="number"
-                                value={point.altitude}
-                                step="0.01"
-                                onChange={(e) =>
-                                    handleGeoPointChange(selectedPlaneIndex, pIndex, "altitude", Number(e.target.value))
-                                }
-                                />
-                            </td>
+                    {scenario.planes[selectedPlaneIndex].geoPoints.length > 0 && (
+                        <div className="points-section">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Longitude</th>
+                                <th>Latitude</th>
+                                <th>Altitude</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                    </div>
-                )}
+                            </thead>
+                            <tbody>
+                            {scenario.planes[selectedPlaneIndex].geoPoints.map((point, pIndex) => (
+                                <tr key={pIndex}>
+                                <td>
+                                    <input
+                                    type="number"
+                                    value={point.longitude}
+                                    step="0.000001"
+                                    onChange={(e) =>
+                                        handleGeoPointChange(selectedPlaneIndex, pIndex, "longitude", Number(e.target.value))
+                                    }
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                    type="number"
+                                    value={point.latitude}
+                                    step="0.000001"
+                                    onChange={(e) =>
+                                        handleGeoPointChange(selectedPlaneIndex, pIndex, "latitude", Number(e.target.value))
+                                    }
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                    type="number"
+                                    value={point.altitude}
+                                    step="0.01"
+                                    onChange={(e) =>
+                                        handleGeoPointChange(selectedPlaneIndex, pIndex, "altitude", Number(e.target.value))
+                                    }
+                                    />
+                                </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                        </div>
+                    )}
                 </div>
-            </details>
             </div>
         )}
         </div>

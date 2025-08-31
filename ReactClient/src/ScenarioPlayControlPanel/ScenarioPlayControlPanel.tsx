@@ -1,7 +1,5 @@
-import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { useState, useEffect, useContext } from "react";
 import "./ScenarioPlayControlPanel.css";
-import { ScenarioPlayer } from "./ScenarioPlayer";
 import { SimState } from "../SimState/SimState";
 
 
