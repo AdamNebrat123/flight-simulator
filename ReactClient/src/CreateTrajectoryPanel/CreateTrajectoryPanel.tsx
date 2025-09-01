@@ -213,6 +213,19 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         // MOUSE_MOVE updates temp line
         handler.setInputAction((movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
             if (!lastPointRef.current) return;
+            
+            if (!tempLineRef.current) {
+                tempLineRef.current = viewer.entities.add({
+                    polyline: {
+                        positions: new Cesium.CallbackProperty(() => {
+                            if (!lastPointRef.current || !currentMousePositionRef.current) return undefined;
+                            return [lastPointRef.current, currentMousePositionRef.current];
+                        }, false),
+                        width: 3,
+                        material: Cesium.Color.YELLOW,
+                    },
+                });
+            }
 
             const newPosition = viewer.scene.pickPosition(movement.endPosition);
             if (!Cesium.defined(newPosition)) return;
