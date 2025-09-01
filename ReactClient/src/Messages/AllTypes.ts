@@ -116,3 +116,50 @@ export interface InitData {
 export interface ScenarioError {
     errorMsg: string;
 }
+
+
+
+
+// Base trajectory
+export interface AircraftTrajectory {
+  aircraftType: string;
+  aircraftId: string;
+  aircraftName: string;
+  geoPoints: GeoPoint[];
+  velocity: number;
+}
+
+export interface DroneTrajectory extends AircraftTrajectory {
+  // Drone-specific properties (none for now)
+}
+
+export interface PlaneTrajectory extends AircraftTrajectory {
+  // Plane-specific properties (none for now)
+}
+
+export interface BalloonTrajectory extends AircraftTrajectory {
+  // Balloon-specific properties (none for now)
+}
+
+// Base status
+export interface AircraftStatus {
+  aircraftType: string;
+  aircraftId: string;
+  aircraftName: string;
+  trajectoryPoints: TrajectoryPoint[]; // actually one point, but kept as array for server consistency
+  tailPoints: TrajectoryPoint[];
+  isInDangerZone: boolean;
+  dangerZonesIn: string[];
+}
+
+export interface DroneStatus extends AircraftStatus {
+  // Drone-specific properties (none for now)
+}
+
+export interface PlaneStatus extends AircraftStatus {
+  // Plane-specific properties (none for now)
+}
+
+export interface BalloonStatus extends AircraftStatus {
+  // Balloon-specific properties (none for now)
+}

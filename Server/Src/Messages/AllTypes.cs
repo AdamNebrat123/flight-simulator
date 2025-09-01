@@ -216,3 +216,75 @@ public class ScenarioError
     [JsonPropertyName("errorMsg")]
     public string errorMsg { get; set; }
 }
+
+// Base trajectory
+public partial class AircraftTrajectory
+{
+    [JsonPropertyName("aircraftType")]
+    public string aircraftType { get; set; }
+
+    [JsonPropertyName("aircraftId")]
+    public string aircraftId { get; set; }
+
+    [JsonPropertyName("aircraftName")]
+    public string aircraftName { get; set; }
+
+    [JsonPropertyName("geoPoints")]
+    public List<GeoPoint> geoPoints { get; set; }
+
+    [JsonPropertyName("velocity")]
+    public double velocity { get; set; }
+}
+
+
+public partial class DroneTrajectory : AircraftTrajectory
+{
+    // Drone-specific properties will go here (none for now)
+}
+
+public partial class PlaneTrajectory : AircraftTrajectory
+{
+    // Plane-specific properties will go here (none for now)
+}
+
+public partial class BalloonTrajectory : AircraftTrajectory
+{
+    // Balloon-specific properties will go here (none for now)
+}
+
+// Base status
+public partial class AircraftStatus
+{
+    [JsonPropertyName("aircraftType")]
+    public string aircraftType { get; set; }
+
+    [JsonPropertyName("aircraftId")]
+    public string aircraftId { get; set; }
+
+    [JsonPropertyName("aircraftName")]
+    public string aircraftName { get; set; }
+
+    [JsonPropertyName("trajectoryPoints")]
+    public List<TrajectoryPoint> trajectoryPoints { get; set; } // it is actually one point everytime. not list. its a list because it needed to be used sometime a list in server side.
+    [JsonPropertyName("tailPoints")]
+    public List<TrajectoryPoint> tailPoints { get; set; }
+    [JsonPropertyName("isInDangerZone")]
+    public bool isInDangerZone { get; set; }
+    [JsonPropertyName("dangerZonesIn")]
+    public List<string> dangerZonesIn { get; set; }
+}
+
+public partial class DroneStatus : AircraftStatus
+{
+    // Drone-specific properties will go here (none for now)
+}
+
+public partial class PlaneStatus : AircraftStatus
+{
+    // Plane-specific properties will go here (none for now)
+}
+
+public partial class BalloonStatus : AircraftStatus
+{
+    // Balloon-specific properties will go here (none for now)
+}

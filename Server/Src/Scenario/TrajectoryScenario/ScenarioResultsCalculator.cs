@@ -26,9 +26,9 @@ public class ScenarioResultsCalculator
         }
 
         TemporaryCalculatedPointsStorage temporaryCalculatedPointsStorage = new TemporaryCalculatedPointsStorage();
-        List<PlaneTrajectoryPoints> planesTrajectoryPoints = scenario.planes;
+        List<AerialUnitTrajectoryPoints> planesTrajectoryPoints = scenario.planes;
 
-        foreach (PlaneTrajectoryPoints plane in planesTrajectoryPoints)
+        foreach (AerialUnitTrajectoryPoints plane in planesTrajectoryPoints)
         {
             List<TrajectoryPoint> trajectory = HandleSinglePlane(plane);
             temporaryCalculatedPointsStorage.AddTrajectory(trajectory, plane.planeName);
@@ -46,7 +46,7 @@ public class ScenarioResultsCalculator
         return scenarioResult;
     }
 
-    private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)
+    private List<TrajectoryPoint> HandleSinglePlane(AerialUnitTrajectoryPoints plane)
     {
         List<TrajectoryPoint> fullTrajectory = new List<TrajectoryPoint>();
 
