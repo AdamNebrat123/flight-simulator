@@ -86,7 +86,7 @@ export default function RealPlanesUpdater({ viewer }: Props) {
     };
 
     fetchPlanes();
-    const intervalId = window.setInterval(fetchPlanes, 60000);
+    const intervalId = window.setInterval(fetchPlanes, 120000);
 
     // Visibility update function based on field of view
     const updateVisibility = () => {

@@ -26,15 +26,14 @@ export default function RealPlanesViewer({ onViewerReady }: Props) {
 
       viewer.scene.globe.depthTestAgainstTerrain = true;
 
-      /*
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(34.77888, 32.02539, 250),
+      viewer.camera.flyTo({ // fly to israel
+        destination: Cesium.Cartesian3.fromDegrees(34.85, 31.5, 1200000),
         orientation: {
-          heading: Cesium.Math.toRadians(45.0),
-          pitch: Cesium.Math.toRadians(-25.0),
+          heading: Cesium.Math.toRadians(0),
+          pitch: Cesium.Math.toRadians(-90.0),
+          roll: 0
         },
       });
-      */
 
       viewerRef.current = viewer;
       onViewerReady?.(viewer); // Notify parent that viewer is ready
