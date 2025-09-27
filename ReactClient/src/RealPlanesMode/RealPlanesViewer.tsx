@@ -26,6 +26,7 @@ export default function RealPlanesViewer({ onViewerReady }: Props) {
 
       viewer.scene.globe.depthTestAgainstTerrain = true;
 
+      /*
       viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(34.77888, 32.02539, 250),
         orientation: {
@@ -33,10 +34,10 @@ export default function RealPlanesViewer({ onViewerReady }: Props) {
           pitch: Cesium.Math.toRadians(-25.0),
         },
       });
-
+      */
 
       viewerRef.current = viewer;
-      onViewerReady?.(viewer); // שולח את ה-viewer למי שמעלה את הקומפוננטה
+      onViewerReady?.(viewer); // Notify parent that viewer is ready
     };
 
     init();

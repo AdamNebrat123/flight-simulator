@@ -7,15 +7,20 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import RealPlanesMode from './RealPlanesMode/RealPlanesMode.tsx'
 
 createRoot(document.getElementById('root')!).render(
-    <WebSocketProvider url="ws://localhost:5000">
-      <SimStateProvider>
-        <Router>
-        <Routes>
-          <Route path="/" element={<App />} />
+  <Router>
+      <Routes>
+          <Route
+            path="/"
+            element={
+              <WebSocketProvider url="ws://localhost:5000">
+                <SimStateProvider>
+                  <App />
+                </SimStateProvider>
+              </WebSocketProvider>
+            }
+          />
           <Route path="/real-planes-mode" element={<RealPlanesMode />} />
-        </Routes>
-      </Router>
-      </SimStateProvider>
-    </WebSocketProvider>
+      </Routes>
+  </Router>
 )
   

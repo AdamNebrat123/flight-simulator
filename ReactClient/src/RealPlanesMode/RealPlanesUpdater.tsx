@@ -28,49 +28,109 @@ export default function RealPlanesUpdater({ viewer }: Props) {
           .map((p: any) => ({
             id: p[0],
             callsign: p[1]?.trim() || "N/A",
-            lat: p[3],
-            lon: p[4],
-            alt: p[5] || 0,
+            lat: p[6],
+            lon: p[5],
+            alt: p[13],
           }))
-          .filter((p: PlaneData) => p.lat && p.lon);
+          .filter(
+            (p: PlaneData) => p.lat != null && p.lon != null && p.alt != null
+          );
 
         if (planes.length === 0) return;
 
-        // Prepare points for terrain mapping
-        const terrainPositions = planes.map(p => Cesium.Cartographic.fromDegrees(p.lon, p.lat));
-
-        // Get the actual height above ground for each plane
-        const terrainHeights = await Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, terrainPositions);
-
-        planes.forEach((p, idx) => {
-          const terrainHeight = terrainHeights[idx].height || 0;
-          const cartesian = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, terrainHeight + p.alt); // Altitude above ground****
-          console.log(terrainHeight + p.alt);
+        planes.forEach((p) => {
+          const cartesian = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt);
+          const cameraHeight = viewer.camera.positionCartographic.height;
+          const scale = Math.max(0.8, Math.min(50, 1_000_000 / cameraHeight));
+          const pixelSize = Math.max(12, Math.min(15, 1_500_000 / cameraHeight));
 
           let entity = planesRef.current.get(p.id);
-          if (entity) {
-            entity.position = new Cesium.ConstantPositionProperty(cartesian);
-          } else {
+          if (!entity) {
             entity = viewer.entities.add({
               id: p.id,
               position: cartesian,
-              point: { pixelSize: 8, color: Cesium.Color.RED },
-              label: { text: p.callsign, font: "14pt sans-serif", style: Cesium.LabelStyle.FILL },
+              model: {
+                uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumAir/Cesium_Air.glb",
+                scale,
+                minimumPixelSize: 32,
+                color: Cesium.Color.WHITE.withAlpha(0.9),
+                silhouetteColor: Cesium.Color.YELLOW,
+                silhouetteSize: 1.4,
+                show: false, // update later based on camera 
+              },
+              point: {
+                pixelSize: 8,
+                color: Cesium.Color.RED,
+                show: false,
+              },
+              label: {
+                text: p.callsign,
+                font: `${pixelSize}px sans-serif`,
+                fillColor: Cesium.Color.WHITE,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 3,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,
+                pixelOffset: new Cesium.Cartesian2(0, -30),
+                show: false, // update later based on camera 
+              },
             });
             planesRef.current.set(p.id, entity);
+          } else {
+            entity.position = new Cesium.ConstantPositionProperty(cartesian);
           }
         });
-
       } catch (err) {
         console.error("Error fetching planes:", err);
       }
     };
 
     fetchPlanes();
-    const intervalId = window.setInterval(fetchPlanes, 40000);
+    const intervalId = window.setInterval(fetchPlanes, 60000);
 
-    return () => window.clearInterval(intervalId);
-  }, [viewer, 40000]);
+    // Visibility update function based on field of view
+    const updateVisibility = () => {
+      if (!viewer) return;
+
+      planesRef.current.forEach((entity) => {
+        if (!entity.position) return;
+
+        const pos = entity.position.getValue(Cesium.JulianDate.now());
+        if (!pos) return;
+
+        const windowCoord = Cesium.SceneTransforms.worldToWindowCoordinates(
+          viewer.scene,
+          pos
+        );
+        const inView =
+          windowCoord &&
+          windowCoord.x >= 0 &&
+          windowCoord.x <= viewer.canvas.width &&
+          windowCoord.y >= 0 &&
+          windowCoord.y <= viewer.canvas.height;
+
+        const cameraHeight = viewer.camera.positionCartographic.height;
+        const useModel = cameraHeight < 450000;
+
+        if (entity.model) entity.model.show = new Cesium.ConstantProperty(
+          inView ? useModel : false
+        );
+        if (entity.point) entity.point.show = new Cesium.ConstantProperty(
+          inView ? !useModel : false
+        );
+        if (entity.label) entity.label.show = new Cesium.ConstantProperty(
+          inView ? true : false
+        );
+      });
+    };
+
+    viewer.scene.postRender.addEventListener(updateVisibility);
+
+    return () => {
+      window.clearInterval(intervalId);
+      viewer.scene.postRender.removeEventListener(updateVisibility);
+    };
+  }, [viewer]);
 
   return null;
 }

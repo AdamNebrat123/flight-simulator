@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useContext } from 'react';
 import * as Cesium from 'cesium';
 import CesiumMap from './CesiumMap';
-import type { ScenariosReadyToPlay } from './Messages/AllTypes';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
 //handler imports
