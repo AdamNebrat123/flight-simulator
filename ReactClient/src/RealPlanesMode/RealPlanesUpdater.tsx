@@ -11,11 +11,10 @@ type PlaneData = {
 
 type Props = {
   viewer: Cesium.Viewer | null;
+  planesRef: React.MutableRefObject<Map<string, Cesium.Entity>>;
 };
 
-export default function RealPlanesUpdater({ viewer }: Props) {
-  const planesRef = useRef<Map<string, Cesium.Entity>>(new Map());
-
+export default function RealPlanesUpdater({ viewer, planesRef }: Props) {
   useEffect(() => {
     if (!viewer) return;
 
@@ -64,7 +63,7 @@ export default function RealPlanesUpdater({ viewer }: Props) {
                 show: false,
               },
               label: {
-                text: p.callsign,
+                text: `${p.callsign} (${p.id})`,
                 font: `${pixelSize}px sans-serif`,
                 fillColor: Cesium.Color.WHITE,
                 style: Cesium.LabelStyle.FILL_AND_OUTLINE,
