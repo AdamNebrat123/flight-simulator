@@ -14,14 +14,29 @@ export default function PlaneSearch({ viewer, planesMap }: Props) {
 
     const plane = planesMap.get(query.trim());
     if (plane) {
-      viewer.flyTo(plane, {
-        duration: 2.5,
-        offset: new Cesium.HeadingPitchRange(
-          0,
-          Cesium.Math.toRadians(-45), // מבט מלמעלה בזווית 45°
-          5000                         // מרחק מצלמה (מטרים)
-        )
-      });
+      const pos = (plane.position as Cesium.ConstantPositionProperty).getValue(Cesium.JulianDate.now());
+      if (pos) {
+        // המרה ל-Lat/Lon/Height
+        const carto = Cesium.Cartographic.fromCartesian(pos);
+
+        // add 5000 meters to height for better view
+        const abovePos = Cesium.Cartesian3.fromRadians(
+          carto.longitude,
+          carto.latitude,
+          carto.height + 5000
+        );
+
+        // fly to the position above the plane
+        viewer.camera.flyTo({
+          destination: abovePos,
+          duration: 2.5,
+          orientation: {
+            heading: 0,
+            pitch: -Math.PI / 2, // angle straight down to see the plane
+            roll: 0
+          }
+        });
+      }
     } else {
       alert("Could find this plane.");
     }
