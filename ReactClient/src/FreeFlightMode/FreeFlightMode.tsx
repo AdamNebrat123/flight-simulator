@@ -13,10 +13,10 @@ export default function FreeFlightMode() {
 
     // Initialize the drone controller
     const cleanup = initDroneController({
-      viewer,
-      drone: droneRef.current,
-      speed: 50,       // max speed in meters/sec
-      acceleration: 20 // acceleration in meters/sec^2
+        viewer,
+        drone: droneRef.current,
+        maxSpeed: 50,      // max speed in meters/sec
+        acceleration: 20,  // acceleration in meters/sec^2
     });
 
     // Cleanup function when unmounting or viewer/drone changes
