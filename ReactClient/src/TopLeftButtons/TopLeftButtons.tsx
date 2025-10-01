@@ -13,8 +13,11 @@ export default function TopLeftButtons({onScenariosClick, onDangerZonesClick }: 
       <button className="top-button" onClick={onDangerZonesClick}>
         Danger Zones
         </button>
-      <button className="top-button" onClick={() => window.open("/real-planes-mode", "_blank")}>
+      <button className="top-button" onClick={() => window.open("/Real-Planes-Mode", "_blank")}>
         REAL PLANES MODE
+      </button>
+      <button className="top-button" onClick={() => window.open("/Free-Flight-Mode", "_blank")}>
+        FREE FLIGHT MODE
       </button>
     </div>
   );

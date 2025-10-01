@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 
 type Props = {
   viewer: Cesium.Viewer | null;
-  planesMap: Map<string, Cesium.Entity>; // נקבל את המפה של המטוסים מהקומפוננטה הראשית
+  planesMap: Map<string, Cesium.Entity>; 
 };
 
 export default function PlaneSearch({ viewer, planesMap }: Props) {
@@ -16,7 +16,7 @@ export default function PlaneSearch({ viewer, planesMap }: Props) {
     if (plane) {
       const pos = (plane.position as Cesium.ConstantPositionProperty).getValue(Cesium.JulianDate.now());
       if (pos) {
-        // המרה ל-Lat/Lon/Height
+        // convert Cartesian3 to Cartographic to get lat, lon, height
         const carto = Cesium.Cartographic.fromCartesian(pos);
 
         // add 5000 meters to height for better view
