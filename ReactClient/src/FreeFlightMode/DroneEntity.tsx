@@ -22,25 +22,46 @@ export default function DroneEntity({ viewer, onReady }: Props) {
     });
 
 
-    const cameraDistance = 100; // meters behind the drone
-    const cameraHeight = 0;   // meters above the drone
+    // Define drone heading in degrees (yaw)
+    const droneYaw = 90; // degrees
+    const dronePitch = 0;
+    const droneRoll = 0;
 
-    const dronePosition = drone.position!.getValue(Cesium.JulianDate.now());
-
-    if (dronePosition) {
-    // add height to the drone's position
-    const cameraTarget = new Cesium.Cartesian3(
-        dronePosition.x,
-        dronePosition.y,
-        dronePosition.z + cameraHeight
+    // Convert to Cesium HeadingPitchRoll
+    const hpr = new Cesium.HeadingPitchRoll(
+    Cesium.Math.toRadians(droneYaw),
+    Cesium.Math.toRadians(dronePitch),
+    Cesium.Math.toRadians(droneRoll)
     );
 
+    // Create orientation as a Property
+    const quaternion = Cesium.Transforms.headingPitchRollQuaternion(
+    drone.position!.getValue(Cesium.JulianDate.now())!,
+    hpr
+    );
+
+    drone.orientation = new Cesium.ConstantProperty(quaternion);
+
+    // Camera offset to keep drone in third-person view
+    const cameraDistance = 50; // meters behind
+    const cameraHeight = 50;   // meters above
+    const modelHeadingOffset = Cesium.Math.toRadians(-90); // fix model axis mismatch
+
+    const dronePosition = drone.position!.getValue(Cesium.JulianDate.now());
+    if (dronePosition) {
+    // Compute third-person camera position relative to drone
+    const heading = Cesium.Math.toRadians(droneYaw) + modelHeadingOffset;
+    const pitch = Cesium.Math.toRadians(-35); // slightly downward
+
+    // HeadingPitchRange: heading, pitch, range (distance from target)
+    const range = Math.sqrt(cameraDistance * cameraDistance + cameraHeight * cameraHeight);
+
     viewer.camera.lookAt(
-        cameraTarget,
+        dronePosition,
         new Cesium.HeadingPitchRange(
-        -45.55,                          // heading: backward
-        Cesium.Math.toRadians(-40), // pitch: slightly downward
-        cameraDistance               // distance from the drone
+        heading,   // follow drone orientation
+        pitch,     // look slightly downward
+        range      // distance from the drone
         )
     );
     }
