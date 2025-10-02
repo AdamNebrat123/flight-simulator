@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
 import FreeFlightModeViewer from "./FreeFlightModeViewer";
 import DroneEntity from "./DroneEntity";
-import { initDroneController } from "./DroneController"; // <-- DroneController
+import { initDroneController } from "./DroneController"; 
+import { initCameraLock } from "./CameraLock";
 
 export default function FreeFlightMode() {
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
@@ -18,10 +19,18 @@ export default function FreeFlightMode() {
         maxSpeed: 50,      // max speed in meters/sec
         acceleration: 20,  // acceleration in meters/sec^2
     });
+    // Initialize the camera lock (third-person view)
+    const cleanupCamera = initCameraLock({
+      viewer,
+      target: droneRef.current,
+      distance: 50, // distance from the drone
+      baseHeight: 50,    // height above the drone
+    });
 
     // Cleanup function when unmounting or viewer/drone changes
     return () => {
       cleanup(); // removes tick listener and keyboard events
+      cleanupCamera(); // removes camera lock
     };
   }, [viewer, droneRef.current]);
 

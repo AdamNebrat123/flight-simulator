@@ -23,7 +23,7 @@ export default function DroneEntity({ viewer, onReady }: Props) {
 
 
     // Define drone heading in degrees (yaw)
-    const droneYaw = 90; // degrees
+    const droneYaw = 0; // degrees
     const dronePitch = 0;
     const droneRoll = 0;
 

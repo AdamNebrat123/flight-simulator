@@ -3,9 +3,9 @@ import * as Cesium from "cesium";
 type DroneControllerProps = {
   viewer: Cesium.Viewer;
   drone: Cesium.Entity;
-  maxSpeed?: number;      // meters per second
-  acceleration?: number;  // meters per second^2
-  damping?: number;       // fraction of velocity reduced per second when no input
+  maxSpeed?: number;
+  acceleration?: number;
+  damping?: number;
 };
 
 export function initDroneController({
@@ -15,20 +15,26 @@ export function initDroneController({
   acceleration = 20,
   damping = 0.9,
 }: DroneControllerProps) {
-  // Velocity in world coordinates
   const velocity = new Cesium.Cartesian3(0, 0, 0);
-
-  // Keyboard state
   const keys: Record<string, boolean> = {};
 
-  // Rotation state (controlled by arrows)
+  // רק החצים הצידיים
   let heading = 0;
-  let pitch = 0;
   const arrowSensitivity = Cesium.Math.toRadians(2);
+  const arrows: Record<string, boolean> = {
+    ArrowLeft: false,
+    ArrowRight: false,
+  };
 
-  // Key listeners
-  const keyDownHandler = (e: KeyboardEvent) => { keys[e.code] = true; };
-  const keyUpHandler = (e: KeyboardEvent) => { keys[e.code] = false; };
+  const keyDownHandler = (e: KeyboardEvent) => {
+    keys[e.code] = true;
+    if (arrows.hasOwnProperty(e.code)) arrows[e.code] = true;
+  };
+
+  const keyUpHandler = (e: KeyboardEvent) => {
+    keys[e.code] = false;
+    if (arrows.hasOwnProperty(e.code)) arrows[e.code] = false;
+  };
 
   window.addEventListener("keydown", keyDownHandler);
   window.addEventListener("keyup", keyUpHandler);
@@ -40,12 +46,14 @@ export function initDroneController({
     const pos = drone.position.getValue(time) as Cesium.Cartesian3;
     if (!pos) return;
 
-    // Delta time
     let dt = 0.016;
     if (prevTime) dt = Cesium.JulianDate.secondsDifference(time, prevTime);
     prevTime = time;
 
-    // Local ENU axes
+    // רק החצים הצידיים משפיעים על Heading
+    if (arrows["ArrowLeft"]) heading -= arrowSensitivity;
+    if (arrows["ArrowRight"]) heading += arrowSensitivity;
+
     const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(pos);
     const col = new Cesium.Cartesian4();
     Cesium.Matrix4.getColumn(enuMatrix, 0, col);
@@ -55,50 +63,52 @@ export function initDroneController({
     Cesium.Matrix4.getColumn(enuMatrix, 2, col);
     const localUp = new Cesium.Cartesian3(col.x, col.y, col.z);
 
-    // --- Update heading & pitch from arrows ---
-    if (keys["ArrowLeft"]) heading -= arrowSensitivity;
-    if (keys["ArrowRight"]) heading += arrowSensitivity;
-    if (keys["ArrowUp"]) pitch -= arrowSensitivity;
-    if (keys["ArrowDown"]) pitch += arrowSensitivity;
-
-    // --- Compute acceleration from WASD + SPACE/SHIFT ---
     const acc = new Cesium.Cartesian3(0, 0, 0);
-    if (keys["KeyW"]) Cesium.Cartesian3.add(acc, localNorth, acc);
-    if (keys["KeyS"]) Cesium.Cartesian3.subtract(acc, localNorth, acc);
-    if (keys["KeyD"]) Cesium.Cartesian3.add(acc, localEast, acc);
-    if (keys["KeyA"]) Cesium.Cartesian3.subtract(acc, localEast, acc);
+
+    // תנועה יחסית ל־Heading
+    const forward = new Cesium.Cartesian3();
+    const right = new Cesium.Cartesian3();
+    Cesium.Cartesian3.multiplyByScalar(localNorth, Math.cos(heading), forward);
+    Cesium.Cartesian3.add(forward, Cesium.Cartesian3.multiplyByScalar(localEast, Math.sin(heading), new Cesium.Cartesian3()), forward);
+
+    Cesium.Cartesian3.multiplyByScalar(localNorth, -Math.sin(heading), right);
+    Cesium.Cartesian3.add(right, Cesium.Cartesian3.multiplyByScalar(localEast, Math.cos(heading), new Cesium.Cartesian3()), right);
+
+    if (keys["KeyW"]) Cesium.Cartesian3.add(acc, forward, acc);
+    if (keys["KeyS"]) Cesium.Cartesian3.subtract(acc, forward, acc);
+    if (keys["KeyD"]) Cesium.Cartesian3.add(acc, right, acc);
+    if (keys["KeyA"]) Cesium.Cartesian3.subtract(acc, right, acc);
     if (keys["Space"]) Cesium.Cartesian3.add(acc, localUp, acc);
     if (keys["ShiftLeft"] || keys["ShiftRight"]) Cesium.Cartesian3.subtract(acc, localUp, acc);
 
     Cesium.Cartesian3.multiplyByScalar(acc, acceleration, acc);
-
-    // Apply acceleration to velocity
     Cesium.Cartesian3.multiplyByScalar(acc, dt, acc);
     Cesium.Cartesian3.add(velocity, acc, velocity);
 
-    // Damping when no movement keys pressed
     const noInput = !keys["KeyW"] && !keys["KeyS"] && !keys["KeyA"] && !keys["KeyD"] &&
                     !keys["Space"] && !keys["ShiftLeft"] && !keys["ShiftRight"];
     if (noInput) {
       Cesium.Cartesian3.multiplyByScalar(velocity, Math.pow(damping, dt * 60), velocity);
     }
 
-    // Clamp speed
     const speedMag = Cesium.Cartesian3.magnitude(velocity);
     if (speedMag > maxSpeed) {
       Cesium.Cartesian3.normalize(velocity, velocity);
       Cesium.Cartesian3.multiplyByScalar(velocity, maxSpeed, velocity);
     }
 
-    // Update position
     const displacement = new Cesium.Cartesian3();
     Cesium.Cartesian3.multiplyByScalar(velocity, dt, displacement);
     const newPos = new Cesium.Cartesian3();
     Cesium.Cartesian3.add(pos, displacement, newPos);
     drone.position = new Cesium.ConstantPositionProperty(newPos);
 
-    // Update orientation from heading & pitch (arrows only)
-    const hpr = new Cesium.HeadingPitchRoll(heading, pitch, 0);
+    // Orientation עם Pitch קבוע (0)
+    const hpr = new Cesium.HeadingPitchRoll(
+      heading + Cesium.Math.toRadians(90),
+      0,
+      0
+    );
     const quat = Cesium.Transforms.headingPitchRollQuaternion(newPos, hpr);
     drone.orientation = new Cesium.ConstantProperty(quat);
   };
