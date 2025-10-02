@@ -5,8 +5,8 @@ type FirstPersonCameraProps = {
   viewer: Cesium.Viewer;
   target: Cesium.Entity;
   headingOffset?: number;
-  forwardOffset?: number; // קדימה
-  upOffset?: number;      // מעט מעל המרכז של הרחפן
+  forwardOffset?: number; // forward
+  upOffset?: number;      // slightly above the drone's center
 };
 
 export function initFirstPersonCameraLock({
@@ -26,21 +26,21 @@ export function initFirstPersonCameraLock({
     const droneQuat = drone.orientation.getValue(time) as Cesium.Quaternion;
     if (!dronePos || !droneQuat) return;
 
-    // Heading מתוקן
+    // Corrected heading
     const modelHeading = orientationManager.getHeading(dronePos);
 
-    // Forward vector בעולם
+    // Forward vector in world coordinates
     const forward = new Cesium.Cartesian3(1, 0, 0);
     const rotationMatrix = Cesium.Matrix3.fromQuaternion(droneQuat);
     const forwardWorld = new Cesium.Cartesian3();
     Cesium.Matrix3.multiplyByVector(rotationMatrix, forward, forwardWorld);
 
-    // Up vector בעולם
+    // Up vector in world coordinates
     const up = new Cesium.Cartesian3(0, 0, 1);
     const upWorld = new Cesium.Cartesian3();
     Cesium.Matrix3.multiplyByVector(rotationMatrix, up, upWorld);
 
-    // חישוב מיקום המצלמה
+    // Calculate camera position
     const cameraPos = new Cesium.Cartesian3();
     Cesium.Cartesian3.multiplyByScalar(forwardWorld, forwardOffset, cameraPos);
     const upOffsetVec = new Cesium.Cartesian3();
@@ -48,7 +48,7 @@ export function initFirstPersonCameraLock({
     Cesium.Cartesian3.add(cameraPos, upOffsetVec, cameraPos);
     Cesium.Cartesian3.add(cameraPos, dronePos, cameraPos);
 
-    // עדכון המצלמה
+    // Update the camera
     viewer.camera.setView({
       destination: cameraPos,
       orientation: {

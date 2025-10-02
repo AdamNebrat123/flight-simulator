@@ -36,7 +36,6 @@ export function initDroneController({
 
   let prevTime: Cesium.JulianDate | null = null;
 
-
   const headingOffset = Cesium.Math.toRadians(90);
   const orientationManager = new DroneOrientationManager(drone, headingOffset);
 
@@ -49,7 +48,7 @@ export function initDroneController({
     if (prevTime) dt = Cesium.JulianDate.secondsDifference(time, prevTime);
     prevTime = time;
 
-    // עדכון heading מהחצים
+    // update heading from arrow keys
     if (arrows["ArrowLeft"]) heading -= arrowSensitivity;
     if (arrows["ArrowRight"]) heading += arrowSensitivity;
 
@@ -64,7 +63,7 @@ export function initDroneController({
 
     const acc = new Cesium.Cartesian3(0, 0, 0);
 
-    // כיוונים יחסיים ל-heading
+    // directions relative to heading
     const forward = new Cesium.Cartesian3();
     const right = new Cesium.Cartesian3();
     Cesium.Cartesian3.multiplyByScalar(localNorth, Math.cos(heading), forward);

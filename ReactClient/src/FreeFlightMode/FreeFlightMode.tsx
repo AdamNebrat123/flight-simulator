@@ -12,7 +12,7 @@ export default function FreeFlightMode() {
   const cameraCleanupRef = useRef<(() => void) | null>(null);
   const [cameraMode, setCameraMode] = useState<"THIRD_PERSON" | "FIRST_PERSON">("THIRD_PERSON");
 
-  // אתחול רחפן וקונטרולר
+  // Initialize drone and controller
   useEffect(() => {
     if (!viewer || !droneRef.current) return;
 
@@ -23,7 +23,7 @@ export default function FreeFlightMode() {
       acceleration: 80,
     });
 
-    // אתחול ברירת מחדל - Third-Person
+    // Default initialization - Third-Person
     cameraCleanupRef.current = initThirdPersonCameraLock({
       viewer,
       target: droneRef.current,
@@ -35,23 +35,23 @@ export default function FreeFlightMode() {
     };
   }, [viewer, droneRef.current]);
 
-  // פונקציה להחלפת מצב מצלמה
+  // Function to toggle camera mode
   const toggleCameraMode = () => {
     if (!viewer || !droneRef.current) return;
 
-    // הרס את המצלמה הנוכחית
+    // Destroy the current camera
     cameraCleanupRef.current?.();
 
     if (cameraMode === "THIRD_PERSON") {
-      // הפעלת First-Person
+      // Activate First-Person
       cameraCleanupRef.current = initFirstPersonCameraLock({
         viewer,
         target: droneRef.current,
-        forwardOffset: -5, // ניתן לשנות אם רוצים להזיז את העיניים קדימה
+        forwardOffset: -5, // can be adjusted if you want to move the eyes forward
       });
       setCameraMode("FIRST_PERSON");
     } else {
-      // הפעלת Third-Person
+      // Activate Third-Person
       cameraCleanupRef.current = initThirdPersonCameraLock({
         viewer,
         target: droneRef.current,
@@ -75,14 +75,14 @@ export default function FreeFlightMode() {
         />
       )}
 
-      {/* כפתור להחלפת מצב מצלמה */}
+      {/* Button to toggle camera mode */}
       <button
         onClick={(e) => {
-          e.preventDefault(); // מונע השפעת מקשים כמו space/enter
+          e.preventDefault(); // prevents keys like space/enter from affecting
           toggleCameraMode();
-          (e.currentTarget as HTMLButtonElement).blur(); // מונע שהכפתור יקבל focus
+          (e.currentTarget as HTMLButtonElement).blur(); // prevents the button from receiving focus
         }}
-        tabIndex={-1} // מונע focus אוטומטי
+        tabIndex={-1} // prevents automatic focus
         style={{
           position: "absolute",
           top: 10,

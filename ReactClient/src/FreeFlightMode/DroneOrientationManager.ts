@@ -1,8 +1,8 @@
 import * as Cesium from "cesium";
 
 /**
- * מנהל האוריינטציה של הרחפן.
- * מכיל offset ראשוני שמתקן את זווית המודל כך שתסונכרן עם ה-internal heading שלך.
+ * Drone orientation manager.
+ * Contains an initial offset that corrects the model's angle so it synchronizes with your internal heading.
  */
 export class DroneOrientationManager {
   private drone: Cesium.Entity;
@@ -22,7 +22,7 @@ export class DroneOrientationManager {
   setOrientationFromHeading(heading: number, position: Cesium.Cartesian3): Cesium.Quaternion {
     const correctedHeading = heading + this.headingOffset;
 
-    // Pitch ו-Roll נשארים 0
+    // Pitch and Roll remain 0
     const hpr = new Cesium.HeadingPitchRoll(correctedHeading, 0, 0);
     const quat = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
 
@@ -32,7 +32,7 @@ export class DroneOrientationManager {
   }
 
   /**
-   * מחזיר את ה-heading של המודל לפי Quaternion הנוכחי
+   * Returns the model's heading based on the current quaternion
    * @param position current drone position
    * @returns heading in radians
    */
@@ -43,8 +43,7 @@ export class DroneOrientationManager {
     if (!quat) return 0;
 
     const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quat);
-    // מחזיר normalized (-π..π)
-    //return Cesium.Math.negativePiToPi(hpr.heading);
+    
     return hpr.heading + Cesium.Math.toRadians(90)
   }
 }
