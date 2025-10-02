@@ -24,7 +24,7 @@ export default function DroneEntity({ viewer, onReady }: Props) {
 
     // Define drone heading in degrees (yaw)
     const droneYaw = 0; // degrees
-    const dronePitch = 0;
+    const dronePitch = 45;
     const droneRoll = 0;
 
     // Convert to Cesium HeadingPitchRoll

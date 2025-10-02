@@ -19,7 +19,7 @@ export function initDroneController({
   const velocity = new Cesium.Cartesian3(0, 0, 0);
   const keys: Record<string, boolean> = {};
   let heading = 0; // internal heading
-  const arrowSensitivity = Cesium.Math.toRadians(2);
+  const arrowSensitivity = Cesium.Math.toRadians(4);
   const arrows: Record<string, boolean> = { ArrowLeft: false, ArrowRight: false };
 
   const keyDownHandler = (e: KeyboardEvent) => {

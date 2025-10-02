@@ -44,6 +44,7 @@ export class DroneOrientationManager {
 
     const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quat);
     // מחזיר normalized (-π..π)
-    return Cesium.Math.negativePiToPi(hpr.heading);
+    //return Cesium.Math.negativePiToPi(hpr.heading);
+    return hpr.heading + Cesium.Math.toRadians(90)
   }
 }
