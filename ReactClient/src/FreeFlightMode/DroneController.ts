@@ -39,16 +39,18 @@ export function initDroneController({
   const headingOffset = Cesium.Math.toRadians(90);
   const orientationManager = new DroneOrientationManager(drone, headingOffset);
 
+  const baseFPS = 30; // ה־FPS שאנחנו רוצים לדמות
+
   const tickHandler = (_scene: Cesium.Scene, time: Cesium.JulianDate) => {
     if (!drone.position) return;
     const pos = drone.position.getValue(time) as Cesium.Cartesian3;
     if (!pos) return;
 
-    // delta-time אמיתי
+    // delta-time אמיתי (בשניות)
     let dt = 0;
     if (prevTime) dt = Cesium.JulianDate.secondsDifference(time, prevTime);
     prevTime = time;
-    if (dt <= 0 || dt > 1) dt = 0.033; // ברירת מחדל ~30FPS
+    if (dt <= 0 || dt > 1) dt = 1 / baseFPS;
 
     // עדכון heading
     if (arrows["ArrowLeft"]) heading -= arrowSensitivity;
@@ -87,25 +89,6 @@ export function initDroneController({
     if (keys["KeyD"]) Cesium.Cartesian3.add(acc, right, acc);
     if (keys["KeyA"]) Cesium.Cartesian3.subtract(acc, right, acc);
 
-    // קלט אנכי – SPACE/SHIFT
-    let verticalDir = 0;
-    if (keys["Space"]) verticalDir += 1;
-    if (keys["ShiftLeft"] || keys["ShiftRight"]) verticalDir -= 1;
-
-    if (verticalDir !== 0) {
-      // לחיצה – תאוצה רגילה
-      const verticalAcc = new Cesium.Cartesian3();
-      Cesium.Cartesian3.multiplyByScalar(localUp, verticalDir * acceleration * dt, verticalAcc);
-      Cesium.Cartesian3.add(velocity, verticalAcc, velocity);
-    } else {
-      // לא לוחץ – דאמפינג חזק במיוחד למרכיב האנכי
-      const verticalVel = new Cesium.Cartesian3();
-      Cesium.Cartesian3.multiplyByScalar(localUp, Cesium.Cartesian3.dot(velocity, localUp), verticalVel);
-      const verticalDampingFactor = Math.pow(damping, dt * 120); // יותר חזק מהדאמפינג האופקי
-      Cesium.Cartesian3.multiplyByScalar(verticalVel, 1 - verticalDampingFactor, verticalVel);
-      Cesium.Cartesian3.subtract(velocity, verticalVel, velocity);
-    }
-
     // תאוצה אופקית
     if (!Cesium.Cartesian3.equals(acc, Cesium.Cartesian3.ZERO)) {
       Cesium.Cartesian3.normalize(acc, acc);
@@ -113,13 +96,30 @@ export function initDroneController({
       Cesium.Cartesian3.add(velocity, acc, velocity);
     }
 
-    // דאמפינג מותאם ל-30FPS (אופקי)
+    // קלט אנכי – SPACE/SHIFT
+    let verticalDir = 0;
+    if (keys["Space"]) verticalDir += 1;
+    if (keys["ShiftLeft"] || keys["ShiftRight"]) verticalDir -= 1;
+
+    if (verticalDir !== 0) {
+      const verticalAcc = new Cesium.Cartesian3();
+      Cesium.Cartesian3.multiplyByScalar(localUp, verticalDir * acceleration * dt, verticalAcc);
+      Cesium.Cartesian3.add(velocity, verticalAcc, velocity);
+    } else {
+      // דאמפינג אנכי חזק לא נלחץ
+      const verticalVel = new Cesium.Cartesian3();
+      Cesium.Cartesian3.multiplyByScalar(localUp, Cesium.Cartesian3.dot(velocity, localUp), verticalVel);
+      const verticalDampingFactor = Math.pow(damping, dt * baseFPS * 4); // חזק יותר, משתנה לפי baseFPS
+      Cesium.Cartesian3.multiplyByScalar(verticalVel, 1 - verticalDampingFactor, verticalVel);
+      Cesium.Cartesian3.subtract(velocity, verticalVel, velocity);
+    }
+
+    // דאמפינג אופקי
     const noInput =
       !keys["KeyW"] && !keys["KeyS"] && !keys["KeyA"] && !keys["KeyD"] &&
       verticalDir === 0;
-
     if (noInput) {
-      const dampingFactor = Math.pow(damping, dt * 30);
+      const dampingFactor = Math.pow(damping, dt * baseFPS);
       Cesium.Cartesian3.multiplyByScalar(velocity, dampingFactor, velocity);
     }
 
