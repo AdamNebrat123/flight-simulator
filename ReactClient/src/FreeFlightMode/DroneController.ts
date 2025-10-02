@@ -1,4 +1,5 @@
 import * as Cesium from "cesium";
+import { DroneOrientationManager } from "./DroneOrientationManager";
 
 type DroneControllerProps = {
   viewer: Cesium.Viewer;
@@ -13,24 +14,18 @@ export function initDroneController({
   drone,
   maxSpeed = 50,
   acceleration = 20,
-  damping = 0.9,
+  damping = 0.97,
 }: DroneControllerProps) {
   const velocity = new Cesium.Cartesian3(0, 0, 0);
   const keys: Record<string, boolean> = {};
-
-  // רק החצים הצידיים
-  let heading = 0;
+  let heading = 0; // internal heading
   const arrowSensitivity = Cesium.Math.toRadians(2);
-  const arrows: Record<string, boolean> = {
-    ArrowLeft: false,
-    ArrowRight: false,
-  };
+  const arrows: Record<string, boolean> = { ArrowLeft: false, ArrowRight: false };
 
   const keyDownHandler = (e: KeyboardEvent) => {
     keys[e.code] = true;
     if (arrows.hasOwnProperty(e.code)) arrows[e.code] = true;
   };
-
   const keyUpHandler = (e: KeyboardEvent) => {
     keys[e.code] = false;
     if (arrows.hasOwnProperty(e.code)) arrows[e.code] = false;
@@ -41,16 +36,20 @@ export function initDroneController({
 
   let prevTime: Cesium.JulianDate | null = null;
 
+
+  const headingOffset = Cesium.Math.toRadians(90);
+  const orientationManager = new DroneOrientationManager(drone, headingOffset);
+
+  // ===========================
   const tickHandler = (_scene: Cesium.Scene, time: Cesium.JulianDate) => {
     if (!drone.position) return;
     const pos = drone.position.getValue(time) as Cesium.Cartesian3;
     if (!pos) return;
-
     let dt = 0.016;
     if (prevTime) dt = Cesium.JulianDate.secondsDifference(time, prevTime);
     prevTime = time;
 
-    // רק החצים הצידיים משפיעים על Heading
+    // עדכון heading מהחצים
     if (arrows["ArrowLeft"]) heading -= arrowSensitivity;
     if (arrows["ArrowRight"]) heading += arrowSensitivity;
 
@@ -65,7 +64,7 @@ export function initDroneController({
 
     const acc = new Cesium.Cartesian3(0, 0, 0);
 
-    // תנועה יחסית ל־Heading
+    // כיוונים יחסיים ל-heading
     const forward = new Cesium.Cartesian3();
     const right = new Cesium.Cartesian3();
     Cesium.Cartesian3.multiplyByScalar(localNorth, Math.cos(heading), forward);
@@ -103,14 +102,9 @@ export function initDroneController({
     Cesium.Cartesian3.add(pos, displacement, newPos);
     drone.position = new Cesium.ConstantPositionProperty(newPos);
 
-    // Orientation עם Pitch קבוע (0)
-    const hpr = new Cesium.HeadingPitchRoll(
-      heading + Cesium.Math.toRadians(90),
-      0,
-      0
-    );
-    const quat = Cesium.Transforms.headingPitchRollQuaternion(newPos, hpr);
-    drone.orientation = new Cesium.ConstantProperty(quat);
+    // ===========================
+    orientationManager.setOrientationFromHeading(heading, newPos);
+
   };
 
   viewer.clock.onTick.addEventListener(tickHandler);

@@ -16,8 +16,8 @@ export default function FreeFlightMode() {
     const cleanup = initDroneController({
         viewer,
         drone: droneRef.current,
-        maxSpeed: 50,      // max speed in meters/sec
-        acceleration: 20,  // acceleration in meters/sec^2
+        maxSpeed: 100,      // max speed in meters/sec
+        acceleration: 80,  // acceleration in meters/sec^2
     });
     // Initialize the camera lock (third-person view)
     const cleanupCamera = initCameraLock({
