@@ -116,3 +116,8 @@ export interface InitData {
 export interface ScenarioError {
     errorMsg: string;
 }
+
+export interface Drone {
+    droneId: string;
+    trajectoryPoint: TrajectoryPoint;
+}

@@ -8,5 +8,8 @@ export enum C2SMessageType {
     EditDangerZone = "EditDangerZone",
     AddScenario = "AddScenario",
     RemoveScenario = "RemoveScenario",
-    EditScenario = "EditScenario"
+    EditScenario = "EditScenario",
+    AddDrone = "AddDrone",
+    RemoveDrone = "RemoveDrone",
+    UpdateDrone = "UpdateDrone"
 }

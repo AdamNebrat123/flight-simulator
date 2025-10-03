@@ -9,20 +9,25 @@ import FreeFlightMode from './FreeFlightMode/FreeFlightMode.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <Router>
+    {/* Routes with WebSocket */}
+    <WebSocketProvider url="ws://localhost:5000">
       <Routes>
-          <Route
-            path="/"
-            element={
-              <WebSocketProvider url="ws://localhost:5000">
-                <SimStateProvider>
-                  <App />
-                </SimStateProvider>
-              </WebSocketProvider>
-            }
-          />FreeFlightMode
-          <Route path="/Real-Planes-Mode" element={<RealPlanesMode />} />
-          <Route path="/Free-Flight-Mode" element={<FreeFlightMode />} />
+
+        <Route path="/" element={
+            <SimStateProvider>
+              <App />
+            </SimStateProvider>
+          }
+        />
+
+        <Route path="/Free-Flight-Mode" element={<FreeFlightMode />}/>
+
       </Routes>
+    </WebSocketProvider>
+
+    {/* Route without WebSocket */}
+    <Routes>
+      <Route path="/Real-Planes-Mode" element={<RealPlanesMode />} />
+    </Routes>
   </Router>
 )
-  

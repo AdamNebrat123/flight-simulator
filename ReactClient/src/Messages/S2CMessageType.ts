@@ -8,5 +8,9 @@ export enum S2CMessageType {
     AddScenario = "AddScenario",
     RemoveScenario = "RemoveScenario",
     EditScenario = "EditScenario",
-    ScenarioError = "ScenarioError"
+    ScenarioError = "ScenarioError",
+    AddDrone = "AddDrone",
+    RemoveDrone = "RemoveDrone",
+    UpdateDrone = "UpdateDrone",
+    DroneError = "DroneError"
 }
