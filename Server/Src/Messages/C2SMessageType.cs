@@ -9,5 +9,8 @@ public enum C2SMessageType
     EditDangerZone,
     AddScenario,
     RemoveScenario,
-    EditScenario
+    EditScenario,
+    AddDrone,
+    RemoveDrone,
+    UpdateDrone
 }

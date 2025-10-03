@@ -183,7 +183,7 @@ public partial class ChangeScenarioPlaySpeedCmd
     [JsonPropertyName("playSpeed")]
     public double playSpeed { get; set; }
 }
-public class DangerZone
+public partial class DangerZone
 {
     [JsonPropertyName("zoneId")]
     public string zoneId { get; set; }
@@ -202,7 +202,7 @@ public class DangerZoneError
     public string errorMsg { get; set; }
 }
 
-public class InitData
+public partial class InitData
 {
     [JsonPropertyName("scenarios")]
     public List<Scenario> scenarios { get; set; }
@@ -211,8 +211,30 @@ public class InitData
 
 }
 
-public class ScenarioError
+public partial class ScenarioError
 {
     [JsonPropertyName("errorMsg")]
     public string errorMsg { get; set; }
+}
+
+
+public partial class Drone
+{
+    [JsonPropertyName("id")]
+    public string id { get; set; }
+
+    [JsonPropertyName("trajectoryPoint")]
+    public TrajectoryPoint trajectoryPoint { get; set; }
+
+    [JsonConstructor]
+    public Drone(string id, TrajectoryPoint trajectoryPoint)
+    {
+        this.id = id;
+        this.trajectoryPoint = trajectoryPoint;
+    }
+
+    public override string ToString()
+    {
+        return $"Drone [Id={id}, {trajectoryPoint}]";
+    }
 }

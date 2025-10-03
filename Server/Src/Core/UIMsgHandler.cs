@@ -12,6 +12,7 @@ public class UIMsgHandler
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
     private readonly DangerZoneHandler dangerZoneHandler = DangerZoneHandler.GetInstance();
     private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
+    private readonly DroneHandler droneHandler = DroneHandler.GetInstance();
 
     public UIMsgHandler()
     {
@@ -69,6 +70,18 @@ public class UIMsgHandler
                     
                     case C2SMessageType.ChangeScenarioPlaySpeedCmd:
                         scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
+                        break;
+
+                    case C2SMessageType.AddDrone:
+                        droneHandler.HandleAddDrone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.RemoveDrone:
+                        droneHandler.HandleRemoveDrone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.UpdateDrone:
+                        droneHandler.HandleUpdateDrone(wrapper.data);
                         break;
 
                     default:
