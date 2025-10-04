@@ -84,13 +84,14 @@ export function initDroneController({
     );
     Cesium.Cartesian3.normalize(forwardH, forwardH);
 
-    // ===== Forward עם pitch (הפכתי את הסימן כדי שיתאים למודל שלך) =====
+    // ===== Forward עם pitch (שונה כדי שיהיה חד יותר) =====
     const cosPitch = Math.cos(pitch);
     const sinPitch = Math.sin(pitch);
+    const pitchFactor = 2.0; // ערך גבוה יותר = תגובה חדה יותר
     const pitchedForward = new Cesium.Cartesian3(
-      forwardH.x * cosPitch - localUp.x * sinPitch,
-      forwardH.y * cosPitch - localUp.y * sinPitch,
-      forwardH.z * cosPitch - localUp.z * sinPitch
+      forwardH.x * cosPitch - localUp.x * (sinPitch * pitchFactor),
+      forwardH.y * cosPitch - localUp.y * (sinPitch * pitchFactor),
+      forwardH.z * cosPitch - localUp.z * (sinPitch * pitchFactor)
     );
     Cesium.Cartesian3.normalize(pitchedForward, pitchedForward);
 

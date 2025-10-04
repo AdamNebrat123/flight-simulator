@@ -104,8 +104,8 @@ export default function FreeFlightMode() {
       cameraCleanupRef.current = initThirdPersonCameraLock({
         viewer,
         target: droneRef.current,
-        distance: 80,
-        baseHeight: 80,
+        distance: 40,
+        baseHeight: 20,
       });
       setCameraMode("THIRD_PERSON");
     }

@@ -3,8 +3,8 @@ import * as Cesium from "cesium";
 type CameraLockProps = {
   viewer: Cesium.Viewer;
   target: Cesium.Entity;
-  distance?: number; // Distance in local frame (X axis)
-  baseHeight?: number; // Height in local frame (Z axis)
+  distance?: number; // מרחק בפריים המקומי (ציר X)
+  baseHeight?: number; // גובה בפריים המקומי (ציר Z)
 };
 
 export function initThirdPersonCameraLock({
@@ -15,19 +15,19 @@ export function initThirdPersonCameraLock({
 }: CameraLockProps) {
   let active = true;
 
-  // --- Define desired offset in the local frame ---
-  // Camera position in local frame:
-  // X = -distance (behind the drone)
-  // Y = 0 (center)
-  // Z = baseHeight (up)
+  // --- הגדרת האופסט הרצוי במערכת צירים מקומית (Local Frame) ---
+  // מיקום המצלמה בפריים המקומי:
+  // X = -distance (מאחורי הרחפן)
+  // Y = 0 (במרכז)
+  // Z = baseHeight (למעלה)
   const baseOffset = new Cesium.Cartesian3(-distance, 0, baseHeight);
 
-  // --- 180 degrees rotation (pi radians) around local Z axis ---
-  // Rotation matrix that flips by 180 degrees.
-  // We use Z (UP) as rotation axis to perform a horizontal flip.
+  // --- סיבוב של 180 מעלות (פאי רדיאנים) סביב ציר Z המקומי ---
+  // מטריצת סיבוב המייצרת היסט של 180 מעלות.
+  // אנחנו משתמשים ב-Z (UP) כציר הסיבוב כדי לבצע פליפ (Flip) אופקי.
   const flipRotation = Cesium.Matrix3.fromRotationZ(Cesium.Math.PI);
 
-  // --- Temporary variables ---
+  // --- משתנים זמניים ---
   const scratchCameraLocalOffset = new Cesium.Cartesian3();
   const scratchTransform = new Cesium.Matrix4();
   const scratchFinalTransform = new Cesium.Matrix4();
@@ -40,58 +40,58 @@ export function initThirdPersonCameraLock({
 
     if (!dronePos || !quat) return;
 
-    // 1. Create global transformation matrix of the drone
-    // This transformation converts from the drone's local frame to the global (ENU) frame.
+    // 1. יצירת מטריצת טרנספורמציה גלובלית של הרחפן
+    // הטרנספורמציה הזו מעבירה מהפריים המקומי של הרחפן לפריים העולמי (EN-U).
     Cesium.Matrix4.fromRotationTranslation(
         Cesium.Matrix3.fromQuaternion(quat),
         dronePos,
         scratchTransform
     );
 
-    // 2. Calculate rotated local offset
-    // Multiply the base offset by the 180-degree rotation matrix.
-    // This positions the camera differently in the local frame.
+    // 2. חישוב האופסט המקומי המסובב
+    // הכפלת האופסט הבסיסי במטריצת הסיבוב של 180 מעלות. 
+    // זה *ממקם* את המצלמה בנקודה שונה בפריים המקומי.
     Cesium.Matrix3.multiplyByVector(
         flipRotation,
         baseOffset,
-        scratchCameraLocalOffset // store result
+        scratchCameraLocalOffset // העתקת התוצאה
     );
     
-    // 3. Use lookAtTransform with the rotated offset
-    // Best method to follow an object with changing orientation.
-    // The function places the camera at the position computed from scratchCameraLocalOffset
-    // (already includes the 180-degree rotation) and points it at the drone.
+    // 3. שימוש ב-lookAtTransform עם האופסט המסובב
+    // השיטה הטובה ביותר לעקוב אחר אובייקט עם אוריינטציה משתנה.
+    // הפונקציה ממקמת את המצלמה במיקום שחושב על בסיס ה-scratchCameraLocalOffset
+    // (שכבר מכיל את ה-180 מעלות) ומכוונת אותה אל הרחפן.
     viewer.camera.lookAtTransform(
         scratchTransform,
-        baseOffset // using the base offset again, as lookAtTransform references it as the target position
+        baseOffset // שימוש באופסט הבסיסי שוב, כיוון ש-lookAtTransform מתייחסת אליו כאל מיקום
     );
     
-    // --- Using lookAtTransform with a composite matrix (alternative) ---
-    // A cleaner way to ensure full rotation: create a new transformation
-    // that combines the drone's transform with the camera's local rotation.
+    // --- שימוש ב-lookAtTransform עם מטריצה מורכבת (אלטרנטיבה) ---
+    // זוהי דרך נקייה יותר להבטיח את הסיבוב המלא: יצירת טרנספורמציה חדשה
+    // המשלבת את הטרנספורמציה של הרחפן עם סיבוב המצלמה המקומי.
     // Cesium.Matrix4.multiply(scratchTransform, Cesium.Matrix4.fromRotation(flipRotation), scratchFinalTransform);
     // viewer.camera.lookAtTransform(
     //     scratchFinalTransform,
     //     baseOffset 
     // );
     
-    // --- Cleanest solution ---
-    // Actually, the simplest and most stable solution is just to use the *same* offset, 
-    // but **flip** the X direction, i.e., place the camera **in front** of the drone
-    // if this is the intention of "180 degrees flip". 
-    // If the goal is simply to look backward at a fixed angle, adjust the pitch instead.
+    // --- הפתרון הנקי ביותר ---
+    // למעשה, הפתרון הכי פשוט ויציב הוא פשוט להשתמש ב-*אותו* אופסט, 
+    // אבל **להפוך** את כיוון ה-X, כלומר למקם את המצלמה **לפני** הרחפן
+    // אם זו הכוונה של "180 מעלות היסט". 
+    // אם המטרה היא פשוט להסתכל אחורה בזווית קבועה, אז צריך לשנות את ה-Pitch.
     
-    // Reverting to the previous stable solution, update local offset once to include 180-degree flip
+    // נחזור לפתרון הקודם והיציב, ונשנה את ה-Offset המקומי פעם אחת כדי שיכלול את ה-180 מעלות
     viewer.camera.lookAtTransform(
         scratchTransform,
-        new Cesium.Cartesian3(distance, 0, baseHeight) // X flipped to positive - camera moved in front!
+        new Cesium.Cartesian3(distance, 0, baseHeight) // שינוי X לחיוב - המצלמה עברה מקדימה לאחורה ב-180 מעלות!
     );
   };
 
-  // Add tick handler
+  // הוספת ה-tick handler
   viewer.clock.onTick.addEventListener(tickHandler);
 
-  // Cleanup function
+  // פונקציית ניקוי
   return () => {
     active = false;
     viewer.clock.onTick.removeEventListener(tickHandler);

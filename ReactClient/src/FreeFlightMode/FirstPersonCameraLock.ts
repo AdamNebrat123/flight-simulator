@@ -11,21 +11,21 @@ type FirstPersonCameraProps = {
 export function initFirstPersonCameraLock({
   viewer,
   target: drone,
-  forwardOffset = 1.6, // How many meters forward to place the camera (inside the drone)
-  upOffset = 0,        // Height above the drone
-  headingOffset = 0    // Optional - additional rotation
+  forwardOffset = 1.6,
+  upOffset = 0,
+  headingOffset = 0
 }: FirstPersonCameraProps) {
   let active = true;
 
-  // Rotation matrix of 180 degrees around Z axis (heading correction)
   const headingCorrection = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(180 + headingOffset));
 
-  // Temporary variables for reuse
   const scratchMatrix3 = new Cesium.Matrix3();
-  const scratchDirection = new Cesium.Cartesian3();
+  const scratchForward = new Cesium.Cartesian3();
   const scratchUp = new Cesium.Cartesian3();
   const scratchPosition = new Cesium.Cartesian3();
-  const offset = new Cesium.Cartesian3();
+  const cameraPos = new Cesium.Cartesian3();
+  const rightVec = new Cesium.Cartesian3();
+  const worldUp = Cesium.Cartesian3.UNIT_Z;
 
   const tickHandler = (_scene: Cesium.Scene, time: Cesium.JulianDate) => {
     if (!active || !drone.position || !drone.orientation) return;
@@ -34,33 +34,48 @@ export function initFirstPersonCameraLock({
     const droneQuat = drone.orientation.getValue(time);
     if (!dronePos || !droneQuat) return;
 
-    // Get rotation matrix from orientation
+    // Rotation matrix from quaternion
     Cesium.Matrix3.fromQuaternion(droneQuat, scratchMatrix3);
 
-    // Apply heading correction of 180 degrees
+    // Apply heading correction
     Cesium.Matrix3.multiply(scratchMatrix3, headingCorrection, scratchMatrix3);
 
-    // Forward axis (X) from transformation
-    const forward = Cesium.Matrix3.getColumn(scratchMatrix3, 0, scratchDirection);
-    Cesium.Cartesian3.normalize(forward, forward);
+    // Forward (X axis)
+    Cesium.Matrix3.getColumn(scratchMatrix3, 0, scratchForward);
+    Cesium.Cartesian3.normalize(scratchForward, scratchForward);
 
-    // Up axis (Z) from transformation
-    const up = Cesium.Matrix3.getColumn(scratchMatrix3, 2, scratchUp);
-    Cesium.Cartesian3.normalize(up, up);
+    // Up (Z axis)
+    Cesium.Matrix3.getColumn(scratchMatrix3, 2, scratchUp);
+    Cesium.Cartesian3.normalize(scratchUp, scratchUp);
 
-    // Camera position = drone position + forward * offset + up * offset
-    Cesium.Cartesian3.multiplyByScalar(forward, forwardOffset, offset);
-    Cesium.Cartesian3.add(dronePos, offset, offset);
+    // ===== Orthogonalization with singularity fix =====
+    const forwardDotUp = Cesium.Cartesian3.dot(scratchForward, worldUp);
 
-    Cesium.Cartesian3.multiplyByScalar(up, upOffset, scratchUp);
-    Cesium.Cartesian3.add(offset, scratchUp, offset);
+    if (Math.abs(forwardDotUp) > 0.99) {
+      // Forward almost parallel to world up → avoid flip
+      Cesium.Cartesian3.clone(worldUp, scratchUp);
+    } else {
+      // Normal case: make right vector and recompute orthogonal up
+      Cesium.Cartesian3.cross(scratchForward, scratchUp, rightVec);
+      Cesium.Cartesian3.normalize(rightVec, rightVec);
+      Cesium.Cartesian3.cross(rightVec, scratchForward, scratchUp);
+      Cesium.Cartesian3.normalize(scratchUp, scratchUp);
+    }
 
-    // Update camera with setView
+    // ===== Camera position =====
+    Cesium.Cartesian3.multiplyByScalar(scratchForward, forwardOffset, cameraPos);
+    Cesium.Cartesian3.add(dronePos, cameraPos, cameraPos);
+
+    const upOffsetVec = new Cesium.Cartesian3();
+    Cesium.Cartesian3.multiplyByScalar(scratchUp, upOffset, upOffsetVec);
+    Cesium.Cartesian3.add(cameraPos, upOffsetVec, cameraPos);
+
+    // Set camera view
     viewer.camera.setView({
-      destination: offset,
+      destination: cameraPos,
       orientation: {
-        direction: forward,
-        up: up
+        direction: scratchForward,
+        up: scratchUp
       }
     });
   };
