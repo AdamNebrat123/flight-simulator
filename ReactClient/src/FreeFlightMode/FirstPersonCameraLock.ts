@@ -1,61 +1,67 @@
 import * as Cesium from "cesium";
-import { DroneOrientationManager } from "./DroneOrientationManager";
 
 type FirstPersonCameraProps = {
   viewer: Cesium.Viewer;
   target: Cesium.Entity;
-  headingOffset?: number;
-  forwardOffset?: number; // forward
-  upOffset?: number;      // slightly above the drone's center
+  headingOffset?: number;   // Optional additional rotation
+  forwardOffset?: number;   // Distance forward from the drone's position
+  upOffset?: number;        // Height above the drone
 };
 
 export function initFirstPersonCameraLock({
   viewer,
   target: drone,
-  headingOffset = Cesium.Math.toRadians(-90),
-  forwardOffset = 2,
-  upOffset = 1,
+  forwardOffset = 1.6, // How many meters forward to place the camera (inside the drone)
+  upOffset = 0,        // Height above the drone
+  headingOffset = 0    // Optional - additional rotation
 }: FirstPersonCameraProps) {
-  const orientationManager = new DroneOrientationManager(drone, headingOffset);
   let active = true;
+
+  // Rotation matrix of 180 degrees around Z axis (heading correction)
+  const headingCorrection = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(180 + headingOffset));
+
+  // Temporary variables for reuse
+  const scratchMatrix3 = new Cesium.Matrix3();
+  const scratchDirection = new Cesium.Cartesian3();
+  const scratchUp = new Cesium.Cartesian3();
+  const scratchPosition = new Cesium.Cartesian3();
+  const offset = new Cesium.Cartesian3();
 
   const tickHandler = (_scene: Cesium.Scene, time: Cesium.JulianDate) => {
     if (!active || !drone.position || !drone.orientation) return;
 
-    const dronePos = drone.position.getValue(time) as Cesium.Cartesian3;
-    const droneQuat = drone.orientation.getValue(time) as Cesium.Quaternion;
+    const dronePos = drone.position.getValue(time, scratchPosition);
+    const droneQuat = drone.orientation.getValue(time);
     if (!dronePos || !droneQuat) return;
 
-    // Corrected heading
-    const modelHeading = orientationManager.getHeading(dronePos);
+    // Get rotation matrix from orientation
+    Cesium.Matrix3.fromQuaternion(droneQuat, scratchMatrix3);
 
-    // Forward vector in world coordinates
-    const forward = new Cesium.Cartesian3(1, 0, 0);
-    const rotationMatrix = Cesium.Matrix3.fromQuaternion(droneQuat);
-    const forwardWorld = new Cesium.Cartesian3();
-    Cesium.Matrix3.multiplyByVector(rotationMatrix, forward, forwardWorld);
+    // Apply heading correction of 180 degrees
+    Cesium.Matrix3.multiply(scratchMatrix3, headingCorrection, scratchMatrix3);
 
-    // Up vector in world coordinates
-    const up = new Cesium.Cartesian3(0, 0, 1);
-    const upWorld = new Cesium.Cartesian3();
-    Cesium.Matrix3.multiplyByVector(rotationMatrix, up, upWorld);
+    // Forward axis (X) from transformation
+    const forward = Cesium.Matrix3.getColumn(scratchMatrix3, 0, scratchDirection);
+    Cesium.Cartesian3.normalize(forward, forward);
 
-    // Calculate camera position
-    const cameraPos = new Cesium.Cartesian3();
-    Cesium.Cartesian3.multiplyByScalar(forwardWorld, forwardOffset, cameraPos);
-    const upOffsetVec = new Cesium.Cartesian3();
-    Cesium.Cartesian3.multiplyByScalar(upWorld, upOffset, upOffsetVec);
-    Cesium.Cartesian3.add(cameraPos, upOffsetVec, cameraPos);
-    Cesium.Cartesian3.add(cameraPos, dronePos, cameraPos);
+    // Up axis (Z) from transformation
+    const up = Cesium.Matrix3.getColumn(scratchMatrix3, 2, scratchUp);
+    Cesium.Cartesian3.normalize(up, up);
 
-    // Update the camera
+    // Camera position = drone position + forward * offset + up * offset
+    Cesium.Cartesian3.multiplyByScalar(forward, forwardOffset, offset);
+    Cesium.Cartesian3.add(dronePos, offset, offset);
+
+    Cesium.Cartesian3.multiplyByScalar(up, upOffset, scratchUp);
+    Cesium.Cartesian3.add(offset, scratchUp, offset);
+
+    // Update camera with setView
     viewer.camera.setView({
-      destination: cameraPos,
+      destination: offset,
       orientation: {
-        heading: modelHeading + Cesium.Math.toRadians(-55),
-        pitch: 0,
-        roll: 0,
-      },
+        direction: forward,
+        up: up
+      }
     });
   };
 

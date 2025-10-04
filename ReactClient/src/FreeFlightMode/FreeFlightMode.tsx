@@ -40,7 +40,7 @@ export default function FreeFlightMode() {
       maxSpeed: 100,
       acceleration: 80,
     });
-
+    setCameraMode("THIRD_PERSON");
     cameraCleanupRef.current = initThirdPersonCameraLock({
       viewer: viewer!,
       target: entity,
@@ -98,7 +98,6 @@ export default function FreeFlightMode() {
       cameraCleanupRef.current = initFirstPersonCameraLock({
         viewer,
         target: droneRef.current,
-        forwardOffset: -5,
       });
       setCameraMode("FIRST_PERSON");
     } else {

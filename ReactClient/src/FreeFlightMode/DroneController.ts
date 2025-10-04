@@ -40,10 +40,6 @@ export function initDroneController({
 
   let prevTime: Cesium.JulianDate | null = null;
 
-  const headingOffset = Cesium.Math.toRadians(90);
-  const orientationManager = new DroneOrientationManager(drone, headingOffset);
-
-
   const tickHandler = (_scene: Cesium.Scene, time: Cesium.JulianDate) => {
     if (!drone.position) return;
     const pos = drone.position.getValue(time) as Cesium.Cartesian3;
