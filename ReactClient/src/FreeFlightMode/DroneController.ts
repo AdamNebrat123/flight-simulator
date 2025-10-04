@@ -23,6 +23,7 @@ export function initDroneController({
 }: DroneControllerProps) {
   const velocity = new Cesium.Cartesian3(0, 0, 0);
 
+  // מיקום התחלה
   let currentPos: Cesium.Cartesian3;
   if (!drone.position) {
     currentPos = new Cesium.Cartesian3(0, 0, 0);
@@ -30,11 +31,15 @@ export function initDroneController({
     currentPos = drone.position.getValue(viewer.clock.currentTime) as Cesium.Cartesian3;
   }
 
+  // מצב מקשים
   const keys: Record<string, boolean> = {};
-  let heading = 0;
+  let heading = 0; // סיבוב סביב ציר Z
+  let pitch = 0;   // סיבוב סביב ציר ימני (nose up/down)
   const arrowSensitivity = Cesium.Math.toRadians(4);
-  const arrows: Record<string, boolean> = { ArrowLeft: false, ArrowRight: false };
+  const pitchSensitivity = Cesium.Math.toRadians(4);
+  const arrows: Record<string, boolean> = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
 
+  // ===== Event listeners =====
   const keyDownHandler = (e: KeyboardEvent) => {
     keys[e.code] = true;
     if (arrows.hasOwnProperty(e.code)) arrows[e.code] = true;
@@ -43,17 +48,23 @@ export function initDroneController({
     keys[e.code] = false;
     if (arrows.hasOwnProperty(e.code)) arrows[e.code] = false;
   };
-
   window.addEventListener("keydown", keyDownHandler);
   window.addEventListener("keyup", keyUpHandler);
 
-  // ===== Physics update function =====
+  // ===== Physics update =====
   const updateDronePhysics = (dt: number) => {
-    // ===== Heading =====
+    // ===== Update heading =====
     if (arrows["ArrowLeft"]) heading -= arrowSensitivity;
     if (arrows["ArrowRight"]) heading += arrowSensitivity;
 
-    // ===== Local frame =====
+    // ===== Update pitch =====
+    if (arrows["ArrowUp"]) pitch += pitchSensitivity;
+    if (arrows["ArrowDown"]) pitch -= pitchSensitivity;
+
+    // >> ביטול ההגבלה: אין יותר clamp ל־±45°
+    // pitch נשאר חופשי להסתובב 360 מעלות
+
+    // ===== Local ENU frame =====
     const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(currentPos);
     const col = new Cesium.Cartesian4();
     Cesium.Matrix4.getColumn(enuMatrix, 0, col);
@@ -63,27 +74,37 @@ export function initDroneController({
     Cesium.Matrix4.getColumn(enuMatrix, 2, col);
     const localUp = new Cesium.Cartesian3(col.x, col.y, col.z);
 
-    // ===== Horizontal acceleration =====
-    const acc = new Cesium.Cartesian3(0, 0, 0);
-    const forward = new Cesium.Cartesian3();
-    const right = new Cesium.Cartesian3();
-    Cesium.Cartesian3.multiplyByScalar(localNorth, Math.cos(heading), forward);
+    // ===== Forward vector עם heading =====
+    const forwardH = new Cesium.Cartesian3();
+    Cesium.Cartesian3.multiplyByScalar(localNorth, Math.cos(heading), forwardH);
     Cesium.Cartesian3.add(
-      forward,
+      forwardH,
       Cesium.Cartesian3.multiplyByScalar(localEast, Math.sin(heading), new Cesium.Cartesian3()),
-      forward
+      forwardH
     );
-    Cesium.Cartesian3.multiplyByScalar(localNorth, -Math.sin(heading), right);
-    Cesium.Cartesian3.add(
-      right,
-      Cesium.Cartesian3.multiplyByScalar(localEast, Math.cos(heading), new Cesium.Cartesian3()),
-      right
-    );
+    Cesium.Cartesian3.normalize(forwardH, forwardH);
 
-    if (keys["KeyW"]) Cesium.Cartesian3.add(acc, forward, acc);
-    if (keys["KeyS"]) Cesium.Cartesian3.subtract(acc, forward, acc);
-    if (keys["KeyD"]) Cesium.Cartesian3.add(acc, right, acc);
-    if (keys["KeyA"]) Cesium.Cartesian3.subtract(acc, right, acc);
+    // ===== Forward עם pitch (הפכתי את הסימן כדי שיתאים למודל שלך) =====
+    const cosPitch = Math.cos(pitch);
+    const sinPitch = Math.sin(pitch);
+    const pitchedForward = new Cesium.Cartesian3(
+      forwardH.x * cosPitch - localUp.x * sinPitch,
+      forwardH.y * cosPitch - localUp.y * sinPitch,
+      forwardH.z * cosPitch - localUp.z * sinPitch
+    );
+    Cesium.Cartesian3.normalize(pitchedForward, pitchedForward);
+
+    // Right vector חדש בהתאם ל-pitched forward
+    const right2 = new Cesium.Cartesian3();
+    Cesium.Cartesian3.cross(pitchedForward, localUp, right2);
+    Cesium.Cartesian3.normalize(right2, right2);
+
+    // ===== Acceleration =====
+    const acc = new Cesium.Cartesian3(0, 0, 0);
+    if (keys["KeyW"]) Cesium.Cartesian3.add(acc, pitchedForward, acc);
+    if (keys["KeyS"]) Cesium.Cartesian3.subtract(acc, pitchedForward, acc);
+    if (keys["KeyD"]) Cesium.Cartesian3.add(acc, right2, acc);
+    if (keys["KeyA"]) Cesium.Cartesian3.subtract(acc, right2, acc);
 
     if (!Cesium.Cartesian3.equals(acc, Cesium.Cartesian3.ZERO)) {
       Cesium.Cartesian3.normalize(acc, acc);
@@ -108,7 +129,7 @@ export function initDroneController({
       Cesium.Cartesian3.subtract(velocity, verticalVel, velocity);
     }
 
-    // ===== Horizontal damping =====
+    // ===== Damping אופקי =====
     if (!keys["KeyW"] && !keys["KeyS"] && !keys["KeyA"] && !keys["KeyD"] && verticalDir === 0) {
       const dampingFactor = Math.pow(damping, dt);
       Cesium.Cartesian3.multiplyByScalar(velocity, dampingFactor, velocity);
@@ -137,7 +158,7 @@ export function initDroneController({
           altitude: cartographic.height
         } as GeoPoint,
         heading: Cesium.Math.toDegrees(heading),
-        pitch: 0,
+        pitch: Cesium.Math.toDegrees(pitch),
         roll: 0
       } as TrajectoryPoint
     };
@@ -149,6 +170,7 @@ export function initDroneController({
     updateDronePhysics(intervalMs / 1000); // convert ms to seconds
   }, intervalMs);
 
+  // ===== Cleanup =====
   return () => {
     clearInterval(intervalId);
     window.removeEventListener("keydown", keyDownHandler);

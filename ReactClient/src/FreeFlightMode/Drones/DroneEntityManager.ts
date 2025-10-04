@@ -47,7 +47,7 @@ export class DroneEntityManager {
           minimumPixelSize: 64,
           color: Cesium.Color.WHITE.withAlpha(0.9),
           silhouetteColor: Cesium.Color.YELLOW,
-          silhouetteSize: 1.4,
+          silhouetteSize: 2,
         },
       });
 
