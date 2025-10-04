@@ -121,3 +121,7 @@ export interface Drone {
     id: string;
     trajectoryPoint: TrajectoryPoint;
 }
+
+export type DronesInitData = {
+  yourDroneId: string;   // The UUID of the current user's drone
+};

@@ -1,4 +1,4 @@
-import type { Drone } from "../../Messages/AllTypes";
+import type { Drone, DronesInitData } from "../../Messages/AllTypes";
 import { DroneEntityManager } from "./DroneEntityManager";
 import * as Cesium from "cesium";
 import { toast } from "react-toastify";
@@ -21,17 +21,6 @@ export class DroneHandler {
     return this.instance;
   }
 
-  public HandleAddDrone(data: any) {
-    try {
-      const drone = data as Drone;
-      const isAdded = this.droneEntityManager.tryAddDrone(drone);
-      if (isAdded) console.log(`Drone ${drone.id} added successfully.`);
-      else console.log(`Failed to add drone ${drone.id}.`);
-    } catch (err) {
-      console.error("Data could not be parsed to Drone:", err);
-    }
-  }
-
   public HandleRemoveDrone(data: any) {
     try {
       const drone = data as Drone;
@@ -46,6 +35,13 @@ export class DroneHandler {
   public HandleUpdateDrone(data: any) {
     try {
       const drone = data as Drone;
+
+      // אם הרחפן עדיין לא קיים, צור אותו תחילה
+      if (!this.droneEntityManager.getDroneEntity(drone.id)) {
+        this.droneEntityManager.addDroneById(drone.id);
+        console.log(`Drone ${drone.id} created because it did not exist.`);
+      }
+
       const isEdited = this.droneEntityManager.editDrone(drone);
       if (isEdited) console.log(`Drone ${drone.id} updated successfully.`);
       else console.log(`Failed to update drone ${drone.id}.`);
@@ -61,6 +57,25 @@ export class DroneHandler {
       toast.error(errorMsg);
     } catch {
       console.error("Data could not be parsed to DroneError");
+    }
+  }
+
+  public HandleDronesInitData(data: any) {
+    try {
+      const initData = data as DronesInitData;
+      console.log("Handling InitData:", initData);
+
+      // עכשיו DronesInitData מכיל רק את ID של הרחפן שלי
+      if (initData.yourDroneId) {
+        const entity = this.droneEntityManager.addDroneById(initData.yourDroneId);
+        if (entity) console.log(`My drone ${initData.yourDroneId} created from InitData.`);
+      }
+
+      // מחזיר את ה-ID של הרחפן שלי
+      return initData.yourDroneId;
+    } catch (err) {
+      console.error("Data could not be parsed to DronesInitData:", err);
+      return null;
     }
   }
 

@@ -49,7 +49,7 @@ public class WebSocketServer
 
                     var jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     Console.WriteLine("Received: " + jsonString);
-                    _uiMsgHandler.HandleIncomingMessage(jsonString);
+                    _uiMsgHandler.HandleIncomingMessage(webSocket, jsonString);
 
                 }
             }
@@ -72,7 +72,7 @@ public class WebSocketServer
         return JsonSerializer.Serialize(message);
     }
 
-    public static async Task SendMsgToClient(string jsonString)
+    public static async Task SendMsgToClients(string jsonString)
     {
         foreach (var ws in _webSockets.ToArray())
         {
@@ -82,6 +82,20 @@ public class WebSocketServer
                 await ws.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
                 System.Console.WriteLine("sent: " + jsonString);
             }
+        }
+    }
+    public static async Task SendMsgToClient(WebSocket connection, string jsonString)
+    {
+        if (connection.State == WebSocketState.Open)
+        {
+            var encoded = Encoding.UTF8.GetBytes(jsonString);
+            await connection.SendAsync(
+                new ArraySegment<byte>(encoded),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None
+            );
+            Console.WriteLine("sent to specific client: " + jsonString);
         }
     }
     public static void LoadDataFromFiles()

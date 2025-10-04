@@ -9,7 +9,7 @@ export enum C2SMessageType {
     AddScenario = "AddScenario",
     RemoveScenario = "RemoveScenario",
     EditScenario = "EditScenario",
-    AddDrone = "AddDrone",
     RemoveDrone = "RemoveDrone",
-    UpdateDrone = "UpdateDrone"
+    UpdateDrone = "UpdateDrone",
+    RequestDroneInitData = "RequestDroneInitData"
 }

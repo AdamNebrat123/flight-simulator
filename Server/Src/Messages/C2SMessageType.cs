@@ -10,7 +10,7 @@ public enum C2SMessageType
     AddScenario,
     RemoveScenario,
     EditScenario,
-    AddDrone,
     RemoveDrone,
-    UpdateDrone
+    UpdateDrone,
+    RequestDroneInitData
 }

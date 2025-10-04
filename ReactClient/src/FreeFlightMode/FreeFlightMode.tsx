@@ -8,7 +8,6 @@ import { DroneHandler } from "./Drones/DroneHandler";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { S2CMessageType } from "../Messages/S2CMessageType";
 import { C2SMessageType } from "../Messages/C2SMessageType";
-import type { Drone, TrajectoryPoint } from "../Messages/AllTypes";
 
 export default function FreeFlightMode() {
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
@@ -19,53 +18,47 @@ export default function FreeFlightMode() {
   const droneHandlerRef = useRef<DroneHandler | null>(null);
   const { send, on } = useWebSocket();
 
-  // Initialize drone handler when viewer is ready
+  // Initialize DroneHandler when viewer is ready and request initial drone data
   useEffect(() => {
     if (!viewer) return;
     droneHandlerRef.current = DroneHandler.getInstance(viewer);
-
-    // Send initial AddDrone request
-    const initialDrone: Drone = {
-      id: "", // temporary, server may assign proper id
-      trajectoryPoint: {
-        position: { longitude: 34.78217676812864, latitude: 32.02684069644974, altitude: 160 },
-        heading: 0,
-        pitch: 0,
-      } as TrajectoryPoint,
-    };
-    send(C2SMessageType.AddDrone, initialDrone);
+    send(C2SMessageType.RequestDroneInitData, {}); 
   }, [viewer]);
 
-  // Register WebSocket handlers
+  // Setup my drone: controller + camera
+  const setupMyDrone = (entity: Cesium.Entity) => {
+    droneRef.current = entity;
+
+    controllerCleanupRef.current?.();
+    cameraCleanupRef.current?.();
+
+    controllerCleanupRef.current = initDroneController({
+      viewer: viewer!,
+      send,
+      drone: entity,
+      maxSpeed: 100,
+      acceleration: 80,
+    });
+
+    cameraCleanupRef.current = initThirdPersonCameraLock({
+      viewer: viewer!,
+      target: entity,
+      distance: 80,
+      baseHeight: 80,
+    });
+  };
+
+  // WebSocket handlers
   useEffect(() => {
     if (!droneHandlerRef.current || !viewer) return;
 
-    const handleAddDrone = (data: any) => {
-      droneHandlerRef.current?.HandleAddDrone(data);
-      const entity = droneHandlerRef.current?.getDroneEntity(data.id ?? data.droneId);
-      if (entity) {
-        droneRef.current = entity;
+    const handleDroneInitData = (data: any) => {
+      const myDroneId = droneHandlerRef.current?.HandleDronesInitData(data);
+      if (!myDroneId) return;
 
-        // Cleanup previous controller if exists
-        controllerCleanupRef.current?.();
-
-        // Initialize controller
-        controllerCleanupRef.current = initDroneController({
-          viewer,
-          send,
-          drone: entity,
-          maxSpeed: 100,
-          acceleration: 80,
-        });
-
-        // Initialize default camera
-        cameraCleanupRef.current?.();
-        cameraCleanupRef.current = initThirdPersonCameraLock({
-          viewer,
-          target: entity,
-          distance: 80,
-          baseHeight: 80,
-        });
+      if (!droneRef.current) {
+        const entity = droneHandlerRef.current?.getDroneEntity(myDroneId);
+        if (entity) setupMyDrone(entity);
       }
     };
 
@@ -73,7 +66,6 @@ export default function FreeFlightMode() {
       droneHandlerRef.current?.HandleRemoveDrone(data);
 
       if (droneRef.current?.id === (data.id ?? data.droneId)) {
-        // Cleanup controller and camera
         controllerCleanupRef.current?.();
         cameraCleanupRef.current?.();
         droneRef.current = null;
@@ -81,26 +73,34 @@ export default function FreeFlightMode() {
     };
 
     const handleUpdateDrone = (data: any) => {
+      // HandleUpdateDrone יוצר את הרחפן אם הוא לא קיים
       droneHandlerRef.current?.HandleUpdateDrone(data);
+
+      // אם מדובר ברחפן שלי ועדיין לא אתחלתי עליו שליטה ומצלמה
+      if (!droneRef.current && data.id) {
+        const entity = droneHandlerRef.current?.getDroneEntity(data.id);
+        if (entity) setupMyDrone(entity);
+      }
     };
 
     const handleDroneError = (data: any) => {
       droneHandlerRef.current?.HandleDroneError(data);
     };
 
-    const unsubAddDrone = on(S2CMessageType.AddDrone, handleAddDrone);
+    const unsubInit = on(S2CMessageType.DroneInitData, handleDroneInitData);
     const unsubRemoveDrone = on(S2CMessageType.RemoveDrone, handleRemoveDrone);
     const unsubUpdateDrone = on(S2CMessageType.UpdateDrone, handleUpdateDrone);
     const unsubDroneError = on(S2CMessageType.DroneError, handleDroneError);
 
     return () => {
-      unsubAddDrone();
+      unsubInit();
       unsubRemoveDrone();
       unsubUpdateDrone();
       unsubDroneError();
     };
   }, [viewer, droneHandlerRef.current]);
 
+  // Camera toggle
   const toggleCameraMode = () => {
     if (!viewer || !droneRef.current) return;
 

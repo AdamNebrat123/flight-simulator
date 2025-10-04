@@ -151,17 +151,17 @@ public class ScenarioHandler
     public void SendAddScenario(Scenario scenario)
     {
         string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.AddScenario, scenario);
-        WebSocketServer.SendMsgToClient(scenarioData);
+        WebSocketServer.SendMsgToClients(scenarioData);
     }
     public void SendRemoveScenario(Scenario scenario)
     {
         string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveScenario, scenario);
-        WebSocketServer.SendMsgToClient(scenarioData);
+        WebSocketServer.SendMsgToClients(scenarioData);
     }
     public void SendEditScenario(Scenario scenario)
     {
         string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.EditScenario, scenario);
-        WebSocketServer.SendMsgToClient(scenarioData);
+        WebSocketServer.SendMsgToClients(scenarioData);
     }
     public void SendScenarioError(string errorMsg)
     {
@@ -170,6 +170,6 @@ public class ScenarioHandler
             errorMsg = errorMsg
         };
         string scenarioErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.ScenarioError, scenarioError);
-        WebSocketServer.SendMsgToClient(scenarioErrorData);
+        WebSocketServer.SendMsgToClients(scenarioErrorData);
     }
 }

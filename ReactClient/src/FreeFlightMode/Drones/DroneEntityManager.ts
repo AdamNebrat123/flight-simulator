@@ -1,6 +1,5 @@
 import * as Cesium from "cesium";
 import type { Drone } from "../../Messages/AllTypes";
-import { toast } from "react-toastify";
 
 export class DroneEntityManager {
   private static instance: DroneEntityManager | null = null;
@@ -23,35 +22,25 @@ export class DroneEntityManager {
     return DroneEntityManager.instance;
   }
 
-  tryAddDrone(drone: Drone): boolean {
-    if (!drone || !drone.id) {
-      toast.error("Invalid drone or missing id");
-      return false;
-    }
-
-    if (this.droneIdToEntity.has(drone.id)) {
-      toast.error(`Drone with id ${drone.id} already exists`);
-      return false;
+  // חדש: מוסיף רחפן רק לפי ID עם מיקום ואוריינטציה דיפולטיביים
+  addDroneById(droneId: string): Cesium.Entity | null {
+    if (this.droneIdToEntity.has(droneId)) {
+      console.log(`Drone ${droneId} already exists, ignoring.`);
+      return this.droneIdToEntity.get(droneId)!;
     }
 
     try {
-      const pos = Cesium.Cartesian3.fromDegrees(
-        drone.trajectoryPoint.position.longitude,
-        drone.trajectoryPoint.position.latitude,
-        drone.trajectoryPoint.position.altitude
+      const defaultPos = Cesium.Cartesian3.fromDegrees(34.78217676812864, 32.02684069644974, 160);
+      const defaultHpr = new Cesium.HeadingPitchRoll(
+        Cesium.Math.toRadians(0), // heading
+        Cesium.Math.toRadians(0), // pitch
+        0 // roll
       );
-
-      const hpr = new Cesium.HeadingPitchRoll(
-        Cesium.Math.toRadians(drone.trajectoryPoint.heading),
-        Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
-        0 // roll תמיד 0
-      );
-
-      const orientation = Cesium.Transforms.headingPitchRollQuaternion(pos, hpr);
+      const orientation = Cesium.Transforms.headingPitchRollQuaternion(defaultPos, defaultHpr);
 
       const entity = this.viewer.entities.add({
-        id: drone.id,
-        position: new Cesium.ConstantPositionProperty(pos),
+        id: droneId,
+        position: new Cesium.ConstantPositionProperty(defaultPos),
         orientation: new Cesium.ConstantProperty(orientation),
         model: {
           uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb",
@@ -62,11 +51,12 @@ export class DroneEntityManager {
         },
       });
 
-      this.droneIdToEntity.set(drone.id, entity);
-      return true;
+      this.droneIdToEntity.set(droneId, entity);
+      console.log(`Drone ${droneId} created at default position.`);
+      return entity;
     } catch (err) {
       console.error("Failed to add drone:", err);
-      return false;
+      return null;
     }
   }
 
@@ -80,8 +70,13 @@ export class DroneEntityManager {
   }
 
   editDrone(drone: Drone): boolean {
-    const entity = this.droneIdToEntity.get(drone.id);
-    if (!entity) return false;
+    let entity = this.droneIdToEntity.get(drone.id);
+
+    // אם הרחפן עדיין לא קיים, צור אותו
+    if (!entity) {
+      entity = this.addDroneById(drone.id)!;
+      if (!entity) return false;
+    }
 
     try {
       const pos = Cesium.Cartesian3.fromDegrees(

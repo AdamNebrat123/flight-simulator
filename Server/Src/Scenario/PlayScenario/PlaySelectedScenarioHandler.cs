@@ -78,7 +78,7 @@ public class PlaySelectedScenarioHandler
                 result
             );
 
-            WebSocketServer.SendMsgToClient(responseJson);
+            WebSocketServer.SendMsgToClients(responseJson);
 
             int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);
             await Task.Delay(adjustedDelay);

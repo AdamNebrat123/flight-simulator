@@ -1,3 +1,4 @@
+using System.Net.WebSockets;
 using System.Reflection.Metadata;
 using System.Text.Json;
 
@@ -18,7 +19,7 @@ public class UIMsgHandler
     {
     }
 
-    public async Task HandleIncomingMessage(string json)
+    public async Task HandleIncomingMessage(WebSocket connection ,string json)
     {
         try
         {
@@ -72,16 +73,16 @@ public class UIMsgHandler
                         scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
                         break;
 
-                    case C2SMessageType.AddDrone:
-                        droneHandler.HandleAddDrone(wrapper.data);
-                        break;
-
                     case C2SMessageType.RemoveDrone:
                         droneHandler.HandleRemoveDrone(wrapper.data);
                         break;
 
                     case C2SMessageType.UpdateDrone:
                         droneHandler.HandleUpdateDrone(wrapper.data);
+                        break;
+
+                    case C2SMessageType.RequestDroneInitData:
+                        droneHandler.HandleRequestDronesInitData(connection, wrapper.data);
                         break;
 
                     default:

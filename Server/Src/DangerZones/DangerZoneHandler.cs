@@ -121,17 +121,17 @@ public class DangerZoneHandler
     public void SendAddDangerZone(DangerZone dangerZone)
     {
         string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.AddDangerZone, dangerZone);
-        WebSocketServer.SendMsgToClient(dangerZoneData);
+        WebSocketServer.SendMsgToClients(dangerZoneData);
     }
     public void SendRemoveDangerZone(DangerZone dangerZone)
     {
         string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDangerZone, dangerZone);
-        WebSocketServer.SendMsgToClient(dangerZoneData);
+        WebSocketServer.SendMsgToClients(dangerZoneData);
     }
     public void SendEditDangerZone(DangerZone dangerZone)
     {
         string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.EditDangerZone, dangerZone);
-        WebSocketServer.SendMsgToClient(dangerZoneData);
+        WebSocketServer.SendMsgToClients(dangerZoneData);
     }
     public void SendDangerZoneError(string errorMsg)
     {
@@ -140,6 +140,6 @@ public class DangerZoneHandler
             errorMsg = errorMsg
         };
         string dangerZoneErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.DangerZoneError, dangerZoneError);
-        WebSocketServer.SendMsgToClient(dangerZoneErrorData);
+        WebSocketServer.SendMsgToClients(dangerZoneErrorData);
     }
 }

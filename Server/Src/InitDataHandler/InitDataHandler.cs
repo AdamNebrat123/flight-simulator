@@ -35,6 +35,6 @@ public class InitDataHandler
         };
 
         string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData);
-        WebSocketServer.SendMsgToClient(initDataMsg);
+        WebSocketServer.SendMsgToClients(initDataMsg);
     }
 }

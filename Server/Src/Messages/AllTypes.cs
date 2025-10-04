@@ -237,4 +237,10 @@ public partial class Drone
     {
         return $"Drone [Id={id}, {trajectoryPoint}]";
     }
+
+    public partial class DronesInitData
+    {
+        [JsonPropertyName("yourDroneId")]
+        public string yourDroneId { get; set; }
+    }
 }

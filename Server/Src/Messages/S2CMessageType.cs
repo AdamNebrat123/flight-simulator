@@ -10,8 +10,8 @@ public enum S2CMessageType
     RemoveScenario,
     EditScenario,
     ScenarioError,
-    AddDrone,
     RemoveDrone,
     UpdateDrone,
-    DroneError
+    DroneError,
+    DroneInitData
 }
