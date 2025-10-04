@@ -51,6 +51,7 @@ export interface PlaneCalculatedTrajectoryPoints {
 export interface TrajectoryPoint {
     heading:  number;
     pitch:    number;
+    roll:     number;
     position: GeoPoint;
     //[property: string]: any;
 }

@@ -110,6 +110,8 @@ public partial class TrajectoryPoint
 
     [JsonPropertyName("pitch")]
     public double pitch { get; set; }
+    [JsonPropertyName("roll")]
+    public double roll { get; set; }
 
     [JsonPropertyName("position")]
     public GeoPoint position { get; set; }

@@ -88,7 +88,7 @@ export class DroneEntityManager {
       const hpr = new Cesium.HeadingPitchRoll(
         Cesium.Math.toRadians(drone.trajectoryPoint.heading) + Cesium.Math.toRadians(90),
         Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
-        0
+        Cesium.Math.toRadians(drone.trajectoryPoint.roll)
       );
 
       entity.position = new Cesium.ConstantPositionProperty(pos);
