@@ -1,94 +1,125 @@
 import * as Cesium from "cesium";
 import type { Drone } from "../../Messages/AllTypes";
+import { toast } from "react-toastify";
 
-// מנהל את הרחפנים ב-Cesium עם Position + Orientation
 export class DroneEntityManager {
-    private static instance: DroneEntityManager | null = null;
-    private viewer: Cesium.Viewer;
+  private static instance: DroneEntityManager | null = null;
 
-    private constructor(viewer: Cesium.Viewer) {
-        this.viewer = viewer;
+  private viewer: Cesium.Viewer;
+  private droneIdToEntity: Map<string, Cesium.Entity>;
+
+  private constructor(viewer: Cesium.Viewer) {
+    this.viewer = viewer;
+    this.droneIdToEntity = new Map<string, Cesium.Entity>();
+  }
+
+  public static getInstance(viewer?: Cesium.Viewer): DroneEntityManager {
+    if (!DroneEntityManager.instance) {
+      if (!viewer) {
+        throw new Error("Viewer must be provided for the first getInstance call");
+      }
+      DroneEntityManager.instance = new DroneEntityManager(viewer);
+    }
+    return DroneEntityManager.instance;
+  }
+
+  tryAddDrone(drone: Drone): boolean {
+    if (!drone || !drone.id) {
+      toast.error("Invalid drone or missing id");
+      return false;
     }
 
-    public static getInstance(viewer: Cesium.Viewer): DroneEntityManager {
-        if (!this.instance) {
-            this.instance = new DroneEntityManager(viewer);
-        }
-        return this.instance;
+    if (this.droneIdToEntity.has(drone.id)) {
+      toast.error(`Drone with id ${drone.id} already exists`);
+      return false;
     }
 
-    public tryAddDrone(drone: Drone): boolean {
-        try {
-            // מחשבים את מיקום ה-Cartesian3
-            const positionCartesian = Cesium.Cartesian3.fromDegrees(
-                drone.trajectoryPoint.position.longitude,
-                drone.trajectoryPoint.position.latitude,
-                drone.trajectoryPoint.position.altitude
-            );
+    try {
+      const pos = Cesium.Cartesian3.fromDegrees(
+        drone.trajectoryPoint.position.longitude,
+        drone.trajectoryPoint.position.latitude,
+        drone.trajectoryPoint.position.altitude
+      );
 
-            // מחשבים את ה-Quaternion עבור ההטיה
-            const hpr = new Cesium.HeadingPitchRoll(
-                Cesium.Math.toRadians(drone.trajectoryPoint.heading),
-                Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
-                0 // Roll תמיד 0
-            );
-            const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-                positionCartesian,
-                hpr
-            );
+      const hpr = new Cesium.HeadingPitchRoll(
+        Cesium.Math.toRadians(drone.trajectoryPoint.heading),
+        Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
+        0 // roll תמיד 0
+      );
 
-            // מוסיפים את ה-entity
-            this.viewer.entities.add({
-                id: drone.droneId,
-                name: "Drone",
-                position: new Cesium.ConstantPositionProperty(positionCartesian),
-                orientation: new Cesium.ConstantProperty(orientation),
-                model: {
-                    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb",
-                    minimumPixelSize: 64,
-                    color: Cesium.Color.WHITE.withAlpha(0.9),
-                    silhouetteColor: Cesium.Color.YELLOW,
-                    silhouetteSize: 1.4,
-                },
-            });
+      const orientation = Cesium.Transforms.headingPitchRollQuaternion(pos, hpr);
 
-            return true;
-        } catch (err) {
-            console.error("Failed to add drone:", err);
-            return false;
-        }
+      const entity = this.viewer.entities.add({
+        id: drone.id,
+        position: new Cesium.ConstantPositionProperty(pos),
+        orientation: new Cesium.ConstantProperty(orientation),
+        model: {
+          uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb",
+          minimumPixelSize: 64,
+          color: Cesium.Color.WHITE.withAlpha(0.9),
+          silhouetteColor: Cesium.Color.YELLOW,
+          silhouetteSize: 1.4,
+        },
+      });
+
+      this.droneIdToEntity.set(drone.id, entity);
+      return true;
+    } catch (err) {
+      console.error("Failed to add drone:", err);
+      return false;
     }
+  }
 
-    public removeDrone(droneId: string): boolean {
-        return this.viewer.entities.removeById(droneId);
+  removeDrone(droneId: string): boolean {
+    const entity = this.droneIdToEntity.get(droneId);
+    if (!entity) return false;
+
+    this.viewer.entities.remove(entity);
+    this.droneIdToEntity.delete(droneId);
+    return true;
+  }
+
+  editDrone(drone: Drone): boolean {
+    const entity = this.droneIdToEntity.get(drone.id);
+    if (!entity) return false;
+
+    try {
+      const pos = Cesium.Cartesian3.fromDegrees(
+        drone.trajectoryPoint.position.longitude,
+        drone.trajectoryPoint.position.latitude,
+        drone.trajectoryPoint.position.altitude
+      );
+
+      const hpr = new Cesium.HeadingPitchRoll(
+        Cesium.Math.toRadians(drone.trajectoryPoint.heading) + Cesium.Math.toRadians(90),
+        Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
+        0
+      );
+
+      entity.position = new Cesium.ConstantPositionProperty(pos);
+      entity.orientation = new Cesium.ConstantProperty(
+        Cesium.Transforms.headingPitchRollQuaternion(pos, hpr)
+      );
+
+      return true;
+    } catch (err) {
+      console.error("Failed to edit drone:", err);
+      return false;
     }
+  }
 
-    public editDrone(drone: Drone): boolean {
-        const entity = this.viewer.entities.getById(drone.droneId);
-        if (!entity) return false;
+  getDroneEntity(droneId: string): Cesium.Entity | null {
+    return this.droneIdToEntity.get(droneId) ?? null;
+  }
 
-        try {
-            // מחושב מיקום חדש
-            const newPos = Cesium.Cartesian3.fromDegrees(
-                drone.trajectoryPoint.position.longitude,
-                drone.trajectoryPoint.position.latitude,
-                drone.trajectoryPoint.position.altitude
-            );
-            entity.position = new Cesium.ConstantPositionProperty(newPos);
+  getAllDroneIds(): string[] {
+    return Array.from(this.droneIdToEntity.keys());
+  }
 
-            // מחושבת אוריינטציה חדשה
-            const hpr = new Cesium.HeadingPitchRoll(
-                Cesium.Math.toRadians(drone.trajectoryPoint.heading),
-                Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
-                0
-            );
-            const quaternion = Cesium.Transforms.headingPitchRollQuaternion(newPos, hpr);
-            entity.orientation = new Cesium.ConstantProperty(quaternion);
-
-            return true;
-        } catch (err) {
-            console.error("Failed to edit drone:", err);
-            return false;
-        }
+  clearAllDrones() {
+    for (const entity of this.droneIdToEntity.values()) {
+      this.viewer.entities.remove(entity);
     }
+    this.droneIdToEntity.clear();
+  }
 }

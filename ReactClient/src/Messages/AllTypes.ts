@@ -118,6 +118,6 @@ export interface ScenarioError {
 }
 
 export interface Drone {
-    droneId: string;
+    id: string;
     trajectoryPoint: TrajectoryPoint;
 }

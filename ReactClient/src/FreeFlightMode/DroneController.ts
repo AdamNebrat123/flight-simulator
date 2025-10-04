@@ -1,8 +1,11 @@
 import * as Cesium from "cesium";
 import { DroneOrientationManager } from "./DroneOrientationManager";
+import { C2SMessageType } from "../Messages/C2SMessageType";
+import type { Drone, GeoPoint, TrajectoryPoint } from "../Messages/AllTypes";
 
 type DroneControllerProps = {
   viewer: Cesium.Viewer;
+  send: (type: string, data: any) => void
   drone: Cesium.Entity;
   maxSpeed?: number;       // מטר לשנייה
   acceleration?: number;   // מטר לשנייה^2
@@ -11,6 +14,7 @@ type DroneControllerProps = {
 
 export function initDroneController({
   viewer,
+  send,
   drone,
   maxSpeed = 50,
   acceleration = 20,
@@ -39,6 +43,7 @@ export function initDroneController({
   const headingOffset = Cesium.Math.toRadians(90);
   const orientationManager = new DroneOrientationManager(drone, headingOffset);
 
+
   const tickHandler = (_scene: Cesium.Scene, time: Cesium.JulianDate) => {
     if (!drone.position) return;
     const pos = drone.position.getValue(time) as Cesium.Cartesian3;
@@ -49,9 +54,9 @@ export function initDroneController({
     let dt = 0;
     if (prevTime) {
       dt = Cesium.JulianDate.secondsDifference(time, prevTime);
-      if (dt <= 0) dt = 0.001; // מקרה חריג קטן
+      if (dt <= 0) dt = 0.001; 
     } else {
-      dt = 0.033; // הפעם הראשונה בלבד
+      dt = 0.033; 
     }
     prevTime = time;
 
@@ -137,16 +142,33 @@ export function initDroneController({
     }
 
     // ====================
-    // עדכון מיקום
+    // חישוב מיקום חדש
     const displacement = new Cesium.Cartesian3();
     Cesium.Cartesian3.multiplyByScalar(velocity, dt, displacement);
     const newPos = new Cesium.Cartesian3();
     Cesium.Cartesian3.add(pos, displacement, newPos);
-    drone.position = new Cesium.ConstantPositionProperty(newPos);
 
     // ====================
-    // עדכון orientation
-    orientationManager.setOrientationFromHeading(heading, newPos);
+    // שליחת הודעת UPDATE_DRONE במקום לעדכן את ה-entity
+    const cartographic = Cesium.Cartographic.fromCartesian(newPos);
+    const updatedDrone: Drone = {
+      id: drone.id as string,
+      trajectoryPoint: {
+        position: {
+          longitude: Cesium.Math.toDegrees(cartographic.longitude),
+          latitude: Cesium.Math.toDegrees(cartographic.latitude),
+          altitude: cartographic.height
+        } as GeoPoint,
+        heading: Cesium.Math.toDegrees(heading),
+        pitch: 0, // אפשר להוסיף חישוב pitch אם תרצה
+        roll: 0
+      } as TrajectoryPoint
+    };
+
+    send(C2SMessageType.UpdateDrone, updatedDrone);
+
+    // ====================
+    // לא עושים יותר שום עדכון של drone.position או orientation
   };
 
   viewer.clock.onTick.addEventListener(tickHandler);
