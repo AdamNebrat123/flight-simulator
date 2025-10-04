@@ -21,8 +21,9 @@ export default function FreeFlightMode() {
   // Initialize DroneHandler when viewer is ready and request initial drone data
   useEffect(() => {
     if (!viewer) return;
+
     droneHandlerRef.current = DroneHandler.getInstance(viewer);
-    send(C2SMessageType.RequestDroneInitData, {}); 
+    send(C2SMessageType.RequestDroneInitData, {});
   }, [viewer]);
 
   // Setup my drone: controller + camera
@@ -64,23 +65,10 @@ export default function FreeFlightMode() {
 
     const handleRemoveDrone = (data: any) => {
       droneHandlerRef.current?.HandleRemoveDrone(data);
-
-      if (droneRef.current?.id === (data.id ?? data.droneId)) {
-        controllerCleanupRef.current?.();
-        cameraCleanupRef.current?.();
-        droneRef.current = null;
-      }
     };
 
     const handleUpdateDrone = (data: any) => {
-      // HandleUpdateDrone יוצר את הרחפן אם הוא לא קיים
       droneHandlerRef.current?.HandleUpdateDrone(data);
-
-      // אם מדובר ברחפן שלי ועדיין לא אתחלתי עליו שליטה ומצלמה
-      if (!droneRef.current && data.id) {
-        const entity = droneHandlerRef.current?.getDroneEntity(data.id);
-        if (entity) setupMyDrone(entity);
-      }
     };
 
     const handleDroneError = (data: any) => {
@@ -123,6 +111,35 @@ export default function FreeFlightMode() {
       setCameraMode("THIRD_PERSON");
     }
   };
+
+  // Cleanup on component unmount
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (droneRef.current) {
+        send(C2SMessageType.RemoveDrone, { id: droneRef.current.id });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      // Send REMOVE for my drone
+      if (droneRef.current) {
+        send(C2SMessageType.RemoveDrone, { id: droneRef.current.id });
+      }
+
+      // Cleanup controller & camera
+      controllerCleanupRef.current?.();
+      cameraCleanupRef.current?.();
+      droneRef.current = null;
+
+      // Cleanup drone handler
+      droneHandlerRef.current?.clearAllDrones();
+      droneHandlerRef.current = null;
+
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
