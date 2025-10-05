@@ -7,7 +7,7 @@ export function useWebSocketConnection(url: string, reconnectDelay = 3000) {
   const messageHandlerRef = useRef<((message: string) => void) | null>(null);
 
   const connect = useCallback(() => {
-    const socket = new WebSocket(url);
+    const socket = new WebSocket(`${window.location.origin.replace(/^http/, 'ws')}/ws`);
     socketRef.current = socket;
 
     socket.onopen = () => {

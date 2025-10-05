@@ -10,7 +10,7 @@ import FreeFlightMode from './FreeFlightMode/FreeFlightMode.tsx'
 createRoot(document.getElementById('root')!).render(
   <Router>
     {/* Routes with WebSocket */}
-    <WebSocketProvider url="ws://192.168.1.33:5000">
+    <WebSocketProvider url="ws://localhost:5173/ws">
       <Routes>
 
         <Route path="/" element={
