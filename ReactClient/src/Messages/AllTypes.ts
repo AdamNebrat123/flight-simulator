@@ -126,3 +126,10 @@ export interface Drone {
 export type DronesInitData = {
   yourDroneId: string;   // The UUID of the current user's drone
 };
+
+export interface CreateBullet {
+  droneId: string;
+  bulletId: string;
+  startPosition: GeoPoint;
+  endPosition: GeoPoint;
+}

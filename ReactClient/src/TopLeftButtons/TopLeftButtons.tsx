@@ -19,6 +19,9 @@ export default function TopLeftButtons({onScenariosClick, onDangerZonesClick }: 
       <button className="top-button" onClick={() => window.open("/Free-Flight-Mode", "_blank")}>
         FREE FLIGHT MODE
       </button>
+      <button className="top-button" onClick={() => window.open("/Drone-Game", "_blank")}>
+        DRONE GAME
+      </button>
     </div>
   );
 }

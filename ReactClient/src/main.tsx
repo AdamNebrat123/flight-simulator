@@ -6,6 +6,7 @@ import { SimStateProvider } from './SimState/SimStateProvider.tsx'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import RealPlanesMode from './RealPlanesMode/RealPlanesMode.tsx'
 import FreeFlightMode from './FreeFlightMode/FreeFlightMode.tsx'
+import DroneGame from './DroneGame/DroneGame.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <Router>
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')!).render(
         />
 
         <Route path="/Free-Flight-Mode" element={<FreeFlightMode />}/>
+        <Route path="/Drone-Game" element={<DroneGame />}/>
 
       </Routes>
     </WebSocketProvider>

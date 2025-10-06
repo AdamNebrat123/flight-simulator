@@ -1,0 +1,1 @@
+// Manages drone entities

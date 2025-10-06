@@ -13,8 +13,6 @@ public class WebSocketServer
         // load existing data (if existing)
         LoadDataFromFiles();
 
-        
-
         var builder = WebApplication.CreateBuilder(args);
 
         builder.WebHost.UseUrls("http://0.0.0.0:5000");
@@ -22,6 +20,9 @@ public class WebSocketServer
         var app = builder.Build();
 
         app.UseWebSockets();
+
+        BulletsMsgSender.GetInstance().Start(); // Start sending bullet messages to clients
+
 
         app.Use(async (context, next) =>
         {

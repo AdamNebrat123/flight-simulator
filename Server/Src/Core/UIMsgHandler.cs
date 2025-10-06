@@ -14,6 +14,7 @@ public class UIMsgHandler
     private readonly DangerZoneHandler dangerZoneHandler = DangerZoneHandler.GetInstance();
     private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
     private readonly DroneHandler droneHandler = DroneHandler.GetInstance();
+    private readonly CreateBulletHandler createBulletHandler = CreateBulletHandler.GetInstance();
 
     public UIMsgHandler()
     {
@@ -64,11 +65,11 @@ public class UIMsgHandler
                     case C2SMessageType.PauseScenarioCmd:
                         scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data);
                         break;
-                    
+
                     case C2SMessageType.ResumeScenarioCmd:
                         scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data);
                         break;
-                    
+
                     case C2SMessageType.ChangeScenarioPlaySpeedCmd:
                         scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
                         break;
@@ -83,6 +84,10 @@ public class UIMsgHandler
 
                     case C2SMessageType.RequestDroneInitData:
                         droneHandler.HandleRequestDronesInitData(connection, wrapper.data);
+                        break;
+
+                    case C2SMessageType.CreateBullet:
+                        createBulletHandler.HandleCreateBullet(wrapper.data);
                         break;
 
                     default:

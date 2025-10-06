@@ -240,9 +240,46 @@ public partial class Drone
         return $"Drone [Id={id}, {trajectoryPoint}]";
     }
 
-    public partial class DronesInitData
+
+}
+
+public partial class DronesInitData
     {
         [JsonPropertyName("yourDroneId")]
         public string yourDroneId { get; set; }
     }
-}
+
+    public partial class CreateBullet
+    {
+        [JsonPropertyName("droneId")]
+        public string droneId { get; set; }
+
+        [JsonPropertyName("bulletId")]
+        public string bulletId { get; set; }
+
+        [JsonPropertyName("startPosition")]
+        public GeoPoint startPosition { get; set; }
+
+        [JsonPropertyName("endPosition")]
+        public GeoPoint endPosition { get; set; }
+    }
+
+    public partial class BulletData
+    {
+        [JsonPropertyName("droneId")]
+        public string droneId { get; set; }
+
+        [JsonPropertyName("bulletId")]
+        public string bulletId { get; set; }
+
+        [JsonPropertyName("position")]
+        public GeoPoint position { get; set; }
+
+        [JsonPropertyName("isLast")]
+        public bool isLast { get; set; }
+    }
+    public partial class BulletsMsg
+    {
+        [JsonPropertyName("bullets")]
+        public List<BulletData> bullets { get; set; }
+    }
