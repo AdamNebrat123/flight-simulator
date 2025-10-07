@@ -10,6 +10,7 @@ import { DroneHandler } from "../FreeFlightMode/Drones/DroneHandler";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { S2CMessageType } from "../Messages/S2CMessageType";
 import { C2SMessageType } from "../Messages/C2SMessageType";
+import { Crosshair } from "./UI/Crosshair";
 
 export default function DroneGame() {
     const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
@@ -40,8 +41,11 @@ export default function DroneGame() {
             viewer: viewer!,
             send,
             drone: entity,
-            maxSpeed: 100,
-            acceleration: 80,
+            arrowSensitivityDeg: 1,
+            pitchSensitivityDeg: 1,
+            rollSensitivityDeg: 4,
+            maxSpeed: 40,
+            acceleration: 32,
         });
         cameraCleanupRef.current = initFirstPersonCameraLock({
             viewer: viewer!,
@@ -137,7 +141,7 @@ export default function DroneGame() {
     return (
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
             <DroneGameViewer onViewerReady={setViewer} />
-            {/* Add your game UI or controls here */}
+            <Crosshair />
         </div>
     );
 }

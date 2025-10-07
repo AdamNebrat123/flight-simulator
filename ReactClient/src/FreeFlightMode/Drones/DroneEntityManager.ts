@@ -45,7 +45,7 @@ export class DroneEntityManager {
         model: {
           uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb",
           minimumPixelSize: 64,
-          color: Cesium.Color.WHITE.withAlpha(0.9),
+          color: Cesium.Color.WHITE,
           silhouetteColor: Cesium.Color.YELLOW,
           silhouetteSize: 2,
         },
@@ -69,39 +69,39 @@ export class DroneEntityManager {
     return true;
   }
 
-  editDrone(drone: Drone): boolean {
-    let entity = this.droneIdToEntity.get(drone.id);
+    editDrone(drone: Drone): boolean {
+      let entity = this.droneIdToEntity.get(drone.id);
 
-    // אם הרחפן עדיין לא קיים, צור אותו
-    if (!entity) {
-      entity = this.addDroneById(drone.id)!;
-      if (!entity) return false;
+      // אם הרחפן עדיין לא קיים, צור אותו
+      if (!entity) {
+        entity = this.addDroneById(drone.id)!;
+        if (!entity) return false;
+      }
+
+      try {
+        const pos = Cesium.Cartesian3.fromDegrees(
+          drone.trajectoryPoint.position.longitude,
+          drone.trajectoryPoint.position.latitude,
+          drone.trajectoryPoint.position.altitude
+        );
+
+        const hpr = new Cesium.HeadingPitchRoll(
+          Cesium.Math.toRadians(drone.trajectoryPoint.heading) + Cesium.Math.toRadians(90),
+          Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
+          Cesium.Math.toRadians(drone.trajectoryPoint.roll)
+        );
+
+        entity.position = new Cesium.ConstantPositionProperty(pos);
+        entity.orientation = new Cesium.ConstantProperty(
+          Cesium.Transforms.headingPitchRollQuaternion(pos, hpr)
+        );
+
+        return true;
+      } catch (err) {
+        console.error("Failed to edit drone:", err);
+        return false;
+      }
     }
-
-    try {
-      const pos = Cesium.Cartesian3.fromDegrees(
-        drone.trajectoryPoint.position.longitude,
-        drone.trajectoryPoint.position.latitude,
-        drone.trajectoryPoint.position.altitude
-      );
-
-      const hpr = new Cesium.HeadingPitchRoll(
-        Cesium.Math.toRadians(drone.trajectoryPoint.heading) + Cesium.Math.toRadians(90),
-        Cesium.Math.toRadians(drone.trajectoryPoint.pitch),
-        Cesium.Math.toRadians(drone.trajectoryPoint.roll)
-      );
-
-      entity.position = new Cesium.ConstantPositionProperty(pos);
-      entity.orientation = new Cesium.ConstantProperty(
-        Cesium.Transforms.headingPitchRollQuaternion(pos, hpr)
-      );
-
-      return true;
-    } catch (err) {
-      console.error("Failed to edit drone:", err);
-      return false;
-    }
-  }
 
   getDroneEntity(droneId: string): Cesium.Entity | null {
     return this.droneIdToEntity.get(droneId) ?? null;

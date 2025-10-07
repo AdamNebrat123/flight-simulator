@@ -11,6 +11,7 @@ export class BulletEntityManager {
         this.bulletIdToEntity = new Map<string, Cesium.Entity>();
         console.log("[BulletEntityManager] Initialized");
     }
+    
 
     public static getInstance(viewer?: Cesium.Viewer): BulletEntityManager {
         if (!BulletEntityManager.instance) {

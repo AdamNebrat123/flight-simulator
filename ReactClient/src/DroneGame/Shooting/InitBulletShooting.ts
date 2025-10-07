@@ -9,8 +9,11 @@ export class InitBulletShooting {
     private viewer: Viewer;
     private maxDistance: number;
     private handler: Cesium.ScreenSpaceEventHandler | undefined;
+    private keyboardHandler: ((e: KeyboardEvent) => void) | undefined;
     private send: (type: string, data: any) => void;
     private droneId: string;
+    private cooldown: number = 1000; // milliseconds
+    private lastShotTime: number = 0;
 
     private constructor(viewer: Viewer, send: (type: string, data: any) => void, droneId: string, maxDistance: number = 1000) {
         this.viewer = viewer;
@@ -19,7 +22,7 @@ export class InitBulletShooting {
         this.maxDistance = maxDistance;
     }
 
-    public static getInstance(viewer?: Viewer, send?: (type: string, data: any) => void, droneId?: string, maxDistance: number = 1000): InitBulletShooting {
+    public static getInstance(viewer?: Viewer, send?: (type: string, data: any) => void, droneId?: string, maxDistance: number = 3000): InitBulletShooting {
         if (!InitBulletShooting.instance) {
             if (!viewer || !send || !droneId) {
                 throw new Error('Viewer, send, and droneId must be provided for the first getInstance call');
@@ -31,9 +34,35 @@ export class InitBulletShooting {
 
     public initMouseHandler() {
         this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+        // Shoot on left click
         this.handler.setInputAction(() => {
-            this.calculateStartAndEndAndSend();
+            this.tryShoot();
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        // Make canvas focusable for key events
+        const canvas = this.viewer.scene.canvas;
+        canvas.tabIndex = 0;
+        // Focus canvas on mouse enter or click
+        canvas.addEventListener('mouseenter', () => canvas.focus());
+        canvas.addEventListener('mousedown', () => canvas.focus());
+
+        // Helper to handle shooting and shortcut prevention
+        this.keyboardHandler = (e: KeyboardEvent) => {
+            // Fire on F key (not interfering with movement keys)
+            if ((e.key === 'f' || e.key === 'F') && !e.repeat) {
+                this.tryShoot();
+            }
+        };
+        window.addEventListener('keydown', this.keyboardHandler, true);
+        window.addEventListener('keyup', this.keyboardHandler, true);
+    }
+    // Try to shoot, respecting cooldown
+    private tryShoot() {
+        const now = Date.now();
+        if (now - this.lastShotTime >= this.cooldown) {
+            this.lastShotTime = now;
+            this.calculateStartAndEndAndSend();
+        }
     }
 
     private calculateStartAndEndAndSend() {
@@ -69,6 +98,11 @@ export class InitBulletShooting {
     destroy() {
         if (this.handler) {
             this.handler.destroy();
+        }
+        const canvas = this.viewer.scene.canvas;
+        if (this.keyboardHandler) {
+            canvas.removeEventListener('keydown', this.keyboardHandler);
+            window.removeEventListener('keydown', this.keyboardHandler);
         }
     }
 }

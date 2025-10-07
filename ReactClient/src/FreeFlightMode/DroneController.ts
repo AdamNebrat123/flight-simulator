@@ -6,6 +6,9 @@ type DroneControllerProps = {
   viewer: Cesium.Viewer;
   send: (type: string, data: any) => void;
   drone: Cesium.Entity;
+  arrowSensitivityDeg: number;
+  pitchSensitivityDeg: number;
+  rollSensitivityDeg: number;
   maxSpeed?: number;       // מטר לשנייה
   acceleration?: number;   // מטר לשנייה^2
   damping?: number;        // ערך decay פר שנייה (0–1)
@@ -16,6 +19,9 @@ export function initDroneController({
   viewer,
   send,
   drone,
+  arrowSensitivityDeg,
+  pitchSensitivityDeg,
+  rollSensitivityDeg,
   maxSpeed = 50,
   acceleration = 20,
   damping = 0.097,
@@ -34,9 +40,9 @@ export function initDroneController({
   let heading = 0;
   let pitch = 0;
   let roll = 0;
-  const arrowSensitivity = Cesium.Math.toRadians(4);
-  const pitchSensitivity = Cesium.Math.toRadians(4);
-  const rollSensitivity = Cesium.Math.toRadians(6);
+  const arrowSensitivity = Cesium.Math.toRadians(arrowSensitivityDeg);
+  const pitchSensitivity = Cesium.Math.toRadians(pitchSensitivityDeg);
+  const rollSensitivity = Cesium.Math.toRadians(rollSensitivityDeg);
   const arrows: Record<string, boolean> = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
 
   const keyDownHandler = (e: KeyboardEvent) => {

@@ -37,6 +37,9 @@ export default function FreeFlightMode() {
       viewer: viewer!,
       send,
       drone: entity,
+      arrowSensitivityDeg: 4,
+      pitchSensitivityDeg: 4,
+      rollSensitivityDeg: 6,
       maxSpeed: 100,
       acceleration: 80,
     });
