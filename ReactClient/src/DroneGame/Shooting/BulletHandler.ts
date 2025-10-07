@@ -15,7 +15,7 @@ export class BulletHandler {
       if (!viewer) {
         throw new Error("Viewer must be provided for the first getInstance call");
       }
-      BulletHandler.instance = new BulletHandler(viewer);
+      this.instance = new BulletHandler(viewer);
     }
     return this.instance;
   }

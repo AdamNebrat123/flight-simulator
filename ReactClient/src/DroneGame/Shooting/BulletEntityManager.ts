@@ -38,11 +38,10 @@ export class BulletEntityManager {
                     id: bullet.bulletId,
                     position: new Cesium.ConstantPositionProperty(pos),
                     model: {
-                      uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb",
-                      minimumPixelSize: 64,
-                      color: Cesium.Color.WHITE.withAlpha(0.9),
-                      silhouetteColor: Cesium.Color.YELLOW,
-                      silhouetteSize: 2,
+                        uri: "/models/Sphere.glb",
+                        scale: 10,
+                        minimumPixelSize: 8,
+                        color: Cesium.Color.RED.withAlpha(0.95),
                     },
                   });
             

@@ -17,7 +17,6 @@ export class InitBulletShooting {
         this.send = send;
         this.droneId = droneId;
         this.maxDistance = maxDistance;
-        this.initMouseHandler();
     }
 
     public static getInstance(viewer?: Viewer, send?: (type: string, data: any) => void, droneId?: string, maxDistance: number = 1000): InitBulletShooting {
@@ -30,7 +29,7 @@ export class InitBulletShooting {
         return InitBulletShooting.instance;
     }
 
-    private initMouseHandler() {
+    public initMouseHandler() {
         this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
         this.handler.setInputAction(() => {
             this.calculateStartAndEndAndSend();

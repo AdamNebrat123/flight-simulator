@@ -51,6 +51,7 @@ export default function DroneGame() {
 
     const setUpShooting = () => {
         shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id); // initialize ShootingMechanics
+        shootingRef.current.initMouseHandler();
     }
 
     // WebSocket handlers
