@@ -133,3 +133,14 @@ export interface CreateBullet {
   startPosition: GeoPoint;
   endPosition: GeoPoint;
 }
+
+export interface BulletData {
+  droneId: string;
+  bulletId: string;
+  position: GeoPoint;
+  isLast: boolean;
+}
+
+export interface BulletsMsg {
+    bullets: BulletData[];
+}

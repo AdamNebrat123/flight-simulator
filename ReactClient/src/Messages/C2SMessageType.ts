@@ -11,5 +11,6 @@ export enum C2SMessageType {
     EditScenario = "EditScenario",
     RemoveDrone = "RemoveDrone",
     UpdateDrone = "UpdateDrone",
-    RequestDroneInitData = "RequestDroneInitData"
+    RequestDroneInitData = "RequestDroneInitData",
+    CreateBullet = "CreateBullet"
 }
