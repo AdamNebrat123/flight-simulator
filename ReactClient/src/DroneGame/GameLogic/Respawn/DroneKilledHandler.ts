@@ -102,15 +102,5 @@ export class DroneKilledHandler {
             console.log("Controller cleanup done.");
         }
     }
-
-    public setCleanupAndInit(
-        shootingCleanup: (() => void),
-        controllerCleanup: (() => void),
-        initShootingAndController: (() => void)
-    ) {
-        this.shootingCleanup = shootingCleanup;
-        this.controllerCleanup = controllerCleanup;
-        this.initShootingAndController = initShootingAndController;
-    }
 }
 

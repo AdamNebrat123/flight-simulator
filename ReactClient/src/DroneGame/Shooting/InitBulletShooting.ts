@@ -32,7 +32,7 @@ export class InitBulletShooting {
         return InitBulletShooting.instance;
     }
 
-    public initMouseHandler() {
+    public initShootingHandler() {
         this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
         // Shoot on left click
         this.handler.setInputAction(() => {

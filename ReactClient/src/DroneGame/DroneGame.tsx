@@ -44,54 +44,17 @@ export default function DroneGame() {
         // Only clean up previous controller/shooting for my drone
         if (controllerCleanupRef.current) controllerCleanupRef.current();
         if (cameraCleanupRef.current) cameraCleanupRef.current();
-        if (shootingRef.current) {
-            try {
-                shootingRef.current.destroy();
-            } catch (e) {
-                // Ignore if already destroyed
-            }
-            shootingRef.current = null;
-        }
 
-        // Init controller
-        controllerCleanupRef.current = initDroneController({
-            viewer: viewer!,
-            send,
-            drone: droneRef.current!,
-            arrowSensitivityDeg: 1,
-            pitchSensitivityDeg: 1,
-            rollSensitivityDeg: 4,
-            maxSpeed: 40,
-            acceleration: 32,
-        });
+        // init controller and shooting
+        initControllerAndShooting();
+        
+        // Init camera
         cameraCleanupRef.current = initFirstPersonCameraLock({
             viewer: viewer!,
             target: droneRef.current!,
         });
-        // Init shooting
-        shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id);
-        shootingRef.current.initMouseHandler();
-
-        // Register cleanup/init with killedHandler (always update after init)
-        if (killedHandlerRef.current) {
-            killedHandlerRef.current.setCleanupAndInit(
-                () => {
-                    if (shootingRef.current) shootingRef.current.destroy();
-                        shootingRef.current = null;
-                },
-                () => {
-                    controllerCleanupRef.current?.();
-                    controllerCleanupRef.current = null;
-                },
-                () => {
-                    setUpController();
-                    console.log("initializing shooting after respawn");
-                    setUpShooting();
-                    console.log("initialization Shooting after respawn");
-                }
-            );
-        }
     };
+
     const setUpController = () => {
         // Init controller
         controllerCleanupRef.current = initDroneController({
@@ -105,13 +68,32 @@ export default function DroneGame() {
             acceleration: 32,
         });
     };
+
     const setUpShooting = () => {
+        shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id);
+        shootingRef.current.initShootingHandler();
+    }
+
+    const controllerCleanup = () => {
+        if (controllerCleanupRef.current) {
+            controllerCleanupRef.current();
+            controllerCleanupRef.current = null;
+        }
+    }
+
+    const shootingCleanup = () => {
         if (shootingRef.current) {
             shootingRef.current.destroy();
             shootingRef.current = null;
         }
-        shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id);
-        shootingRef.current.initMouseHandler();
+    }
+
+    const initControllerAndShooting = () => {
+        setUpController();
+        console.log("Setting up controller");
+        setUpShooting();
+        console.log("Setting up shooting");
+        
     }
 
     // WebSocket handlers
@@ -129,14 +111,9 @@ export default function DroneGame() {
                     setIsAlive,
                     setKillerName,
                     setRespawnSeconds,
-                    () => shootingRef.current?.destroy?.(),
-                    () => controllerCleanupRef.current?.(),
-                    () => {
-                        if (droneRef.current) {
-                            setupMyDrone();
-                            setUpShooting();
-                        }
-                    }
+                    controllerCleanup,
+                    shootingCleanup,
+                    initControllerAndShooting
                 );
             }
 
@@ -145,7 +122,6 @@ export default function DroneGame() {
                 if (entity) {
                     droneRef.current = entity;
                     setupMyDrone();
-                    setUpShooting();
                 }
             }
         };
@@ -180,6 +156,7 @@ export default function DroneGame() {
             unsubInit();
             unsubRemoveDrone();
             unsubUpdateDrone();
+            
             unsubDroneError();
             unsubBulletsMsg();
             unsubDroneKilled();
@@ -187,7 +164,7 @@ export default function DroneGame() {
             bulletHandlerRef.current?.clearAllBullets();
             bulletHandlerRef.current = null;
         };
-    }, [viewer, droneHandlerRef.current]);
+    }, [viewer]);
 
 
     // Cleanup on component unmount

@@ -33,6 +33,7 @@ export class BulletHandler {
         } else {
           this.bulletEntityManager.updateBullet(bullet);
         }
+        console.log("BULLETTTTTTT")
       }
     } catch (err) {
       console.error("Data could not be parsed to BulletsMsg:", err);
