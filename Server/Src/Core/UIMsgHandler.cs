@@ -28,7 +28,7 @@ public class UIMsgHandler
             {
                 PropertyNameCaseInsensitive = true
             });
-            Console.WriteLine("Deserialized Type: " + wrapper?.type);
+            //Console.WriteLine("Deserialized Type: " + wrapper?.type);
 
             if (!string.IsNullOrWhiteSpace(wrapper.type) && Enum.TryParse<C2SMessageType>(wrapper.type.Trim(), ignoreCase: true, out var messageType))
             {

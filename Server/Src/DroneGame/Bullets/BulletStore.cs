@@ -17,9 +17,19 @@ namespace DroneGame
         private readonly ConcurrentDictionary<string, LinkedList<BulletData>> _bullets = new();
 
         // Adds a bullet and its precomputed trajectory points
+
         public void AddBullet(string bulletId, List<BulletData> calculatedPoints)
         {
             _bullets[bulletId] = new LinkedList<BulletData>(calculatedPoints);
+        }
+
+        // Updates the bullet points for an existing bullet
+        public void UpdateBullet(string bulletId, List<BulletData> newPoints)
+        {
+            if (_bullets.ContainsKey(bulletId))
+            {
+                _bullets[bulletId] = new LinkedList<BulletData>(newPoints);
+            }
         }
 
         public LinkedList<BulletData>? GetBulletPoints(string bulletId)

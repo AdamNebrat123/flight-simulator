@@ -40,7 +40,7 @@ export class BulletEntityManager {
                     position: new Cesium.ConstantPositionProperty(pos),
                     model: {
                         uri: "/models/Sphere.glb",
-                        scale: 10,
+                        scale: 15,
                         minimumPixelSize: 8,
                         color: Cesium.Color.RED.withAlpha(0.95),
                     },

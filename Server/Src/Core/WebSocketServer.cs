@@ -49,7 +49,7 @@ public class WebSocketServer
                     }
 
                     var jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    Console.WriteLine("Received: " + jsonString);
+                    //Console.WriteLine("Received: " + jsonString);
                     _uiMsgHandler.HandleIncomingMessage(webSocket, jsonString);
 
                 }
@@ -81,7 +81,7 @@ public class WebSocketServer
             {
                 var encoded = Encoding.UTF8.GetBytes(jsonString);
                 await ws.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
-                System.Console.WriteLine("sent: " + jsonString);
+                //System.Console.WriteLine("sent: " + jsonString);
             }
         }
     }

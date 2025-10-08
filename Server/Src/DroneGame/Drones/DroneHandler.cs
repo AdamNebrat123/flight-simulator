@@ -1,10 +1,13 @@
 using System.Net.WebSockets;
 using System.Text.Json;
+using DroneGame.HitDetection;
 
 public class DroneHandler
 {
     private static DroneHandler instance;
     private readonly DroneManager droneManager = DroneManager.GetInstance();
+    private readonly HitDetector hitDetector = HitDetector.GetInstance();
+    private readonly DroneKilledHandler droneKilledHandler = DroneKilledHandler.GetInstance();
 
     private DroneHandler() { }
 
@@ -20,19 +23,19 @@ public class DroneHandler
     {
         try
         {
-            // צור UUID חדש
+            // create new UUID
             Guid uuid = Guid.NewGuid();
             string uuidString = uuid.ToString();
 
-            // צור רחפן חדש עם ID ודיפולט
+            // create new drone with ID and default
             var defaultPosition = new GeoPoint(34.78217676812864, 32.02684069644974, 160);
             var defaultTrajectory = new TrajectoryPoint(defaultPosition, 0, 0);
             var drone = new Drone(uuidString, defaultTrajectory);
 
-            // הוסף ל־DroneManager
+            // Add to DroneManager
             droneManager.TryAddDrone(drone);
 
-            // שלח חזרה ללקוח DRONEINITDATA רק עם ה-ID
+            // Send back to client DRONEINITDATA only with the ID
             var initData = new
             {
                 yourDroneId = uuidString
@@ -43,36 +46,6 @@ public class DroneHandler
         catch (Exception ex)
         {
             Console.WriteLine("Error in HandleRequestDronesInitData: " + ex.Message);
-        }
-    }
-
-
-    public void HandleAddDrone(JsonElement data)
-    {
-        try
-        {
-            Drone drone = data.Deserialize<Drone>();
-            if (drone == null)
-                throw new Exception("Deserialization returned null");
-
-            Guid uuid = Guid.NewGuid();
-            string uuidString = uuid.ToString();
-            drone.id = uuidString;
-
-            bool added = droneManager.TryAddDrone(drone);
-            if (added)
-            {
-                Console.WriteLine($"{drone.id} - Drone added successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"{drone.id} - Failed to add drone.");
-                SendDroneError($"{drone.id} - Failed to add drone.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error in HandleAddDrone: " + ex.Message);
         }
     }
 
@@ -110,10 +83,20 @@ public class DroneHandler
             if (drone == null)
                 throw new Exception("Deserialization returned null");
 
+            // Check for bullet hit
+            string? bulletId = this.hitDetector.CheckHit(drone);
+            if (bulletId != null)
+            {
+                // Handle kill
+                this.droneKilledHandler.HandleKill(drone.id, bulletId);
+                // Do not update or send update for killed drone
+                return;
+            }
+
             bool updated = droneManager.TryUpdateDrone(drone.id, drone);
             if (updated)
             {
-                Console.WriteLine($"{drone.id} - Drone updated successfully.");
+                //Console.WriteLine($"{drone.id} - Drone updated successfully.");
                 SendUpdateDrone(drone);
             }
             else

@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), cesium()],
   server: {
     host: '0.0.0.0',
-    open: true, // This will open the browser automatically
+    open: false, // This will open the browser automatically
     allowedHosts: true,
     proxy: {
       // כל בקשה ל-/ws תעבור לשרת WebSocket הפנימי

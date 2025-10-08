@@ -14,5 +14,6 @@ public enum S2CMessageType
     UpdateDrone,
     DroneError,
     DroneInitData,
-    BulletsMsg // New message type for sending bullet positions
+    BulletsMsg,
+    DroneKilled
 }
