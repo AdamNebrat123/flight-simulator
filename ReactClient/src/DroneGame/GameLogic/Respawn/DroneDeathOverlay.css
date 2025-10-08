@@ -1,0 +1,38 @@
+.drone-death-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  font-size: 2rem;
+}
+
+.drone-death-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.drone-death-killer {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.drone-death-killer span {
+  color: #ff4444;
+}
+
+.drone-death-respawn {
+  font-size: 1.2rem;
+}
+
+.drone-death-respawn span {
+  color: #44ff44;
+}

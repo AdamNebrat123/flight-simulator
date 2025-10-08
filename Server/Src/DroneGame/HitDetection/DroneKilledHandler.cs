@@ -47,12 +47,7 @@ namespace DroneGame.HitDetection
             string killerDroneId = firstNode.Value.droneId ?? "unknown";
 
             // Remove killed drone
-            //============================================================================
-            //============================================================================
-            //do not remove now, the is no handling for client side
-            //============================================================================
-            //============================================================================
-            //bool removed = droneManager.TryRemoveDrone(killedDroneId);
+            bool removed = droneManager.TryRemoveDrone(killedDroneId);
 
             // Prepare kill info
             var killInfo = new DroneKilled(killerDroneId, killedDroneId, bulletId);

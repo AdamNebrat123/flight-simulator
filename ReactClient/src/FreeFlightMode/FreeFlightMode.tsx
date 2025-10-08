@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
 import FreeFlightModeViewer from "./FreeFlightModeViewer";
-import { initDroneController } from "./DroneController";
+import { initDroneController } from "../DroneGame/Drones/DroneController";
 import { initThirdPersonCameraLock } from "./ThirdPersonCameraLock";
-import { initFirstPersonCameraLock } from "./FirstPersonCameraLock";
-import { DroneHandler } from "./Drones/DroneHandler";
+import { initFirstPersonCameraLock } from "../DroneGame/Drones/FirstPersonCameraLock";
+import { DroneHandler } from "../DroneGame/Drones/DroneHandler";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { S2CMessageType } from "../Messages/S2CMessageType";
 import { C2SMessageType } from "../Messages/C2SMessageType";

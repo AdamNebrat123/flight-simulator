@@ -144,3 +144,15 @@ export interface BulletData {
 export interface BulletsMsg {
     bullets: BulletData[];
 }
+
+export class DroneKilled {
+  killerDroneId: string;
+  killedDroneId: string;
+  bulletId: string;
+
+  constructor(killerDroneId: string, killedDroneId: string, bulletId: string) {
+    this.killerDroneId = killerDroneId;
+    this.killedDroneId = killedDroneId;
+    this.bulletId = bulletId;
+  }
+}

@@ -57,4 +57,11 @@ public class DroneManager
         _drones[id] = updatedDrone;
         return true;
     }
+    public bool ContainsDrone(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return false;
+
+        return _drones.ContainsKey(id);
+    }
 }

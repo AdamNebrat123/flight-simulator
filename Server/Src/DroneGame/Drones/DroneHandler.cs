@@ -93,6 +93,12 @@ public class DroneHandler
                 return;
             }
 
+            // If drone does not exist, add it first
+            if (!droneManager.ContainsDrone(drone.id))
+            {
+                droneManager.TryAddDrone(drone);
+            }
+
             bool updated = droneManager.TryUpdateDrone(drone.id, drone);
             if (updated)
             {

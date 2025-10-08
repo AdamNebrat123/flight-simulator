@@ -13,5 +13,6 @@ export enum S2CMessageType {
     UpdateDrone = "UpdateDrone",
     DroneError = "DroneError",
     DroneInitData = "DroneInitData",
-    BulletsMsg = "BulletsMsg"
+    BulletsMsg = "BulletsMsg",
+    DroneKilled = "DroneKilled"
 }

@@ -4,22 +4,29 @@ import * as Cesium from "cesium";
 import DroneGameViewer from "./DroneGameViewer";
 import { InitBulletShooting } from "./Shooting/InitBulletShooting";
 import { BulletHandler } from "./Shooting/BulletHandler";
-import { initDroneController } from "../FreeFlightMode/DroneController";
-import { initFirstPersonCameraLock } from "../FreeFlightMode/FirstPersonCameraLock";
-import { DroneHandler } from "../FreeFlightMode/Drones/DroneHandler";
+import { initDroneController } from "./Drones/DroneController";
+import { initFirstPersonCameraLock } from "./Drones/FirstPersonCameraLock";
+import { DroneHandler } from "./Drones/DroneHandler";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { S2CMessageType } from "../Messages/S2CMessageType";
 import { C2SMessageType } from "../Messages/C2SMessageType";
 import { Crosshair } from "./UI/Crosshair";
+import DroneDeathOverlay from "./GameLogic/Respawn/DroneDeathOverlay";
+import { RESPAWN_TIME_SEC } from "./GameLogic/Respawn/DroneRespawnConfig";
+import { DroneKilledHandler } from "./GameLogic/Respawn/DroneKilledHandler";
 
 export default function DroneGame() {
     const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
+    const [isAlive, setIsAlive] = useState(true);
+    const [killerName, setKillerName] = useState<string | undefined>(undefined);
+    const [respawnSeconds, setRespawnSeconds] = useState(RESPAWN_TIME_SEC); // default, can be set from config
     const droneRef = useRef<Cesium.Entity | null>(null);
     const cameraCleanupRef = useRef<(() => void) | null>(null);
     const controllerCleanupRef = useRef<(() => void) | null>(null);
     const droneHandlerRef = useRef<DroneHandler | null>(null);
     const shootingRef = useRef<InitBulletShooting | null>(null);
     const bulletHandlerRef = useRef<BulletHandler | null>(null);
+    const killedHandlerRef = useRef<DroneKilledHandler | null>(null);
     const { send, on } = useWebSocket();
 
     // Initialize DroneHandler when viewer is ready and request initial drone data
@@ -31,16 +38,26 @@ export default function DroneGame() {
     }, [viewer]);
 
     // Setup my drone: controller + camera
-    const setupMyDrone = (entity: Cesium.Entity) => {
-        droneRef.current = entity;
+    const setupMyDrone = () => {
+        
+        console.log("Setting up my drone:", droneRef.current);
+        // Only clean up previous controller/shooting for my drone
+        if (controllerCleanupRef.current) controllerCleanupRef.current();
+        if (cameraCleanupRef.current) cameraCleanupRef.current();
+        if (shootingRef.current) {
+            try {
+                shootingRef.current.destroy();
+            } catch (e) {
+                // Ignore if already destroyed
+            }
+            shootingRef.current = null;
+        }
 
-        controllerCleanupRef.current?.();
-        cameraCleanupRef.current?.();
-
+        // Init controller
         controllerCleanupRef.current = initDroneController({
             viewer: viewer!,
             send,
-            drone: entity,
+            drone: droneRef.current!,
             arrowSensitivityDeg: 1,
             pitchSensitivityDeg: 1,
             rollSensitivityDeg: 4,
@@ -49,12 +66,51 @@ export default function DroneGame() {
         });
         cameraCleanupRef.current = initFirstPersonCameraLock({
             viewer: viewer!,
-            target: entity,
+            target: droneRef.current!,
+        });
+        // Init shooting
+        shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id);
+        shootingRef.current.initMouseHandler();
+
+        // Register cleanup/init with killedHandler (always update after init)
+        if (killedHandlerRef.current) {
+            killedHandlerRef.current.setCleanupAndInit(
+                () => {
+                    if (shootingRef.current) shootingRef.current.destroy();
+                        shootingRef.current = null;
+                },
+                () => {
+                    controllerCleanupRef.current?.();
+                    controllerCleanupRef.current = null;
+                },
+                () => {
+                    setUpController();
+                    console.log("initializing shooting after respawn");
+                    setUpShooting();
+                    console.log("initialization Shooting after respawn");
+                }
+            );
+        }
+    };
+    const setUpController = () => {
+        // Init controller
+        controllerCleanupRef.current = initDroneController({
+            viewer: viewer!,
+            send,
+            drone: droneRef.current!,
+            arrowSensitivityDeg: 1,
+            pitchSensitivityDeg: 1,
+            rollSensitivityDeg: 4,
+            maxSpeed: 40,
+            acceleration: 32,
         });
     };
-
     const setUpShooting = () => {
-        shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id); // initialize ShootingMechanics
+        if (shootingRef.current) {
+            shootingRef.current.destroy();
+            shootingRef.current = null;
+        }
+        shootingRef.current = InitBulletShooting.getInstance(viewer!, send, droneRef.current!.id);
         shootingRef.current.initMouseHandler();
     }
 
@@ -66,10 +122,29 @@ export default function DroneGame() {
             const myDroneId = droneHandlerRef.current?.HandleDronesInitData(data);
             if (!myDroneId) return;
 
+            // Create DroneKilledHandler instance
+            if (!killedHandlerRef.current) {
+                killedHandlerRef.current = DroneKilledHandler.getInstance(
+                    myDroneId,
+                    setIsAlive,
+                    setKillerName,
+                    setRespawnSeconds,
+                    () => shootingRef.current?.destroy?.(),
+                    () => controllerCleanupRef.current?.(),
+                    () => {
+                        if (droneRef.current) {
+                            setupMyDrone();
+                            setUpShooting();
+                        }
+                    }
+                );
+            }
+
             if (!droneRef.current) {
                 const entity = droneHandlerRef.current?.getDroneEntity(myDroneId);
                 if (entity) {
-                    setupMyDrone(entity);
+                    droneRef.current = entity;
+                    setupMyDrone();
                     setUpShooting();
                 }
             }
@@ -90,12 +165,16 @@ export default function DroneGame() {
         const handleBulletsMsg = (data: any) => {
             bulletHandlerRef.current?.handleBulletsMsg(data);
         };
+        const handleKilledDrone = (data: any) => {
+            killedHandlerRef.current?.handleKilledDrone(data);
+        };
 
         const unsubInit = on(S2CMessageType.DroneInitData, handleDroneInitData);
         const unsubRemoveDrone = on(S2CMessageType.RemoveDrone, handleRemoveDrone);
         const unsubUpdateDrone = on(S2CMessageType.UpdateDrone, handleUpdateDrone);
         const unsubDroneError = on(S2CMessageType.DroneError, handleDroneError);
         const unsubBulletsMsg = on(S2CMessageType.BulletsMsg, handleBulletsMsg);
+        const unsubDroneKilled = on(S2CMessageType.DroneKilled, handleKilledDrone);
 
         return () => {
             unsubInit();
@@ -103,6 +182,8 @@ export default function DroneGame() {
             unsubUpdateDrone();
             unsubDroneError();
             unsubBulletsMsg();
+            unsubDroneKilled();
+            controllerCleanupRef.current?.();
             bulletHandlerRef.current?.clearAllBullets();
             bulletHandlerRef.current = null;
         };
@@ -142,6 +223,14 @@ export default function DroneGame() {
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
             <DroneGameViewer onViewerReady={setViewer} />
             <Crosshair />
+            {!isAlive && (
+                <DroneDeathOverlay
+                    killerName={killerName}
+                    respawnSeconds={respawnSeconds}
+                    setIsAlive={setIsAlive}
+                    onRespawn={() => killedHandlerRef.current?.respawnMyDrone()}
+                />
+            )}
         </div>
     );
 }
