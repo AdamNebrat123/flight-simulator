@@ -6,16 +6,16 @@ export default defineConfig({
   plugins: [react(), cesium()],
   server: {
     host: '0.0.0.0',
-    open: false, // This will open the browser automatically
+    open: false, // open: true, will open the browser automatically
     allowedHosts: true,
     proxy: {
-      // כל בקשה ל-/ws תעבור לשרת WebSocket הפנימי
+      // every request to /ws will be forwarded to the internal WebSocket server
       '/ws': {
-        target: 'ws://localhost:5000', // או הכתובת הפנימית של השרת
-        ws: true,                       // חשוב עבור WebSocket
+         target: 'ws://localhost:5000', // the internal address of the server
+          ws: true,                       // important for WebSocket
         changeOrigin: true
       },
-      // דוגמה גם ל-HTTP API
+      // Example for HTTP API (for now i dont use it)
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true

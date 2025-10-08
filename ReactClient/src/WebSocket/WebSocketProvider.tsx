@@ -1,4 +1,4 @@
-import React, { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { useWebSocketEvents } from "./useWebSocketEvents";
 
 interface WebSocketContextValue {
@@ -8,14 +8,13 @@ interface WebSocketContextValue {
 }
 
 interface WebSocketProviderProps {
-  url: string;
   children: ReactNode;
 }
 
 const WebSocketContext = createContext<WebSocketContextValue | undefined>(undefined);
 
-export const WebSocketProvider = ({ url, children }: WebSocketProviderProps) => {
-  const ws = useWebSocketEvents(url);
+export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
+  const ws = useWebSocketEvents();
 
   return (
     <WebSocketContext.Provider value={ws}>

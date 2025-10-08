@@ -49,7 +49,7 @@ public class CreateBulletHandler
 	{
 		var points = new List<BulletData>();
 		int fps = 30;
-		double velocity = 300.0; // meters per second
+		double velocity = 500.0; // meters per second
 
 		double startLat = createBullet.startPosition.latitude;
 		double startLon = createBullet.startPosition.longitude;

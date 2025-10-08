@@ -50,13 +50,7 @@ export class DroneEntityManager {
           silhouetteSize: 2,
         },
       });
-      const sphere = this.viewer.entities.add({
-  position: new Cesium.ConstantPositionProperty(defaultPos),
-  ellipsoid: {
-    radii: new Cesium.Cartesian3(15, 15, 15),
-    material: Cesium.Color.WHITE.withAlpha(0.2),
-  },
-});
+
 
       this.droneIdToEntity.set(droneId, entity);
       console.log(`Drone ${droneId} created at default position.`);

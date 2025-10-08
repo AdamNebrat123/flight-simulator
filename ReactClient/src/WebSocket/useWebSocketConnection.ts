@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 
-export function useWebSocketConnection(url: string, reconnectDelay = 3000) {
+export function useWebSocketConnection(reconnectDelay = 3000) {
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const messageHandlerRef = useRef<((message: string) => void) | null>(null);
@@ -27,7 +27,7 @@ export function useWebSocketConnection(url: string, reconnectDelay = 3000) {
     };
 
     socket.onerror = (error) => console.error("WebSocket error:", error);
-  }, [url, reconnectDelay]);
+  }, [reconnectDelay]);
 
   const sendRaw = useCallback((message: string) => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {

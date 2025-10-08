@@ -4,8 +4,8 @@ import type { MessageWrapper } from "../Messages/AllTypes";
 
 type EventHandler = (data: any) => void;
 
-export function useWebSocketEvents(url: string, reconnectDelay = 3000) {
-  const { isConnected, sendRaw, setOnMessage } = useWebSocketConnection(url, reconnectDelay);
+export function useWebSocketEvents(reconnectDelay = 3000) {
+  const { isConnected, sendRaw, setOnMessage } = useWebSocketConnection(reconnectDelay);
   const eventHandlers = useRef<Record<string, EventHandler[]>>({});
 
   const send = useCallback((type: string, data: any) => {

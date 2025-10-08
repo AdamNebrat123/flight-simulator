@@ -11,7 +11,7 @@ import DroneGame from './DroneGame/DroneGame.tsx'
 createRoot(document.getElementById('root')!).render(
   <Router>
     {/* Routes with WebSocket */}
-    <WebSocketProvider url="ws://localhost:5173/ws">
+  <WebSocketProvider>
       <Routes>
 
         <Route path="/" element={
