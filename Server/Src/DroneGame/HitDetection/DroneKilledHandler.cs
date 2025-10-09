@@ -5,12 +5,12 @@ using System.Net.WebSockets;
 
 namespace DroneGame.HitDetection
 {
-	public class DroneKilledHandler
-	{
+    public class DroneKilledHandler
+    {
         private static DroneKilledHandler instance = new DroneKilledHandler();
-		private BulletStore bulletStore = BulletStore.GetInstance();
-		private DroneManager droneManager = DroneManager.GetInstance();
-        
+        private BulletStore bulletStore = BulletStore.GetInstance();
+        private DroneManager droneManager = DroneManager.GetInstance();
+
         private DroneKilledHandler() { }
 
         public static DroneKilledHandler GetInstance()
@@ -18,7 +18,7 @@ namespace DroneGame.HitDetection
             return instance;
         }
 
-		// Handles the kill event: sets bullet isLast, disconnects bullet, removes drone, sends kill message
+        // Handles the kill event: sets bullet isLast, disconnects bullet, removes drone, sends kill message
         public DroneKilled HandleKill(string killedDroneId, string bulletId)
         {
             var bulletPoints = bulletStore.GetBulletPoints(bulletId);
@@ -54,12 +54,30 @@ namespace DroneGame.HitDetection
             System.Console.WriteLine($"[DroneKilledHandler] Drone killed: killer={killerDroneId}, killed={killedDroneId}, bullet={bulletId}");
 
             // Send DroneKilled message to all clients
-            string msg = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneKilled, killInfo);
-            WebSocketServer.SendMsgToClients(msg);
+            SendDroneKilledMessage(killInfo);
 
             // Bullet will be removed by BulletsMsgSender after sending the last point
 
             return killInfo;
+        }
+
+        private void SendDroneKilledMessage(DroneKilled killInfo)
+        {
+            string msg = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneKilled, killInfo);
+            WebSocketServer.SendMsgToClients(msg);
+        }
+
+        public void HandleArenaKill(string droneId)
+        {
+            // For arena kills, we don't have a bulletId or killerDroneId
+            var killInfo = new DroneKilled("Arena", droneId, "N/A");
+            System.Console.WriteLine($"[DroneKilledHandler] Drone killed for leaving arena: killed={droneId}");
+
+            // Remove killed drone
+            bool removed = droneManager.TryRemoveDrone(droneId);
+
+            // Send DroneKilled message to all clients
+            SendDroneKilledMessage(killInfo);
         }
 	}
 }

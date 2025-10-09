@@ -1,1 +1,0 @@
-// Arena rendering and logic

@@ -1,5 +1,5 @@
 // DroneKilledHandler.ts
-import { hideDrone, setDroneToDefaultPositionAndOrientation, showDrone } from "./RespawnUtil";
+import { hideDrone, setDronePositionAndOrientation, showDrone } from "./RespawnUtil";
 import { RESPAWN_TIME_SEC } from "./DroneRespawnConfig";
 import { DroneEntityManager } from "../../Drones/DroneEntityManager";
 import type { DroneKilled } from "../../../Messages/AllTypes";
@@ -83,7 +83,7 @@ export class DroneKilledHandler {
         if (entity) {
             showDrone(entity);
             // Set default position and orientation
-            setDroneToDefaultPositionAndOrientation(entity);
+            setDronePositionAndOrientation(entity);
         }
         this.setIsAlive?.(true);
         // Re-init controller and shooting

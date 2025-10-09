@@ -14,6 +14,7 @@ import { Crosshair } from "./UI/Crosshair";
 import DroneDeathOverlay from "./GameLogic/Respawn/DroneDeathOverlay";
 import { RESPAWN_TIME_SEC } from "./GameLogic/Respawn/DroneRespawnConfig";
 import { DroneKilledHandler } from "./GameLogic/Respawn/DroneKilledHandler";
+import { CreateArena } from "./Arena/CreateArena";
 
 export default function DroneGame() {
     const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
@@ -27,6 +28,7 @@ export default function DroneGame() {
     const shootingRef = useRef<InitBulletShooting | null>(null);
     const bulletHandlerRef = useRef<BulletHandler | null>(null);
     const killedHandlerRef = useRef<DroneKilledHandler | null>(null);
+    const arenaEntityRef = useRef<Cesium.Entity | null>(null);
     const { send, on } = useWebSocket();
 
     // Initialize DroneHandler when viewer is ready and request initial drone data
@@ -100,6 +102,7 @@ export default function DroneGame() {
     useEffect(() => {
         if (!droneHandlerRef.current || !viewer) return;
 
+        arenaEntityRef.current = CreateArena(viewer);
         const handleDroneInitData = (data: any) => {
             const myDroneId = droneHandlerRef.current?.HandleDronesInitData(data);
             if (!myDroneId) return;
@@ -163,6 +166,7 @@ export default function DroneGame() {
             controllerCleanupRef.current?.();
             bulletHandlerRef.current?.clearAllBullets();
             bulletHandlerRef.current = null;
+            viewer.entities.remove(arenaEntityRef.current!);
         };
     }, [viewer]);
 

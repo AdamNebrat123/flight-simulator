@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using System.Text.Json;
+using DroneGame.Arena;
 using DroneGame.HitDetection;
 
 public class DroneHandler
@@ -8,6 +9,7 @@ public class DroneHandler
     private readonly DroneManager droneManager = DroneManager.GetInstance();
     private readonly HitDetector hitDetector = HitDetector.GetInstance();
     private readonly DroneKilledHandler droneKilledHandler = DroneKilledHandler.GetInstance();
+    private readonly ArenaBoundaryChecker arenaBoundaryChecker = ArenaBoundaryChecker.GetInstance();
 
     private DroneHandler() { }
 
@@ -83,8 +85,16 @@ public class DroneHandler
             if (drone == null)
                 throw new Exception("Deserialization returned null");
 
+            // Check if inside arena boundaries. if not, kill the drone, and return.
+            if (!arenaBoundaryChecker.IsPointInsideArena(drone.trajectoryPoint.position))
+            {
+                Console.WriteLine($"{drone.id} - Drone killed for leaving arena boundaries.");
+                this.droneKilledHandler.HandleArenaKill(drone.id);
+                return;
+            }
+
             // Check for bullet hit
-            string? bulletId = this.hitDetector.CheckHit(drone);
+            string? bulletId = this.hitDetector.CheckHit(drone); // returns bulletId if hit, null otherwise
             if (bulletId != null)
             {
                 // Handle kill
