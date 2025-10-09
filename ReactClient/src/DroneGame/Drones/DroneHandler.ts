@@ -36,7 +36,7 @@ export class DroneHandler {
     try {
       const drone = data as Drone;
 
-      // אם הרחפן עדיין לא קיים, צור אותו תחילה
+      // If the drone doesn't exist yet, create it first
       if (!this.droneEntityManager.getDroneEntity(drone.id)) {
         this.droneEntityManager.addDroneById(drone.id);
         console.log(`Drone ${drone.id} created because it did not exist.`);
@@ -65,13 +65,13 @@ export class DroneHandler {
       const initData = data as DronesInitData;
       console.log("Handling InitData:", initData);
 
-      // עכשיו DronesInitData מכיל רק את ID של הרחפן שלי
+      // now DronesInitData contains only my drone ID
       if (initData.yourDroneId) {
         const entity = this.droneEntityManager.addDroneById(initData.yourDroneId);
         if (entity) console.log(`My drone ${initData.yourDroneId} created from InitData.`);
       }
 
-      // מחזיר את ה-ID של הרחפן שלי
+      // Returns the ID of my drone
       return initData.yourDroneId;
     } catch (err) {
       console.error("Data could not be parsed to DronesInitData:", err);

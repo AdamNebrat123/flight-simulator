@@ -1,1 +1,0 @@
-// Shows controls/help overlay

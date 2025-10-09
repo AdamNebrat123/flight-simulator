@@ -2,6 +2,8 @@
 import * as Cesium from "cesium";
 import { getRandomArenaPosition } from "../../Arena/ArenaUtils";
 
+// Sets the position and orientation of the given drone entity to a random location within the arena.
+//The drone's position is set using a randomly generated position from `getRandomArenaPosition()`.
 export function setDronePositionAndOrientation(drone: Cesium.Entity) {
     if (!drone) return;
     const randomPositionInArena = getRandomArenaPosition();

@@ -22,7 +22,7 @@ export class DroneEntityManager {
     return DroneEntityManager.instance;
   }
 
-  // חדש: מוסיף רחפן רק לפי ID עם מיקום ואוריינטציה דיפולטיביים
+  // adds a drone by ID with default position and orientation
   addDroneById(droneId: string): Cesium.Entity | null {
     if (this.droneIdToEntity.has(droneId)) {
       console.log(`Drone ${droneId} already exists, ignoring.`);
@@ -73,7 +73,7 @@ export class DroneEntityManager {
     editDrone(drone: Drone): boolean {
       let entity = this.droneIdToEntity.get(drone.id);
 
-      // אם הרחפן עדיין לא קיים, צור אותו
+      // If the drone doesn't exist yet, create it
       if (!entity) {
         entity = this.addDroneById(drone.id)!;
         if (!entity) return false;
