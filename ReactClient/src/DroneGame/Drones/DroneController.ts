@@ -1,6 +1,7 @@
 import * as Cesium from "cesium";
 import { C2SMessageType } from "../../Messages/C2SMessageType";
 import type { Drone, GeoPoint, TrajectoryPoint } from "../../Messages/AllTypes";
+import type { DroneWithControls } from "./DroneTypes";
 
 type DroneControllerProps = {
   viewer: Cesium.Viewer;
@@ -46,15 +47,22 @@ export function initDroneController({
   const arrows: Record<string, boolean> = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
 
   const keyDownHandler = (e: KeyboardEvent) => {
-    keys[e.code] = true;
-    if (arrows.hasOwnProperty(e.code)) arrows[e.code] = true;
+    handleKeyStateChange(e.code, true);
   };
   const keyUpHandler = (e: KeyboardEvent) => {
-    keys[e.code] = false;
-    if (arrows.hasOwnProperty(e.code)) arrows[e.code] = false;
+    handleKeyStateChange(e.code, false);
   };
   window.addEventListener("keydown", keyDownHandler);
   window.addEventListener("keyup", keyUpHandler);
+
+  // Function to handle both keyboard and touch controls
+  const handleKeyStateChange = (code: string, isPressed: boolean) => {
+    keys[code] = isPressed;
+    if (arrows.hasOwnProperty(code)) arrows[code] = isPressed;
+  };
+
+  // Expose the key state handler
+  (drone as DroneWithControls).handleKeyStateChange = handleKeyStateChange;
 
   const updateDronePhysics = (dt: number) => {
     // Heading & Pitch

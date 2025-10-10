@@ -15,12 +15,17 @@ import DroneDeathOverlay from "./GameLogic/Respawn/DroneDeathOverlay";
 import { RESPAWN_TIME_SEC } from "./GameLogic/Respawn/DroneRespawnConfig";
 import { DroneKilledHandler } from "./GameLogic/Respawn/DroneKilledHandler";
 import { CreateArena } from "./Arena/CreateArena";
+import TouchControls from "./UI/TouchControls";
+import type { DroneWithControls } from "./Drones/DroneTypes";
+import KillIndicator from "./UI/KillIndicator";
+import type { DroneKilled } from "../Messages/AllTypes";
 
 export default function DroneGame() {
     const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
     const [isAlive, setIsAlive] = useState(true);
     const [killerName, setKillerName] = useState<string | undefined>(undefined);
     const [respawnSeconds, setRespawnSeconds] = useState(RESPAWN_TIME_SEC); // default, can be set from config
+    const [showKillIndicator, setShowKillIndicator] = useState(false);
     const droneRef = useRef<Cesium.Entity | null>(null);
     const cameraCleanupRef = useRef<(() => void) | null>(null);
     const controllerCleanupRef = useRef<(() => void) | null>(null);
@@ -146,6 +151,11 @@ export default function DroneGame() {
         };
         const handleKilledDrone = (data: any) => {
             killedHandlerRef.current?.handleKilledDrone(data);
+            const droneKilled = data as DroneKilled;
+            if (droneRef.current && droneKilled.killerDroneId === droneRef.current.id) {
+                console.log("Showing kill indicator - we killed someone!");
+                setShowKillIndicator(true);
+            } 
         };
 
         const unsubInit = on(S2CMessageType.DroneInitData, handleDroneInitData);
@@ -200,6 +210,12 @@ export default function DroneGame() {
         };
     }, []);
 
+    const handleKeyStateChange = (key: string, isPressed: boolean) => {
+        if (droneRef.current && (droneRef.current as DroneWithControls).handleKeyStateChange) {
+            (droneRef.current as DroneWithControls).handleKeyStateChange(key, isPressed);
+        }
+    };
+
     return (
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
             <DroneGameViewer onViewerReady={setViewer} />
@@ -212,6 +228,12 @@ export default function DroneGame() {
                     onRespawn={() => killedHandlerRef.current?.respawnMyDrone()}
                 />
             )}
+            <TouchControls onKeyStateChange={handleKeyStateChange} />
+            <KillIndicator 
+                showDuration={500}
+                isVisible={showKillIndicator}
+                onHide={() => setShowKillIndicator(false)}
+            />
         </div>
     );
 }
