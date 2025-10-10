@@ -8,6 +8,8 @@ import { DroneHandler } from "../DroneGame/Drones/DroneHandler";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { S2CMessageType } from "../Messages/S2CMessageType";
 import { C2SMessageType } from "../Messages/C2SMessageType";
+import type { DroneWithControls } from "../DroneGame/Drones/DroneTypes";
+import TouchControls from "../DroneGame/UI/TouchControls";
 
 export default function FreeFlightMode() {
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
@@ -143,6 +145,12 @@ export default function FreeFlightMode() {
     };
   }, []);
 
+  const handleKeyStateChange = (key: string, isPressed: boolean) => {
+          if (droneRef.current && (droneRef.current as DroneWithControls).handleKeyStateChange) {
+              (droneRef.current as DroneWithControls).handleKeyStateChange(key, isPressed);
+          }
+      };
+      
   return (
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
       <FreeFlightModeViewer onViewerReady={setViewer} />
@@ -160,6 +168,8 @@ export default function FreeFlightMode() {
           ? "Switch to First-Person"
           : "Switch to Third-Person"}
       </button>
+      <TouchControls onKeyStateChange={handleKeyStateChange} />
     </div>
+    
   );
 }

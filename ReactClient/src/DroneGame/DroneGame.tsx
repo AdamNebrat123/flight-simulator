@@ -230,7 +230,7 @@ export default function DroneGame() {
             )}
             <TouchControls onKeyStateChange={handleKeyStateChange} />
             <KillIndicator 
-                showDuration={500}
+                showDuration={750}
                 isVisible={showKillIndicator}
                 onHide={() => setShowKillIndicator(false)}
             />
