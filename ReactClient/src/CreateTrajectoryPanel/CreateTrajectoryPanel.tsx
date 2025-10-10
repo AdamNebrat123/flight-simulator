@@ -5,7 +5,6 @@ import "./CreateTrajectoryPanel.css";
 import { toast } from "react-toastify";
 import { PlanePolylineManager } from "./PlanePolylineManager";
 import { PlanePolylineInteraction } from "./PlanePolylineInteraction";
-import AerialUnitSelection from "./AerialUnitSelection";
 
 
 interface Props {
@@ -262,7 +261,6 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         value={scenario.scenarioName}
         onChange={(e) => handleScenarioNameChange(e.target.value)}
         />
-        <AerialUnitSelection></AerialUnitSelection> {/* this is the component the lets you selecet AerialUnit by image */}
 
         <button className="addPlane-button" onClick={handleAddPlane} disabled={isDrawing}>
             Add Plane
