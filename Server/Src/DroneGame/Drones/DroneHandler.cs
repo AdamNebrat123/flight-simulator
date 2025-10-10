@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using System.Text.Json;
+using System.Collections.Concurrent;
 using DroneGame.Arena;
 using DroneGame.HitDetection;
 
@@ -10,8 +11,22 @@ public class DroneHandler
     private readonly HitDetector hitDetector = HitDetector.GetInstance();
     private readonly DroneKilledHandler droneKilledHandler = DroneKilledHandler.GetInstance();
     private readonly ArenaBoundaryChecker arenaBoundaryChecker = ArenaBoundaryChecker.GetInstance();
+    private readonly ConcurrentDictionary<string, bool> recentlyKilledDrones = new();
+    private const int KILL_TIMEOUT_MS = 5000; // 5 seconds, adjust as needed
 
     private DroneHandler() { }
+
+    private void AddToRecentlyKilled(string droneId)
+    {
+        // Add to recently killed drones
+        recentlyKilledDrones.TryAdd(droneId, true);
+
+        // Start a task to remove it after timeout
+        Task.Delay(KILL_TIMEOUT_MS).ContinueWith(_ =>
+        {
+            recentlyKilledDrones.TryRemove(droneId, out bool _);
+        });
+    }
 
     public static DroneHandler GetInstance()
     {
@@ -85,11 +100,18 @@ public class DroneHandler
             if (drone == null)
                 throw new Exception("Deserialization returned null");
 
+            // If drone is in recently killed list, ignore the update
+            if (recentlyKilledDrones.ContainsKey(drone.id))
+            {
+                return;
+            }
+
             // Check if inside arena boundaries. if not, kill the drone, and return.
             if (!arenaBoundaryChecker.IsPointInsideArena(drone.trajectoryPoint.position))
             {
                 Console.WriteLine($"{drone.id} - Drone killed for leaving arena boundaries.");
                 this.droneKilledHandler.HandleArenaKill(drone.id);
+                AddToRecentlyKilled(drone.id);
                 return;
             }
 
@@ -99,6 +121,7 @@ public class DroneHandler
             {
                 // Handle kill
                 this.droneKilledHandler.HandleKill(drone.id, bulletId);
+                AddToRecentlyKilled(drone.id);
                 // Do not update or send update for killed drone
                 return;
             }
