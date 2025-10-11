@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { onKillEvent } from '../GameEvents';
 import { DroneKilled } from '../../Messages/AllTypes';
-import { DroneKilledHandler } from '../GameLogic/Respawn/DroneKilledHandler';
 
-export default function KillIndicator() {
+interface KillIndicatorProps {
+    myDroneId: string;
+}
+
+export default function KillIndicator({ myDroneId }: KillIndicatorProps) {
     const [isVisible, setIsVisible] = useState(false);
     const [opacity, setOpacity] = useState(0.8);
     const showDuration = 750; // total duration to show the indicator
@@ -11,7 +14,7 @@ export default function KillIndicator() {
     const showKillIndicator = (data: any) => {
         console.log("Kill event received in Kill Indicator:", data);
         const droneKilled = data as DroneKilled;
-        if(droneKilled.killerDroneId !== DroneKilledHandler.getInstanceWithoutInit()?.getMyDroneId()) 
+        if(droneKilled.killerDroneId !== myDroneId) 
             return; // Only show if we killed someone
 
         setIsVisible(true);

@@ -10,15 +10,12 @@ import { DroneHandler } from "./Drones/DroneHandler";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { S2CMessageType } from "../Messages/S2CMessageType";
 import { C2SMessageType } from "../Messages/C2SMessageType";
-import { Crosshair } from "./UI/Crosshair";
 import DroneDeathOverlay from "./GameLogic/Respawn/DroneDeathOverlay";
 import { RESPAWN_TIME_SEC } from "./GameLogic/Respawn/DroneRespawnConfig";
 import { DroneKilledHandler } from "./GameLogic/Respawn/DroneKilledHandler";
 import { CreateArena } from "./Arena/CreateArena";
 import TouchControls from "./UI/TouchControls";
 import type { DroneWithControls } from "./Drones/DroneTypes";
-import KillIndicator from "./UI/KillIndicator";
-import type { DroneKilled } from "../Messages/AllTypes";
 import { onKillEvent } from "./GameEvents";
 import DroneGameUI from "./UI/DroneGameUI";
 
@@ -28,6 +25,7 @@ export default function DroneGame() {
     const [killerName, setKillerName] = useState<string | undefined>(undefined);
     const [respawnSeconds, setRespawnSeconds] = useState(RESPAWN_TIME_SEC); // default, can be set from config
     const droneRef = useRef<Cesium.Entity | null>(null);
+    const [myDroneId, setMyDroneId] = useState<string | null>(null);
     const cameraCleanupRef = useRef<(() => void) | null>(null);
     const controllerCleanupRef = useRef<(() => void) | null>(null);
     const droneHandlerRef = useRef<DroneHandler | null>(null);
@@ -111,6 +109,7 @@ export default function DroneGame() {
         arenaEntityRef.current = CreateArena(viewer);
         const handleDroneInitData = (data: any) => {
             const myDroneId = droneHandlerRef.current?.HandleDronesInitData(data);
+            setMyDroneId(myDroneId!);
             if (!myDroneId) return;
 
             // Create DroneKilledHandler instance
@@ -227,7 +226,7 @@ export default function DroneGame() {
                 />
             )}
             <TouchControls onKeyStateChange={handleKeyStateChange} />
-            <DroneGameUI />
+            {myDroneId && <DroneGameUI viewer={viewer} myDroneId={myDroneId} />}
         </div>
     );
 }
