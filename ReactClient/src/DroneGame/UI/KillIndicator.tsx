@@ -1,32 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { onKillEvent } from '../GameEvents';
+import { DroneKilled } from '../../Messages/AllTypes';
+import { DroneKilledHandler } from '../GameLogic/Respawn/DroneKilledHandler';
 
-interface KillIndicatorProps {
-    showDuration: number; // Duration in milliseconds
-    isVisible: boolean;
-    onHide: () => void;
-}
-
-const KillIndicator: React.FC<KillIndicatorProps> = ({ showDuration, isVisible, onHide }) => {
+export default function KillIndicator() {
+    const [isVisible, setIsVisible] = useState(false);
     const [opacity, setOpacity] = useState(0.8);
+    const showDuration = 750; // total duration to show the indicator
+
+    const showKillIndicator = (data: any) => {
+        console.log("Kill event received in Kill Indicator:", data);
+        const droneKilled = data as DroneKilled;
+        if(droneKilled.killerDroneId !== DroneKilledHandler.getInstanceWithoutInit()?.getMyDroneId()) 
+            return; // Only show if we killed someone
+
+        setIsVisible(true);
+        setOpacity(0.8);
+
+        const fadeTimeout = setTimeout(() => {
+            setOpacity(0);
+        }, showDuration - 300); // Start fade 300ms before hiding
+
+        const hideTimeout = setTimeout(() => {
+            setIsVisible(false);
+        }, showDuration);
+
+        return () => {
+            clearTimeout(fadeTimeout);
+            clearTimeout(hideTimeout);
+        };
+    };
 
     useEffect(() => {
-        if (isVisible) {
-            console.log("KillIndicator became visible");
-            setOpacity(0.8);
-            const fadeTimeout = setTimeout(() => {
-                setOpacity(0);
-            }, showDuration - 300); // Start fade 300ms before hiding
-
-            const hideTimeout = setTimeout(() => {
-                onHide();
-            }, showDuration);
-
-            return () => {
-                clearTimeout(fadeTimeout);
-                clearTimeout(hideTimeout);
-            };
-        }
-    }, [isVisible, showDuration, onHide]);
+        const unsubscribe = onKillEvent.subscribe(showKillIndicator);
+        return unsubscribe;
+    }, []);
 
     if (!isVisible) return null;
 
@@ -53,5 +61,3 @@ const KillIndicator: React.FC<KillIndicatorProps> = ({ showDuration, isVisible, 
         </div>
     );
 };
-
-export default KillIndicator;

@@ -19,20 +19,14 @@ import TouchControls from "./UI/TouchControls";
 import type { DroneWithControls } from "./Drones/DroneTypes";
 import KillIndicator from "./UI/KillIndicator";
 import type { DroneKilled } from "../Messages/AllTypes";
-import { KillFeed } from "./UI/KillFeed";
+import { onKillEvent } from "./GameEvents";
+import DroneGameUI from "./UI/DroneGameUI";
 
 export default function DroneGame() {
     const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
     const [isAlive, setIsAlive] = useState(true);
     const [killerName, setKillerName] = useState<string | undefined>(undefined);
     const [respawnSeconds, setRespawnSeconds] = useState(RESPAWN_TIME_SEC); // default, can be set from config
-    const [showKillIndicator, setShowKillIndicator] = useState(false);
-    const [killNotifications, setKillNotifications] = useState<Array<{
-        id: number;
-        killerDroneId: string;
-        killedDroneId: string;
-        timestamp: number;
-    }>>([]);
     const droneRef = useRef<Cesium.Entity | null>(null);
     const cameraCleanupRef = useRef<(() => void) | null>(null);
     const controllerCleanupRef = useRef<(() => void) | null>(null);
@@ -158,28 +152,9 @@ export default function DroneGame() {
         };
         const handleKilledDrone = (data: any) => {
             killedHandlerRef.current?.handleKilledDrone(data);
-            const droneKilled = data as DroneKilled;
-            if (droneRef.current && droneKilled.killerDroneId === droneRef.current.id) {
-                console.log("Showing kill indicator - we killed someone!");
-                setShowKillIndicator(true);
-            }
+            console.log("Dispatching kill event");
+            onKillEvent.dispatch(data);
             
-            // Add new kill notification
-            const newNotification = {
-                id: Date.now(),
-                killerDroneId: droneKilled.killerDroneId,
-                killedDroneId: droneKilled.killedDroneId,
-                timestamp: Date.now()
-            };
-            
-            setKillNotifications(prev => [...prev, newNotification]);
-            
-            // Remove notification after 5 seconds
-            setTimeout(() => {
-                setKillNotifications(prev => 
-                    prev.filter(notification => notification.id !== newNotification.id)
-                );
-            }, 5000);
         };
 
         const unsubInit = on(S2CMessageType.DroneInitData, handleDroneInitData);
@@ -243,7 +218,6 @@ export default function DroneGame() {
     return (
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
             <DroneGameViewer onViewerReady={setViewer} />
-            <Crosshair />
             {!isAlive && (
                 <DroneDeathOverlay
                     killerName={killerName}
@@ -253,12 +227,7 @@ export default function DroneGame() {
                 />
             )}
             <TouchControls onKeyStateChange={handleKeyStateChange} />
-            <KillIndicator 
-                showDuration={750}
-                isVisible={showKillIndicator}
-                onHide={() => setShowKillIndicator(false)}
-            />
-            <KillFeed notifications={killNotifications} />
+            <DroneGameUI />
         </div>
     );
 }

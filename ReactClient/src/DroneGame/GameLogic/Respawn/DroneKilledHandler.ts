@@ -32,7 +32,9 @@ export class DroneKilledHandler {
     this.controllerCleanup = controllerCleanup || null;
     this.initShootingAndController = initShootingAndController || null;
     }
-
+    public static getInstanceWithoutInit(): DroneKilledHandler | null{
+        return DroneKilledHandler.instance;
+    }
     public static getInstance(
         myDroneId: string,
         setIsAlive: (alive: boolean) => void,
@@ -101,6 +103,9 @@ export class DroneKilledHandler {
             this.controllerCleanup();
             console.log("Controller cleanup done.");
         }
+    }
+    public getMyDroneId() {
+        return this.myDroneId;
     }
 }
 

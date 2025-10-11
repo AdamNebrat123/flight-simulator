@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './KillFeed.css';
+import type { DroneKilled } from '../../Messages/AllTypes';
+import { onKillEvent } from '../GameEvents';
 
 interface KillNotification {
     id: number;
@@ -8,11 +10,36 @@ interface KillNotification {
     timestamp: number;
 }
 
-interface KillFeedProps {
-    notifications: KillNotification[];
-}
 
-export const KillFeed: React.FC<KillFeedProps> = ({ notifications }) => {
+export default function KillFeed() {
+
+    const [notifications, setNotifications] = useState<KillNotification[]>([]);
+
+    const addNotification = (data: any) => {
+        console.log("Kill event received in KillFeed:", data);
+        const droneKilled = data as DroneKilled;
+        // Add new kill notification
+        const newNotification = {
+            id: Date.now(),
+            killerDroneId: droneKilled.killerDroneId,
+            killedDroneId: droneKilled.killedDroneId,
+            timestamp: Date.now()
+        };
+        
+        setNotifications(prev => [...prev, newNotification]);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            setNotifications(prev => 
+                prev.filter(notification => notification.id !== newNotification.id)
+            );
+        }, 5000);
+    }
+
+    useEffect(() => { 
+        const unsubscribe = onKillEvent.subscribe(addNotification);
+        return unsubscribe;
+    }, []);
     return (
         <div className="kill-feed">
             {notifications.map((notification) => (
