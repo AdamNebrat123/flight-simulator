@@ -29,6 +29,16 @@ Fly, fight, and survive against other drones in a fast-paced 3D arena.
 Example visualization:
 
 
+https://github.com/user-attachments/assets/6fa20c1f-6ca8-43a6-b3ec-871abb877180
+
+https://github.com/user-attachments/assets/dfc53b62-9dfd-49a0-9c02-7f0bbc2d69ac
+
+https://github.com/user-attachments/assets/addc25d6-d743-4f9f-8c78-0bb5e487a8b8
+
+https://github.com/user-attachments/assets/5a3e8d36-48b4-4537-bbbb-90774c64840a
+
+
+
 ---
 
 ---
@@ -61,6 +71,8 @@ Example visualization:
 ![PlaneFlying](https://github.com/user-attachments/assets/172c6a24-76b6-4d90-aafa-b1a4470e03b3)
 
 ![_Flight-simulator - Google Chrome_ 2025-08-23 22-13-14](https://github.com/user-attachments/assets/6888a5e8-e5af-46d0-9825-c0b595e348a5)
+
+
 
 
 ---
