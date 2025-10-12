@@ -1,13 +1,15 @@
 # Introduction
- 
-This project is a **Flight Scenario Simulation Platform** that lets you **design, play, and analyze realistic airspace situations** by combining real-time aircraft trajectories with **3D danger zones** rendered on a Cesium globe.  
 
-You can:  
-- Create and save custom **flight paths**  
-- Run them as **live scenarios**  with options like pause and playspeed
-- Danger zones: Continuously monitor whether aircraft penetrate **restricted 3D volumes** defined by altitude-bounded polygons
-  
-**Note: install instructions are at the bottom of the readme**
+This project is a **Flight Simulation and Multiplayer Platform** built with a **C# (.NET) server** and a **React + Vite + TypeScript + Cesium client**, connected through a **WebSocket**.
+
+It includes several interactive modes:
+
+- **Drone Battle Arena:** A multiplayer drone battle game. 
+- **Real Planes Mode:** Displays real-world aircraft using live ADS-B data.  
+- **Scenarios And Danger Zones:** Create, edit, and play custom aircraft trajectories with adjustable speed and live playback to **all clients**. Define and monitor 3D restricted airspace volumes that trigger alerts when entered. 
+- **Free Flight Mode:** Explore freely in a multiplayer environment with smooth controls and switchable camera views.
+
+**Note:** Installation instructions are at the bottom of the README.
 
 ---
 # Drone Battle Arena
@@ -65,27 +67,30 @@ https://github.com/user-attachments/assets/4f55ad30-bf07-41e1-ab64-7536c2fee726
 https://github.com/user-attachments/assets/812b6e77-d36e-4b66-be23-f817e6861826
 
 ---
+
+# Scenarios And Danger Zones
+
 ## Scenarios
 
 The platform allows you to design custom aircraft trajectories directly on the 3D globe.
 You can place waypoints by selecting points on the map and build a continuous path that represents the aircraft’s planned route.
-**Each scenario can be removed or edited whenever you wish.**
-Once sent to the server, the server calculates the positions of each plane at any point, based on its trajectory and configured velocity.
+<br>**Each scenario can be removed or edited whenever you wish.**
+Once sent to the **server**, the server calculates the positions of each plane at any point, based on its trajectory and configured velocity.
+<br><br>**When a scenario added/edited/removed by one client, the server sends it to the rest of the clients** 
+
 
 ## Example visualization:
 
 ![CreateTrajectory](https://github.com/user-attachments/assets/e95facdb-ae60-4f68-a654-99a47bf89887)
 
----
-
-
 
 ## Playing a Scenario
 
 Once a scenario is selected, the system begins live playback of all aircraft within it.
-Now the server Sends all of the points and data about the planes at REAL TIME, And Client present them on the globe.
+Now the **server** Sends all of the points and data about the planes at **real time**, And Client present them on the globe.
 There is also a "tail" behing every plane, that represents the last 30 point of the plane.
-**When scenario is played, there is a pause and resume, and you can also change playspeed**
+<br><br>**When a scenario is played, there is a pause and resume, and you can also change playspeed**
+<br>**When a scenario is played the server broadcasts it to every client**
 
 ## Example visualization:
 
@@ -95,10 +100,6 @@ There is also a "tail" behing every plane, that represents the last 30 point of 
 ![_Flight-simulator - Google Chrome_ 2025-08-23 22-13-14](https://github.com/user-attachments/assets/6888a5e8-e5af-46d0-9825-c0b595e348a5)
 
 
-
-
----
-
 ## Danger Zones
 
 The platform allows you to define 3D restricted airspace volumes directly on the globe.
@@ -107,20 +108,21 @@ Danger zones are created as polygons with:
 - Bottom and top altitude to define the vertical range
 
 These zones can be added and they are fully interactive, and their visual representation is updated in real time on the Cesium globe.
-**Each DangerZone can be removed or edited whenever you wish.**
+<br><br>**Each DangerZone can be removed or edited whenever you wish.**
+<br>**When a danger zone added/edited/removed by one client, the server sends it to the rest of the clients** 
 
 ## Example visualization:
 
 ![CreateDangerZoneNew](https://github.com/user-attachments/assets/65c997b1-fc5e-448b-baf1-483abe780796)
 
----
+
 
 ## Danger Zone in Action
 
 When a plane enters a danger zone, the zone will **blink between red and yellow**, providing a clear visual alert.
-Before sending each new position update to the client, the server calculates the plane’s location relative to all danger zones.
+Before sending each new position update to the client, the **server** calculates the plane’s location relative to all danger zones.
 It checks whether the plane is inside any zone, including both horizontal boundaries and altitude range.
-If a plane is within a zone, the client triggers the blinking effect.
+If a plane is within a zone, the clients trigger the blinking effect.
 This ensures that alerts and visual feedback are synchronized with live scenario playback in real time.
 
 ## Example visualization:
@@ -129,19 +131,55 @@ This ensures that alerts and visual feedback are synchronized with live scenario
 
 ---
 
+
+
+# Free Flight Mode
+
+**Experience true freedom of flight in a shared multiplayer world.**  
+
+#### Flight Controls
+- Full **360° movement freedom**  
+- Complete **rotational control**  
+- Smooth **altitude and position adjustments** for precise navigation  
+
+#### Multiplayer Interaction
+- See other pilots flying **in real time**  
+- Movements are fully **synchronized across all clients**  
+
+#### Camera Modes
+- **First-person view:** immersive cockpit-like perspective  
+- **Third-person view:** dynamic chase camera  
+
+## Example visualization:
+
+https://github.com/user-attachments/assets/b7556dec-b39c-484e-8c1c-29711d135b6b
+
+---
+
 ## Architecture Overview
 
-**Client (Vite + React + TypeScript + Cesium)**  
-- Handles **3D visualization**
-- Provides **scenarios**
-- Provides **scenario controls**  
-- Provides **danger zones**  
-- Displays **real-time user feedback**  
+**Client:** React + Vite + TypeScript + Cesium  
+**Server:** C# (.NET)  
+Communication between them is done in real time over a **WebSocket** connection.
 
-**Server (C#)**  
-- calculates **full trajectories**
-- Performs **geometric and altitude-aware checks**  
-- Returns **structured results** for the UI
+### Drone Battle Arena
+- **Client:** Renders drones, arena, bullets, UI (kill feed, minimap, indicators).  
+- **Server:** Handles player movements, kills, respawns, and sync.
+
+### Real Planes Mode
+- **Client:** Fetches and filters real ADS-B data, and displays live aircraft with distance-based rendering (dots/models).  
+
+### Scenarios
+- **Client:** Allows building and visualizing flight paths.  
+- **Server:** Calculates positions along trajectories and streams them in real time to **every client**.
+
+### Danger Zones
+- **Client:** Draws interactive 3D restricted zones and visual alerts.  
+- **Server:** Detects plane–zone intersections and triggers alerts and sends in to **every client**.
+
+### Free Flight Mode
+- **Client:** Provides flight controls, camera modes, and multiplayer rendering.  
+- **Server:** Syncs player movement and manages shared airspace state.
 
   
 ---
