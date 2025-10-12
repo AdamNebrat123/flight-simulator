@@ -10,6 +10,28 @@ You can:
 **Note: install instructions are at the bottom of the readme**
 
 ---
+# 🛩️ Drone Battle Arena
+
+**A multiplayer drone battle game.**  
+Fly, fight, and survive against other drones in a fast-paced 3D arena.
+
+
+
+### 🎮 Gameplay
+- Control a drone and shoot other players.  
+- Leave the arena → you’re destroyed.  
+- Get killed → you respawn at a random spot.  
+- Includes:
+  -  Kill indicator  
+  -  Kill feed  
+  -  Minimap (you = green, enemies = red)
+
+Example visualization:
+
+
+---
+
+---
 ## Scenarios
 
 The platform allows you to design custom aircraft trajectories directly on the 3D globe.
@@ -23,6 +45,9 @@ Example visualization:
 
 
 ---
+
+
+
 ## Playing a Scenario
 
 Once a scenario is selected, the system begins live playback of all aircraft within it.
