@@ -9,6 +9,8 @@ It includes several interactive modes:
 - **Scenarios And Danger Zones:** Create, edit, and play custom aircraft trajectories with adjustable speed and live playback to **all clients**. Define and monitor 3D restricted airspace volumes that trigger alerts when entered. 
 - **Free Flight Mode:** Explore freely in a multiplayer environment with smooth controls and switchable camera views.
 
+### ***The system is built to allow global access through ngrok, so clients can connect from anywhere in the world.**
+
 **Note:** Installation instructions are at the bottom of the README.
 
 ---
