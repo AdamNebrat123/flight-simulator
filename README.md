@@ -10,7 +10,7 @@ You can:
 **Note: install instructions are at the bottom of the readme**
 
 ---
-# 🛩️ Drone Battle Arena
+# Drone Battle Arena
 
 **A multiplayer drone battle game.**  
 Fly, fight, and survive against other drones in a fast-paced 3D arena.
@@ -26,10 +26,11 @@ Fly, fight, and survive against other drones in a fast-paced 3D arena.
   -  Kill feed  
   -  Minimap (you = green, enemies = red)
 
-Example visualization:
 
 
-https://github.com/user-attachments/assets/6fa20c1f-6ca8-43a6-b3ec-871abb877180
+## Example visualization:
+
+https://github.com/user-attachments/assets/b82a1f63-82aa-42d1-8dd4-f119dda77c62
 
 https://github.com/user-attachments/assets/dfc53b62-9dfd-49a0-9c02-7f0bbc2d69ac
 
@@ -37,9 +38,31 @@ https://github.com/user-attachments/assets/addc25d6-d743-4f9f-8c78-0bb5e487a8b8
 
 https://github.com/user-attachments/assets/5a3e8d36-48b4-4537-bbbb-90774c64840a
 
-
-
 ---
+
+# ✈️ Real Planes Mode
+
+**A live mode that displays real-world aircraft using ADS-B data.**  
+Planes are shown on the map in real time, based on their actual positions and flight information.
+I can also automatically fly to a specific plane by typing his ID.
+
+###  Performance Optimization
+To keep performance smooth, the rendering changes with distance:
+
+- **Long-range:** aircraft are displayed as simple dots for efficiency.  
+- **Close-range:** detailed 3D aircraft models appear for a realistic view.  
+
+
+
+### Data Source
+Powered by **OpenSky, ADSB (Automatic Dependent Surveillance–Broadcast)** data, providing real-time flight positions and identifiers.
+Data updated every 2 minutes (because of the limit of the requests i can make to OpenSky's API a day..)
+
+## Example visualization (a bit laggy, there is a lot of data..):
+
+https://github.com/user-attachments/assets/4f55ad30-bf07-41e1-ab64-7536c2fee726
+
+https://github.com/user-attachments/assets/812b6e77-d36e-4b66-be23-f817e6861826
 
 ---
 ## Scenarios
@@ -49,10 +72,9 @@ You can place waypoints by selecting points on the map and build a continuous pa
 **Each scenario can be removed or edited whenever you wish.**
 Once sent to the server, the server calculates the positions of each plane at any point, based on its trajectory and configured velocity.
 
-Example visualization:
+## Example visualization:
 
 ![CreateTrajectory](https://github.com/user-attachments/assets/e95facdb-ae60-4f68-a654-99a47bf89887)
-
 
 ---
 
@@ -65,7 +87,7 @@ Now the server Sends all of the points and data about the planes at REAL TIME, A
 There is also a "tail" behing every plane, that represents the last 30 point of the plane.
 **When scenario is played, there is a pause and resume, and you can also change playspeed**
 
-Example visualization:
+## Example visualization:
 
 
 ![PlaneFlying](https://github.com/user-attachments/assets/172c6a24-76b6-4d90-aafa-b1a4470e03b3)
@@ -87,7 +109,7 @@ Danger zones are created as polygons with:
 These zones can be added and they are fully interactive, and their visual representation is updated in real time on the Cesium globe.
 **Each DangerZone can be removed or edited whenever you wish.**
 
-Example visualization:
+## Example visualization:
 
 ![CreateDangerZoneNew](https://github.com/user-attachments/assets/65c997b1-fc5e-448b-baf1-483abe780796)
 
@@ -101,7 +123,7 @@ It checks whether the plane is inside any zone, including both horizontal bounda
 If a plane is within a zone, the client triggers the blinking effect.
 This ensures that alerts and visual feedback are synchronized with live scenario playback in real time.
 
-Example visualization:
+## Example visualization:
 
 ![DangerZoneBlink](https://github.com/user-attachments/assets/4d08b0d6-71bc-4d30-8adf-c6b8d542a0f2)
 
