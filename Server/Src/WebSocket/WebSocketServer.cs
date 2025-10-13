@@ -5,8 +5,10 @@ using System.Collections.Concurrent;
 
 public class WebSocketServer
 {
-    private static readonly ConcurrentBag<WebSocket> _webSockets = new();
+    private static readonly WebSocketModeHandler _modeHandler = WebSocketModeHandler.GetInstance();
+    // Removed: _webSockets, now using WebSocketModeManager
     private static readonly UIMsgHandler _uiMsgHandler = new();
+    private static readonly WebSocketModeManager _modeManager = WebSocketModeManager.GetInstance();
 
     public static async Task Main(string[] args)
     {
@@ -29,7 +31,6 @@ public class WebSocketServer
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                _webSockets.Add(webSocket);
                 Console.WriteLine("WebSocket connected");
 
                 // send init data to client
@@ -44,13 +45,13 @@ public class WebSocketServer
                     {
                         Console.WriteLine("WebSocket closed");
                         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by server", CancellationToken.None);
-                        _webSockets.TryTake(out webSocket); // Remove closed socket
+                        _modeHandler.HandleRemoveClient(webSocket);
                         break;
                     }
 
                     var jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     //Console.WriteLine("Received: " + jsonString);
-                    _uiMsgHandler.HandleIncomingMessage(webSocket, jsonString);
+                    await _uiMsgHandler.HandleIncomingMessage(webSocket, jsonString);
 
                 }
             }
@@ -62,26 +63,26 @@ public class WebSocketServer
 
         app.Run();
     }
-    public static string prepareMessageToClient<T>(S2CMessageType msgType, T msg)
+    public static string prepareMessageToClient<T>(S2CMessageType msgType, T msg, ModeEnum mode)
     {
         var message = new
         {
             type = msgType.ToString(),
-            data = msg
+            data = msg,
+            mode = mode.ToString()
         };
-
         return JsonSerializer.Serialize(message);
     }
 
-    public static async Task SendMsgToClients(string jsonString)
+    public static async Task SendMsgToClients(string jsonString, ModeEnum mode)
     {
-        foreach (var ws in _webSockets.ToArray())
+        var connections = _modeManager.GetConnectionsInMode(mode);
+        foreach (var ws in connections)
         {
             if (ws.State == WebSocketState.Open)
             {
                 var encoded = Encoding.UTF8.GetBytes(jsonString);
                 await ws.SendAsync(new ArraySegment<byte>(encoded), WebSocketMessageType.Text, true, CancellationToken.None);
-                //System.Console.WriteLine("sent: " + jsonString);
             }
         }
     }

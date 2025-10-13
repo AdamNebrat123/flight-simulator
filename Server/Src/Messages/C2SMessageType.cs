@@ -13,5 +13,6 @@ public enum C2SMessageType
     RemoveDrone,
     UpdateDrone,
     RequestDroneInitData,
-    CreateBullet // New message type for shooting
+    CreateBullet,
+    ClientMode
 }

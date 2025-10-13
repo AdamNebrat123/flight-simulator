@@ -4,9 +4,9 @@ using System.Collections.Concurrent;
 using DroneGame.Arena;
 using DroneGame.HitDetection;
 
-public class DroneHandler
+public class DroneGameHandler
 {
-    private static DroneHandler instance;
+    private static DroneGameHandler instance;
     private readonly DroneManager droneManager = DroneManager.GetInstance();
     private readonly HitDetector hitDetector = HitDetector.GetInstance();
     private readonly DroneKilledHandler droneKilledHandler = DroneKilledHandler.GetInstance();
@@ -14,7 +14,7 @@ public class DroneHandler
     private readonly ConcurrentDictionary<string, bool> recentlyKilledDrones = new();
     private const int KILL_TIMEOUT_MS = 5000; // 5 seconds, adjust as needed
 
-    private DroneHandler() { }
+    private DroneGameHandler() { }
 
     private void AddToRecentlyKilled(string droneId)
     {
@@ -28,15 +28,15 @@ public class DroneHandler
         });
     }
 
-    public static DroneHandler GetInstance()
+    public static DroneGameHandler GetInstance()
     {
         if (instance == null)
-            instance = new DroneHandler();
+            instance = new DroneGameHandler();
         return instance;
     }
     
 
-    public void HandleRequestDronesInitData(WebSocket connection, JsonElement data)
+    public void HandleRequestDronesInitData(WebSocket connection, JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -57,7 +57,7 @@ public class DroneHandler
             {
                 yourDroneId = uuidString
             };
-            string json = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneInitData, initData);
+            string json = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneInitData, initData, clientMode);
             WebSocketServer.SendMsgToClient(connection, json);
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ public class DroneHandler
         }
     }
 
-    public void HandleRemoveDrone(JsonElement data)
+    public void HandleRemoveDrone(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -92,7 +92,7 @@ public class DroneHandler
         }
     }
 
-    public void HandleUpdateDrone(JsonElement data)
+    public void HandleUpdateDrone(JsonElement data, ModeEnum clientMode)
     {
         try
         {

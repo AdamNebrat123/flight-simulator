@@ -4,16 +4,14 @@ using System.Text.Json;
 
 public class UIMsgHandler
 {
-    // data managers
-    private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
-    private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
-
     // Handlers
+    private readonly WebSocketModeHandler webSocketModeHandler = WebSocketModeHandler.GetInstance();
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler = PlaySelectedScenarioHandler.GetInstance();
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
     private readonly DangerZoneHandler dangerZoneHandler = DangerZoneHandler.GetInstance();
     private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
-    private readonly DroneHandler droneHandler = DroneHandler.GetInstance();
+    private readonly DroneGameHandler droneHandler = DroneGameHandler.GetInstance();
+    private readonly FreeFlightHandler freeFlightHandler = FreeFlightHandler.GetInstance();
     private readonly CreateBulletHandler createBulletHandler = CreateBulletHandler.GetInstance();
 
     public UIMsgHandler()
@@ -28,77 +26,102 @@ public class UIMsgHandler
             {
                 PropertyNameCaseInsensitive = true
             });
-            //Console.WriteLine("Deserialized Type: " + wrapper?.type);
 
-            if (!string.IsNullOrWhiteSpace(wrapper.type) && Enum.TryParse<C2SMessageType>(wrapper.type.Trim(), ignoreCase: true, out var messageType))
+            if (wrapper == null || string.IsNullOrWhiteSpace(wrapper.type) || string.IsNullOrWhiteSpace(wrapper.mode))
             {
-                switch (messageType)
-                {
-                    case C2SMessageType.AddScenario:
-                        scenarioHandler.HandleAddScenario(wrapper.data);
-                        break;
-
-                    case C2SMessageType.RemoveScenario:
-                        scenarioHandler.HandleRemoveScenario(wrapper.data);
-                        break;
-
-                    case C2SMessageType.EditScenario:
-                        scenarioHandler.HandleEditScenario(wrapper.data);
-                        break;
-
-                    case C2SMessageType.AddDangerZone:
-                        dangerZoneHandler.HandleAddDangerZone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.RemoveDangerZone:
-                        dangerZoneHandler.HandleRemoveDangerZone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.EditDangerZone:
-                        dangerZoneHandler.HandleEditDangerZone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.PlaySelectedScenarioCmd:
-                        playSelecedScenarioHandler.HandlePlaySelectedScenarioCmd(wrapper.data);
-                        break;
-
-                    case C2SMessageType.PauseScenarioCmd:
-                        scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data);
-                        break;
-
-                    case C2SMessageType.ResumeScenarioCmd:
-                        scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data);
-                        break;
-
-                    case C2SMessageType.ChangeScenarioPlaySpeedCmd:
-                        scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
-                        break;
-
-                    case C2SMessageType.RemoveDrone:
-                        droneHandler.HandleRemoveDrone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.UpdateDrone:
-                        droneHandler.HandleUpdateDrone(wrapper.data);
-                        break;
-
-                    case C2SMessageType.RequestDroneInitData:
-                        droneHandler.HandleRequestDronesInitData(connection, wrapper.data);
-                        break;
-
-                    case C2SMessageType.CreateBullet:
-                        createBulletHandler.HandleCreateBullet(wrapper.data);
-                        break;
-
-                    default:
-                        Console.WriteLine("Unhandled message type.");
-                        break;
-                }
-
+                //Console.WriteLine($"Invalid message: missing type or mode. type={wrapper?.type}, mode={wrapper?.mode}");
+                return;
             }
-            else
+
+            // Parse enums
+            C2SMessageType messageType;
+            ModeEnum clientMode;
+
+            // try parse the wrapper.type. if fails, return
+            if (!Enum.TryParse<C2SMessageType>(wrapper.type.Trim(), ignoreCase: true, out messageType))
             {
-                Console.WriteLine("Invalid message type: " + wrapper.type);
+                Console.WriteLine($"Invalid message type: {wrapper.type}");
+                return;
+            }
+            // try parse the wrapper.mode. if fails, return
+            if (!Enum.TryParse<ModeEnum>(wrapper.mode.Trim(), ignoreCase: true, out clientMode))
+            {
+                Console.WriteLine($"Invalid mode: {wrapper.mode}");
+                return;
+            }
+
+
+            // Now, both enums parsed and can used as needed
+            switch (messageType)
+            {
+                case C2SMessageType.AddScenario:
+                    scenarioHandler.HandleAddScenario(wrapper.data);
+                    break;
+
+                case C2SMessageType.RemoveScenario:
+                    scenarioHandler.HandleRemoveScenario(wrapper.data);
+                    break;
+
+                case C2SMessageType.EditScenario:
+                    scenarioHandler.HandleEditScenario(wrapper.data);
+                    break;
+
+                case C2SMessageType.AddDangerZone:
+                    dangerZoneHandler.HandleAddDangerZone(wrapper.data);
+                    break;
+
+                case C2SMessageType.RemoveDangerZone:
+                    dangerZoneHandler.HandleRemoveDangerZone(wrapper.data);
+                    break;
+
+                case C2SMessageType.EditDangerZone:
+                    dangerZoneHandler.HandleEditDangerZone(wrapper.data);
+                    break;
+
+                case C2SMessageType.PlaySelectedScenarioCmd:
+                    playSelecedScenarioHandler.HandlePlaySelectedScenarioCmd(wrapper.data);
+                    break;
+
+                case C2SMessageType.PauseScenarioCmd:
+                    scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data);
+                    break;
+
+                case C2SMessageType.ResumeScenarioCmd:
+                    scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data);
+                    break;
+
+                case C2SMessageType.ChangeScenarioPlaySpeedCmd:
+                    scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
+                    break;
+
+                case C2SMessageType.RemoveDrone:
+                    if (clientMode == ModeEnum.DroneGame)
+                        droneHandler.HandleRemoveDrone(wrapper.data, clientMode);
+                    else if (clientMode == ModeEnum.FreeFlight)
+                        freeFlightHandler.HandleRemoveDrone(wrapper.data, clientMode);
+                    break;
+
+                case C2SMessageType.UpdateDrone:
+                    if (clientMode == ModeEnum.DroneGame)
+                        droneHandler.HandleUpdateDrone(wrapper.data, clientMode);
+                    else if (clientMode == ModeEnum.FreeFlight)
+                        freeFlightHandler.HandleUpdateDrone(wrapper.data, clientMode);
+                    break;
+
+                case C2SMessageType.RequestDroneInitData:
+                    if (clientMode == ModeEnum.DroneGame)
+                        droneHandler.HandleRequestDronesInitData(connection, wrapper.data, clientMode);
+                    else if (clientMode == ModeEnum.FreeFlight)
+                        freeFlightHandler.HandleRequestDronesInitData(connection, wrapper.data, clientMode);
+                    break;
+
+                case C2SMessageType.CreateBullet:
+                    createBulletHandler.HandleCreateBullet(wrapper.data);
+                    break;
+
+                default:
+                    Console.WriteLine("Unhandled message type.");
+                    break;
             }
         }
         catch (NullReferenceException ex)

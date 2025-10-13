@@ -69,7 +69,13 @@ public partial class MessageWrapper
     /// The type of the inner message (used for dynamic deserialization)
     /// </summary>
     [JsonPropertyName("type")]
-    public string type { get; set; }
+    public string? type { get; set; }
+
+    /// <summary>
+    /// The mode of the message (used for routing)
+    /// </summary>
+    [JsonPropertyName("mode")]
+    public string? mode { get; set; }
 }
 
 public partial class ScenarioPlanesSnapshot
@@ -284,19 +290,19 @@ public partial class BulletsMsg
     public List<BulletData> bullets { get; set; }
 }
 
-public class DroneKilled
-	{
-        [JsonPropertyName("killerDroneId")]
-		public string killerDroneId { get; set; }
-		[JsonPropertyName("killedDroneId")]
-		public string killedDroneId { get; set; }
-		[JsonPropertyName("bulletId")]
-		public string bulletId { get; set; }
+public partial class DroneKilled
+{
+    [JsonPropertyName("killerDroneId")]
+    public string killerDroneId { get; set; }
+    [JsonPropertyName("killedDroneId")]
+    public string killedDroneId { get; set; }
+    [JsonPropertyName("bulletId")]
+    public string bulletId { get; set; }
 
-		public DroneKilled(string killerDroneId, string killedDroneId, string bulletId)
-		{
-			this.killerDroneId = killerDroneId;
-			this.killedDroneId = killedDroneId;
-			this.bulletId = bulletId;
-		}
-	}
+    public DroneKilled(string killerDroneId, string killedDroneId, string bulletId)
+    {
+        this.killerDroneId = killerDroneId;
+        this.killedDroneId = killedDroneId;
+        this.bulletId = bulletId;
+    }
+}
