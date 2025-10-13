@@ -2,6 +2,32 @@ import { useEffect, useRef } from "react";
 import * as Cesium from "cesium";
 import { DroneHandler } from "../Drones/DroneHandler";
 
+// Create a canvas with a triangle pointing up
+function createTriangleImage(color: string): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const context = canvas.getContext('2d')!;
+
+  // Draw a longer, slimmer triangle
+  context.beginPath();
+  context.moveTo(16, 2);    // top point (moved up)
+  context.lineTo(8, 28);   // bottom left (moved in)
+  context.lineTo(24, 28);   // bottom right (moved in)
+  context.closePath();
+
+  // Fill with color
+  context.fillStyle = color;
+  context.fill();
+
+  // Add white outline
+  context.strokeStyle = 'white';
+  context.lineWidth = 2;
+  context.stroke();
+
+  return canvas;
+}
+
 interface MinimapProps {
   viewer: Cesium.Viewer;
   myDroneId: string;
@@ -64,21 +90,31 @@ export default function Minimap({ viewer, myDroneId }: MinimapProps) {
       const pos = drone.position.getValue(minimapViewerRef.current.clock.currentTime);
       if (!pos) continue;
 
+      // Get the drone's heading
+      const orientation = drone.orientation?.getValue(minimapViewerRef.current.clock.currentTime);
+      const heading = orientation ? Cesium.HeadingPitchRoll.fromQuaternion(orientation).heading : 0;
+      const fixedHeading = heading + Cesium.Math.toRadians(35); // Adjust so triangle points correctly
+
       if (!droneEntities[id]) {
         const entity = minimapViewerRef.current.entities.add({
           position: new Cesium.ConstantPositionProperty(pos),
-          point: {
-            pixelSize: id === myDroneId ? 8 : 5,
-            color: id === myDroneId ? Cesium.Color.LIME : Cesium.Color.RED,
-            outlineWidth: 2,
-            outlineColor: Cesium.Color.WHITE,
+          billboard: {
+            image: createTriangleImage(id === myDroneId ? '#00FF00' : '#FF0000'),
+            scale: id === myDroneId ? 0.5 : 0.4,
             heightReference: Cesium.HeightReference.NONE,
             disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            rotation: -fixedHeading, // Negative because we want the triangle to point in the heading direction
           },
         });
         droneEntities[id] = entity;
       } else {
-        (droneEntities[id].position as Cesium.ConstantPositionProperty).setValue(pos);
+        const entity = droneEntities[id];
+        (entity.position as Cesium.ConstantPositionProperty).setValue(pos);
+        if (entity.billboard) {
+          entity.billboard.rotation = new Cesium.ConstantProperty(-fixedHeading);
+        }
       }
     }
   };
