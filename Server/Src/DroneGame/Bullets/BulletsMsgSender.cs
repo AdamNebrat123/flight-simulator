@@ -55,8 +55,8 @@ public class BulletsMsgSender
 				if (allBullets.Count > 0)
 				{
 					var msg = new BulletsMsg { bullets = allBullets };
-					string json = WebSocketServer.prepareMessageToClient(S2CMessageType.BulletsMsg, msg);
-					await WebSocketServer.SendMsgToClients(json);
+					string json = WebSocketServer.prepareMessageToClient(S2CMessageType.BulletsMsg, msg, ModeEnum.DroneGame);
+					await WebSocketServer.SendMsgToClients(json, ModeEnum.DroneGame);
 				}
 			}
 			catch (Exception ex)

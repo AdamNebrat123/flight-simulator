@@ -78,12 +78,12 @@ public class DroneGameHandler
             if (removed)
             {
                 Console.WriteLine($"{drone.id} - Drone removed successfully.");
-                SendRemoveDrone(drone);
+                SendRemoveDrone(drone, clientMode);
             }
             else
             {
                 Console.WriteLine($"{drone.id} - Failed to remove drone.");
-                SendDroneError($"{drone.id} - Failed to remove drone.");
+                SendDroneError($"{drone.id} - Failed to remove drone.", clientMode);
             }
         }
         catch (Exception ex)
@@ -120,7 +120,7 @@ public class DroneGameHandler
             if (bulletId != null)
             {
                 // Handle kill
-                this.droneKilledHandler.HandleKill(drone.id, bulletId);
+                this.droneKilledHandler.HandleKill(drone.id, bulletId, clientMode);
                 AddToRecentlyKilled(drone.id);
                 // Do not update or send update for killed drone
                 return;
@@ -136,12 +136,12 @@ public class DroneGameHandler
             if (updated)
             {
                 //Console.WriteLine($"{drone.id} - Drone updated successfully.");
-                SendUpdateDrone(drone);
+                SendUpdateDrone(drone, clientMode);
             }
             else
             {
                 Console.WriteLine($"{drone.id} - Failed to update drone.");
-                SendDroneError($"{drone.id} - Failed to update drone.");
+                SendDroneError($"{drone.id} - Failed to update drone.", clientMode);
             }
         }
         catch (Exception ex)
@@ -150,22 +150,22 @@ public class DroneGameHandler
         }
     }
 
-    public void SendRemoveDrone(Drone drone)
+    public void SendRemoveDrone(Drone drone, ModeEnum clientMode)
     {
-        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDrone, drone);
-        WebSocketServer.SendMsgToClients(data);
+        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDrone, drone, clientMode);
+        WebSocketServer.SendMsgToClients(data, clientMode);
     }
 
-    public void SendUpdateDrone(Drone drone)
+    public void SendUpdateDrone(Drone drone, ModeEnum clientMode)
     {
-        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.UpdateDrone, drone);
-        WebSocketServer.SendMsgToClients(data);
+        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.UpdateDrone, drone, clientMode);
+        WebSocketServer.SendMsgToClients(data, clientMode);
     }
 
-    public void SendDroneError(string errorMsg)
+    public void SendDroneError(string errorMsg, ModeEnum clientMode)
     {
         var err = new { errorMsg };
-        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneError, err);
-        WebSocketServer.SendMsgToClients(data);
+        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneError, err, clientMode);
+        WebSocketServer.SendMsgToClients(data, clientMode);
     }
 }

@@ -7,29 +7,41 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import RealPlanesMode from './RealPlanesMode/RealPlanesMode.tsx'
 import FreeFlightMode from './FreeFlightMode/FreeFlightMode.tsx'
 import DroneGame from './DroneGame/DroneGame.tsx'
+import { ModeEnum } from './WebSocket/ModeEnum.ts'
 
 createRoot(document.getElementById('root')!).render(
-  <Router>
-    {/* Routes with WebSocket */}
-  <WebSocketProvider>
+    <Router>
       <Routes>
-
-        <Route path="/" element={
-            <SimStateProvider>
-              <App />
-            </SimStateProvider>
+        <Route
+          path="/"
+          element={
+            <WebSocketProvider clientMode={ModeEnum.ScenarioSimulator}>
+              <SimStateProvider>
+                <App />
+              </SimStateProvider>
+            </WebSocketProvider>
           }
         />
 
-        <Route path="/Free-Flight-Mode" element={<FreeFlightMode />}/>
-        <Route path="/Drone-Game" element={<DroneGame />}/>
+        <Route
+          path="/Free-Flight-Mode"
+          element={
+            <WebSocketProvider clientMode={ModeEnum.FreeFlight}>
+              <FreeFlightMode />
+            </WebSocketProvider>
+          }
+        />
 
+        <Route
+          path="/Drone-Game"
+          element={
+            <WebSocketProvider clientMode={ModeEnum.DroneGame}>
+              <DroneGame />
+            </WebSocketProvider>
+          }
+        />
+
+        <Route path="/Real-Planes-Mode" element={<RealPlanesMode />} />
       </Routes>
-    </WebSocketProvider>
-
-    {/* Route without WebSocket */}
-    <Routes>
-      <Route path="/Real-Planes-Mode" element={<RealPlanesMode />} />
-    </Routes>
-  </Router>
+    </Router>
 )

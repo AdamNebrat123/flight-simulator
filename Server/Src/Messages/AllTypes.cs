@@ -74,8 +74,8 @@ public partial class MessageWrapper
     /// <summary>
     /// The mode of the message (used for routing)
     /// </summary>
-    [JsonPropertyName("mode")]
-    public string? mode { get; set; }
+    [JsonPropertyName("clientMode")]
+    public string? clientMode { get; set; }
 }
 
 public partial class ScenarioPlanesSnapshot

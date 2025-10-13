@@ -18,7 +18,7 @@ public class DangerZoneHandler
         return instance;
     }
 
-    public void HandleAddDangerZone(JsonElement data)
+    public void HandleAddDangerZone(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -36,12 +36,12 @@ public class DangerZoneHandler
             if (isAdded)
             {
                 System.Console.WriteLine("{0} ({1}) - Added zone successfully.", dangerZone.zoneId, dangerZone.zoneName);
-                SendAddDangerZone(dangerZone);
+                SendAddDangerZone(dangerZone, clientMode);
             }
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to add zone.", dangerZone.zoneId, dangerZone.zoneName);
-                SendDangerZoneError($"{dangerZone.zoneId} ({dangerZone.zoneName}) - Failed to add zone.");
+                SendDangerZoneError($"{dangerZone.zoneId} ({dangerZone.zoneName}) - Failed to add zone.", clientMode);
             }
         }
         catch (Exception ex)
@@ -50,7 +50,7 @@ public class DangerZoneHandler
         }
     }
 
-    public void HandleRemoveDangerZone(JsonElement data)
+    public void HandleRemoveDangerZone(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -64,18 +64,18 @@ public class DangerZoneHandler
                 if (isRemoved)
                 {
                     System.Console.WriteLine("{0} ({1}) - Removed zone successfully.", zoneId, dangerZone.zoneName);
-                    SendRemoveDangerZone(dangerZone);
+                    SendRemoveDangerZone(dangerZone, clientMode);
                 }
                 else
                 {
                     System.Console.WriteLine("{0} ({1}) - Failed to remove zone.", zoneId, dangerZone.zoneName);
-                    SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone.");
+                    SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone.", clientMode);
                 }
             }
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to remove zone.", zoneId, dangerZone.zoneName);
-                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone from file.");
+                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to remove zone from file.", clientMode);
             }
         }
         catch (Exception ex)
@@ -84,7 +84,7 @@ public class DangerZoneHandler
         }
     }
 
-    public void HandleEditDangerZone(JsonElement data)
+    public void HandleEditDangerZone(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -98,18 +98,18 @@ public class DangerZoneHandler
                 if (isEdited)
                 {
                     System.Console.WriteLine("{0} ({1}) - Edited zone successfully.", zoneId, dangerZone.zoneName);
-                    SendEditDangerZone(dangerZone);
+                    SendEditDangerZone(dangerZone, clientMode);
                 }
                 else
                 {
                     System.Console.WriteLine("{0} ({1}) - Failed to edit zone.", zoneId, dangerZone.zoneName);
-                    SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone.");
+                    SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone.", clientMode);
                 }
             }
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to edit zone.", zoneId, dangerZone.zoneName);
-                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone from file.");
+                SendDangerZoneError($"{zoneId} ({dangerZone.zoneName}) - Failed to edit zone from file.", clientMode);
             }
         }
         catch (Exception ex)
@@ -118,28 +118,28 @@ public class DangerZoneHandler
         }
     }
 
-    public void SendAddDangerZone(DangerZone dangerZone)
+    public void SendAddDangerZone(DangerZone dangerZone, ModeEnum clientMode)
     {
-        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.AddDangerZone, dangerZone);
-        WebSocketServer.SendMsgToClients(dangerZoneData);
+        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.AddDangerZone, dangerZone, clientMode);
+        WebSocketServer.SendMsgToClients(dangerZoneData, clientMode);
     }
-    public void SendRemoveDangerZone(DangerZone dangerZone)
+    public void SendRemoveDangerZone(DangerZone dangerZone, ModeEnum clientMode)
     {
-        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDangerZone, dangerZone);
-        WebSocketServer.SendMsgToClients(dangerZoneData);
+        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDangerZone, dangerZone, clientMode);
+        WebSocketServer.SendMsgToClients(dangerZoneData, clientMode);
     }
-    public void SendEditDangerZone(DangerZone dangerZone)
+    public void SendEditDangerZone(DangerZone dangerZone, ModeEnum clientMode)
     {
-        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.EditDangerZone, dangerZone);
-        WebSocketServer.SendMsgToClients(dangerZoneData);
+        string dangerZoneData =  WebSocketServer.prepareMessageToClient(S2CMessageType.EditDangerZone, dangerZone, clientMode);
+        WebSocketServer.SendMsgToClients(dangerZoneData, clientMode);
     }
-    public void SendDangerZoneError(string errorMsg)
+    public void SendDangerZoneError(string errorMsg, ModeEnum clientMode)
     {
         DangerZoneError dangerZoneError = new DangerZoneError()
         {
             errorMsg = errorMsg
         };
-        string dangerZoneErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.DangerZoneError, dangerZoneError);
-        WebSocketServer.SendMsgToClients(dangerZoneErrorData);
+        string dangerZoneErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.DangerZoneError, dangerZoneError, clientMode);
+        WebSocketServer.SendMsgToClients(dangerZoneErrorData, clientMode);
     }
 }

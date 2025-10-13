@@ -33,9 +33,7 @@ public class WebSocketServer
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                 Console.WriteLine("WebSocket connected");
 
-                // send init data to client
-                InitDataHandler initDataHandler = InitDataHandler.GetInstance();
-                initDataHandler.SendInitData();
+                
 
                 var buffer = new byte[1024 * 4];
                 while (true)

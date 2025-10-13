@@ -16,7 +16,7 @@ public class CreateBulletHandler
 	}
 
 	// Handles the CreateBullet message
-	public void HandleCreateBullet(JsonElement data)
+	public void HandleCreateBullet(JsonElement data, ModeEnum clientMode)
 	{
 		try
 		{

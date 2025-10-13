@@ -21,7 +21,7 @@ public class ScenarioHandler
         return instance;
     }
 
-    public void HandleAddScenario(JsonElement data)
+    public void HandleAddScenario(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -48,7 +48,7 @@ public class ScenarioHandler
             if (isAdded)
             {
                 System.Console.WriteLine("{0} ({1}) - Added scenario successfully.", scenario.scenarioId, scenario.scenarioName);
-                SendAddScenario(scenario);
+                SendAddScenario(scenario, clientMode);
 
                 // calculate scenario results
                 ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
@@ -61,7 +61,7 @@ public class ScenarioHandler
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to add scenario.", scenario.scenarioId, scenario.scenarioName);
-                SendScenarioError($"{scenario.scenarioId} ({scenario.scenarioName}) - Failed to add scenario.");
+                SendScenarioError($"{scenario.scenarioId} ({scenario.scenarioName}) - Failed to add scenario.", clientMode);
             }
         }
         catch (Exception ex)
@@ -70,7 +70,7 @@ public class ScenarioHandler
         }
     }
 
-    public void HandleRemoveScenario(JsonElement data)
+    public void HandleRemoveScenario(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -85,18 +85,18 @@ public class ScenarioHandler
                 if (isRemoved)
                 {
                     System.Console.WriteLine("{0} ({1}) - Removed scenario successfully.", scenarioId, scenario.scenarioName);
-                    SendRemoveScenario(scenario);
+                    SendRemoveScenario(scenario, clientMode);
                 }
                 else
                 {
                     System.Console.WriteLine("{0} ({1}) - Failed to remove scenario.", scenarioId, scenario.scenarioName);
-                    SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to remove scenario.");
+                    SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to remove scenario.", clientMode);
                 }
             }
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to remove scenario.", scenarioId, scenario.scenarioName);
-                SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to remove scenario.");
+                SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to remove scenario.", clientMode);
             }
         }
         catch (Exception ex)
@@ -105,7 +105,7 @@ public class ScenarioHandler
         }
     }
 
-    public void HandleEditScenario(JsonElement data)
+    public void HandleEditScenario(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -127,19 +127,19 @@ public class ScenarioHandler
                     {
                         // save the calculated scenario
                         scenarioResultsManager.TryEditScenario(scenario.scenarioId, scenarioResults);
-                        SendEditScenario(scenario);
+                        SendEditScenario(scenario, clientMode);
                     }
                 }
                 else
                 {
                     System.Console.WriteLine("{0} ({1}) - Failed to edit scenario.", scenarioId, scenario.scenarioName);
-                    SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to edit scenario.");
+                    SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to edit scenario.", clientMode);
                 }
             }
             else
             {
                 System.Console.WriteLine("{0} ({1}) - Failed to edit scenario.", scenarioId, scenario.scenarioName);
-                SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to edit scenario.");
+                SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to edit scenario.", clientMode);
             }
         }
         catch (Exception ex)
@@ -148,28 +148,28 @@ public class ScenarioHandler
         }
     }
 
-    public void SendAddScenario(Scenario scenario)
+    public void SendAddScenario(Scenario scenario, ModeEnum clientMode)
     {
-        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.AddScenario, scenario);
-        WebSocketServer.SendMsgToClients(scenarioData);
+        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.AddScenario, scenario, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
     }
-    public void SendRemoveScenario(Scenario scenario)
+    public void SendRemoveScenario(Scenario scenario, ModeEnum clientMode)
     {
-        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveScenario, scenario);
-        WebSocketServer.SendMsgToClients(scenarioData);
+        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveScenario, scenario, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
     }
-    public void SendEditScenario(Scenario scenario)
+    public void SendEditScenario(Scenario scenario, ModeEnum clientMode)
     {
-        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.EditScenario, scenario);
-        WebSocketServer.SendMsgToClients(scenarioData);
+        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.EditScenario, scenario, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
     }
-    public void SendScenarioError(string errorMsg)
+    public void SendScenarioError(string errorMsg, ModeEnum clientMode)
     {
         var scenarioError = new ScenarioError()
         {
             errorMsg = errorMsg
         };
-        string scenarioErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.ScenarioError, scenarioError);
-        WebSocketServer.SendMsgToClients(scenarioErrorData);
+        string scenarioErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.ScenarioError, scenarioError, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioErrorData, clientMode);
     }
 }

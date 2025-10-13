@@ -19,7 +19,7 @@ namespace DroneGame.HitDetection
         }
 
         // Handles the kill event: sets bullet isLast, disconnects bullet, removes drone, sends kill message
-        public DroneKilled HandleKill(string killedDroneId, string bulletId)
+        public DroneKilled HandleKill(string killedDroneId, string bulletId, ModeEnum clientMode)
         {
             var bulletPoints = bulletStore.GetBulletPoints(bulletId);
             if (bulletPoints == null || bulletPoints.Count == 0)
@@ -54,17 +54,17 @@ namespace DroneGame.HitDetection
             System.Console.WriteLine($"[DroneKilledHandler] Drone killed: killer={killerDroneId}, killed={killedDroneId}, bullet={bulletId}");
 
             // Send DroneKilled message to all clients
-            SendDroneKilledMessage(killInfo);
+            SendDroneKilledMessage(killInfo, clientMode);
 
             // Bullet will be removed by BulletsMsgSender after sending the last point
 
             return killInfo;
         }
 
-        private void SendDroneKilledMessage(DroneKilled killInfo)
+        private void SendDroneKilledMessage(DroneKilled killInfo, ModeEnum clientMode)
         {
-            string msg = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneKilled, killInfo);
-            WebSocketServer.SendMsgToClients(msg);
+            string msg = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneKilled, killInfo, clientMode);
+            WebSocketServer.SendMsgToClients(msg, clientMode);
         }
 
         public void HandleArenaKill(string droneId)
@@ -77,7 +77,7 @@ namespace DroneGame.HitDetection
             bool removed = droneManager.TryRemoveDrone(droneId);
 
             // Send DroneKilled message to all clients
-            SendDroneKilledMessage(killInfo);
+            SendDroneKilledMessage(killInfo, ModeEnum.DroneGame);
         }
 	}
 }

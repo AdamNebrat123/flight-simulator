@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+
 public class InitDataHandler
 {
     private static InitDataHandler _instance;
@@ -18,7 +20,7 @@ public class InitDataHandler
         return _instance;
     }
 
-    public void SendInitData()
+    public void SendInitData(WebSocket webSocket)
     {
         // get scenarios
         scenariosDataManager.ReadData();
@@ -34,7 +36,7 @@ public class InitDataHandler
             dangerZones = dangerZones
         };
 
-        string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData);
-        WebSocketServer.SendMsgToClients(initDataMsg);
+        string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData, ModeEnum.ScenarioSimulator);
+        WebSocketServer.SendMsgToClient(webSocket, initDataMsg);
     }
 }

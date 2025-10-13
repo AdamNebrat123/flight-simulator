@@ -19,18 +19,18 @@ public class PlaySelectedScenarioHandler
         return _instance;
     }
 
-    public void HandlePlaySelectedScenarioCmd(JsonElement data)
+    public void HandlePlaySelectedScenarioCmd(JsonElement data, ModeEnum clientMode)
     {
         PlaySelectedScenarioCmd playSelecedScenario = data.Deserialize<PlaySelectedScenarioCmd>();
         string scenarioId = playSelecedScenario.scenarioId;
         ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioId);
         if (scenarioResults != null)
-            SendCalculatedTrajectoryPointsAsync(scenarioResults);
+            SendCalculatedTrajectoryPointsAsync(scenarioResults, clientMode);
         else
             System.Console.WriteLine(scenarioId + " doesnt exist.....");
     }
 
-    public async Task SendCalculatedTrajectoryPointsAsync(ScenarioResults scenario)
+    public async Task SendCalculatedTrajectoryPointsAsync(ScenarioResults scenario, ModeEnum clientMode)
     {
         Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
         scenario.Resume();
@@ -75,10 +75,11 @@ public class PlaySelectedScenarioHandler
 
             string responseJson = WebSocketServer.prepareMessageToClient(
                 S2CMessageType.ScenarioPlanesSnapshot,
-                result
+                result,
+                clientMode
             );
 
-            WebSocketServer.SendMsgToClients(responseJson);
+            WebSocketServer.SendMsgToClients(responseJson, clientMode);
 
             int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);
             await Task.Delay(adjustedDelay);

@@ -4,12 +4,17 @@ import type { MessageWrapper } from "../Messages/AllTypes";
 
 type EventHandler = (data: any) => void;
 
-export function useWebSocketEvents(reconnectDelay = 3000) {
-  const { isConnected, sendRaw, setOnMessage } = useWebSocketConnection(reconnectDelay);
+interface WebSocketEventsProps {
+  clientMode: string;
+}
+
+export function useWebSocketEvents({ clientMode }: WebSocketEventsProps) {
+  const reconnectDelay = 3000;
+  const { isConnected, sendRaw, setOnMessage } = useWebSocketConnection({ clientMode }, reconnectDelay);
   const eventHandlers = useRef<Record<string, EventHandler[]>>({});
 
   const send = useCallback((type: string, data: any) => {
-    const wrapper: MessageWrapper = { type, data };
+    const wrapper: MessageWrapper = { type, data, clientMode };
     sendRaw(JSON.stringify(wrapper));
   }, [sendRaw]);
 
@@ -28,7 +33,7 @@ export function useWebSocketEvents(reconnectDelay = 3000) {
   useEffect(() => {
     setOnMessage(rawMessage => {
       try {
-        console.log("recieved: ", rawMessage)
+        //console.log("recieved: ", rawMessage)
         const wrapper: MessageWrapper = JSON.parse(rawMessage);
         const handlers = eventHandlers.current[wrapper.type] || [];
         handlers.forEach(handler => handler(wrapper.data));

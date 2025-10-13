@@ -11,6 +11,13 @@ public class WebSocketModeHandler
     public void HandleClientModeMsg(WebSocket socket, ModeEnum clientMode)
     {
         _modeManager.AddConnection(socket, clientMode);
+
+        if (clientMode == ModeEnum.ScenarioSimulator)
+        {
+            // send init data to client
+            InitDataHandler initDataHandler = InitDataHandler.GetInstance();
+            initDataHandler.SendInitData(socket);
+        }
     }
 
     public void HandleRemoveClient(WebSocket socket)

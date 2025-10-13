@@ -21,15 +21,12 @@ export interface GeoPoint {
  * the type
  */
 export interface MessageWrapper {
-    /**
-     * The inner object, to be deserialized according to the 'Type'. No schema enforced here.
-     */
-    data: { [key: string]: any };
-    /**
-     * The type of the inner message (used for dynamic deserialization)
-     */
-    type: string;
-    //[property: string]: any;
+   //The inner object, to be deserialized according to the 'Type'. No schema enforced here.
+  data: { [key: string]: any };
+   //The type of the inner message (used for dynamic deserialization)
+  type: string;
+   //The mode of the message (used for routing)
+  mode: string;
 }
 
 export interface ScenarioPlanesSnapshot {

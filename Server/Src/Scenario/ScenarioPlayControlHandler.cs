@@ -17,7 +17,7 @@ public class ScenarioPlayControlHandler
         return _instance;
     }
 
-    public void HandlePauseScenarioCmd(JsonElement data)
+    public void HandlePauseScenarioCmd(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -33,7 +33,7 @@ public class ScenarioPlayControlHandler
         }
     }
 
-    public void HandleResumeScenarioCmd(JsonElement data)
+    public void HandleResumeScenarioCmd(JsonElement data, ModeEnum clientMode)
     {
         try
         {
@@ -49,7 +49,7 @@ public class ScenarioPlayControlHandler
         }
     }
 
-    public void HandleChangeScenarioPlaySpeedCmd(JsonElement data)
+    public void HandleChangeScenarioPlaySpeedCmd(JsonElement data, ModeEnum clientMode)
     {
         try
         {

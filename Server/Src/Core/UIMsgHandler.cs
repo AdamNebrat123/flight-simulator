@@ -27,7 +27,7 @@ public class UIMsgHandler
                 PropertyNameCaseInsensitive = true
             });
 
-            if (wrapper == null || string.IsNullOrWhiteSpace(wrapper.type) || string.IsNullOrWhiteSpace(wrapper.mode))
+            if (wrapper == null || string.IsNullOrWhiteSpace(wrapper.type) || string.IsNullOrWhiteSpace(wrapper.clientMode))
             {
                 //Console.WriteLine($"Invalid message: missing type or mode. type={wrapper?.type}, mode={wrapper?.mode}");
                 return;
@@ -44,9 +44,9 @@ public class UIMsgHandler
                 return;
             }
             // try parse the wrapper.mode. if fails, return
-            if (!Enum.TryParse<ModeEnum>(wrapper.mode.Trim(), ignoreCase: true, out clientMode))
+            if (!Enum.TryParse<ModeEnum>(wrapper.clientMode.Trim(), ignoreCase: true, out clientMode))
             {
-                Console.WriteLine($"Invalid mode: {wrapper.mode}");
+                Console.WriteLine($"Invalid mode: {wrapper.clientMode}");
                 return;
             }
 
@@ -54,44 +54,47 @@ public class UIMsgHandler
             // Now, both enums parsed and can used as needed
             switch (messageType)
             {
+                case C2SMessageType.ClientMode:
+                    webSocketModeHandler.HandleClientModeMsg(connection, clientMode);
+                    break;
                 case C2SMessageType.AddScenario:
-                    scenarioHandler.HandleAddScenario(wrapper.data);
+                    scenarioHandler.HandleAddScenario(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.RemoveScenario:
-                    scenarioHandler.HandleRemoveScenario(wrapper.data);
+                    scenarioHandler.HandleRemoveScenario(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.EditScenario:
-                    scenarioHandler.HandleEditScenario(wrapper.data);
+                    scenarioHandler.HandleEditScenario(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.AddDangerZone:
-                    dangerZoneHandler.HandleAddDangerZone(wrapper.data);
+                    dangerZoneHandler.HandleAddDangerZone(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.RemoveDangerZone:
-                    dangerZoneHandler.HandleRemoveDangerZone(wrapper.data);
+                    dangerZoneHandler.HandleRemoveDangerZone(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.EditDangerZone:
-                    dangerZoneHandler.HandleEditDangerZone(wrapper.data);
+                    dangerZoneHandler.HandleEditDangerZone(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.PlaySelectedScenarioCmd:
-                    playSelecedScenarioHandler.HandlePlaySelectedScenarioCmd(wrapper.data);
+                    playSelecedScenarioHandler.HandlePlaySelectedScenarioCmd(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.PauseScenarioCmd:
-                    scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data);
+                    scenarioPlayControlHandler.HandlePauseScenarioCmd(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.ResumeScenarioCmd:
-                    scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data);
+                    scenarioPlayControlHandler.HandleResumeScenarioCmd(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.ChangeScenarioPlaySpeedCmd:
-                    scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data);
+                    scenarioPlayControlHandler.HandleChangeScenarioPlaySpeedCmd(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.RemoveDrone:
@@ -116,7 +119,7 @@ public class UIMsgHandler
                     break;
 
                 case C2SMessageType.CreateBullet:
-                    createBulletHandler.HandleCreateBullet(wrapper.data);
+                    createBulletHandler.HandleCreateBullet(wrapper.data, clientMode);
                     break;
 
                 default:

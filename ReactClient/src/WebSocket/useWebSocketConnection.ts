@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "react-toastify";
+import type { MessageWrapper } from "../Messages/AllTypes";
+import { C2SMessageType } from "../Messages/C2SMessageType";
 
-export function useWebSocketConnection(reconnectDelay = 3000) {
+
+interface WebSocketConnectionProps {
+  clientMode: string;
+}
+
+export function useWebSocketConnection({ clientMode }: WebSocketConnectionProps, reconnectDelay = 3000) {
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const messageHandlerRef = useRef<((message: string) => void) | null>(null);
@@ -13,6 +20,11 @@ export function useWebSocketConnection(reconnectDelay = 3000) {
     socket.onopen = () => {
       console.log("Connected")
       toast.success("Connected to server")
+      // send initial message with client mode
+      const wrapper: MessageWrapper = { type: C2SMessageType.ClientMode, data: { clientMode }, clientMode };
+      sendRaw(JSON.stringify(wrapper));
+      console.log("sent client mode:", wrapper);
+
       setIsConnected(true);
       // Reattach the message handler on every reconnect
       if (messageHandlerRef.current) {
