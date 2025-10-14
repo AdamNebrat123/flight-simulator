@@ -37,3 +37,37 @@
     gap: 5px;
     z-index: 1000;
 }
+
+.touch-controls-main-row {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 40px;
+    z-index: 1000;
+}
+
+.vertical-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.vertical-controls .touch-button {
+    width: 80px;
+    height: 54px;
+    font-size: 22px;
+}
+
+.touch-label {
+    display: block;
+    font-size: 12px;
+    color: #ccc;
+    margin-top: 2px;
+}

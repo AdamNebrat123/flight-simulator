@@ -38,7 +38,11 @@ const TouchControls: React.FC<TouchControlsProps> = ({ onKeyStateChange }) => {
 
     // Helper function to check if a key is one we care about
     const isValidKey = (key: string) => {
-        return ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key);
+        return [
+            'KeyW', 'KeyA', 'KeyS', 'KeyD',
+            'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+            'Space', 'ShiftLeft', 'ShiftRight'
+        ].includes(key);
     };
 
     // Button press handlers
@@ -58,72 +62,95 @@ const TouchControls: React.FC<TouchControlsProps> = ({ onKeyStateChange }) => {
 
     return (
         <>
-            {/* Movement Controls (WASD) */}
-            <div className="controls-container">
-                <div></div>
-                <button
-                    className={`touch-button${pressedKeys['KeyW'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('KeyW')}
-                    onTouchEnd={() => handleTouchEnd('KeyW')}
-                >
-                    W
-                </button>
-                <div></div>
-                <button
-                    className={`touch-button${pressedKeys['KeyA'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('KeyA')}
-                    onTouchEnd={() => handleTouchEnd('KeyA')}
-                >
-                    A
-                </button>
-                <button
-                    className={`touch-button${pressedKeys['KeyS'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('KeyS')}
-                    onTouchEnd={() => handleTouchEnd('KeyS')}
-                >
-                    S
-                </button>
-                <button
-                    className={`touch-button${pressedKeys['KeyD'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('KeyD')}
-                    onTouchEnd={() => handleTouchEnd('KeyD')}
-                >
-                    D
-                </button>
-            </div>
+            {/* Controls Layout: WASD | Vertical | Arrows */}
+            <div className="touch-controls-main-row">
+                {/* WASD Controls */}
+                <div className="controls-container">
+                    <div></div>
+                    <button
+                        className={`touch-button${pressedKeys['KeyW'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('KeyW')}
+                        onTouchEnd={() => handleTouchEnd('KeyW')}
+                    >
+                        W
+                    </button>
+                    <div></div>
+                    <button
+                        className={`touch-button${pressedKeys['KeyA'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('KeyA')}
+                        onTouchEnd={() => handleTouchEnd('KeyA')}
+                    >
+                        A
+                    </button>
+                    <button
+                        className={`touch-button${pressedKeys['KeyS'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('KeyS')}
+                        onTouchEnd={() => handleTouchEnd('KeyS')}
+                    >
+                        S
+                    </button>
+                    <button
+                        className={`touch-button${pressedKeys['KeyD'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('KeyD')}
+                        onTouchEnd={() => handleTouchEnd('KeyD')}
+                    >
+                        D
+                    </button>
+                </div>
 
-            {/* Arrow Controls */}
-            <div className="arrow-controls">
-                <div></div>
-                <button
-                    className={`touch-button${pressedKeys['ArrowUp'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('ArrowUp')}
-                    onTouchEnd={() => handleTouchEnd('ArrowUp')}
-                >
-                    ↑
-                </button>
-                <div></div>
-                <button
-                    className={`touch-button${pressedKeys['ArrowLeft'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('ArrowLeft')}
-                    onTouchEnd={() => handleTouchEnd('ArrowLeft')}
-                >
-                    ←
-                </button>
-                <button
-                    className={`touch-button${pressedKeys['ArrowDown'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('ArrowDown')}
-                    onTouchEnd={() => handleTouchEnd('ArrowDown')}
-                >
-                    ↓
-                </button>
-                <button
-                    className={`touch-button${pressedKeys['ArrowRight'] ? ' pressed' : ''}`}
-                    onTouchStart={() => handleTouchStart('ArrowRight')}
-                    onTouchEnd={() => handleTouchEnd('ArrowRight')}
-                >
-                    →
-                </button>
+                {/* Vertical Controls (Up/Down) */}
+                <div className="vertical-controls">
+                    <button
+                        className={`touch-button${pressedKeys['Space'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('Space')}
+                        onTouchEnd={() => handleTouchEnd('Space')}
+                    >
+                        ↑
+                        <span className="touch-label">Up</span>
+                    </button>
+                    <button
+                        className={`touch-button${pressedKeys['ShiftLeft'] || pressedKeys['ShiftRight'] ? ' pressed' : ''}`}
+                        onTouchStart={() => { handleTouchStart('ShiftLeft'); handleTouchStart('ShiftRight'); }}
+                        onTouchEnd={() => { handleTouchEnd('ShiftLeft'); handleTouchEnd('ShiftRight'); }}
+                    >
+                        ↓
+                        <span className="touch-label">Down</span>
+                    </button>
+                </div>
+
+                {/* Arrow Controls */}
+                <div className="arrow-controls">
+                    <div></div>
+                    <button
+                        className={`touch-button${pressedKeys['ArrowUp'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('ArrowUp')}
+                        onTouchEnd={() => handleTouchEnd('ArrowUp')}
+                    >
+                        ↑
+                    </button>
+                    <div></div>
+                    <button
+                        className={`touch-button${pressedKeys['ArrowLeft'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('ArrowLeft')}
+                        onTouchEnd={() => handleTouchEnd('ArrowLeft')}
+                    >
+                        ←
+                    </button>
+                    <button
+                        className={`touch-button${pressedKeys['ArrowDown'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('ArrowDown')}
+                        onTouchEnd={() => handleTouchEnd('ArrowDown')}
+                    >
+                        ↓
+                    </button>
+                    <button
+                        className={`touch-button${pressedKeys['ArrowRight'] ? ' pressed' : ''}`}
+                        onTouchStart={() => handleTouchStart('ArrowRight')}
+                        onTouchEnd={() => handleTouchEnd('ArrowRight')}
+                    >
+                        →
+                    </button>
+                </div>
             </div>
         </>
     );
