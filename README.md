@@ -1,6 +1,6 @@
 # * READ THE README, THERE ARE VISUAL EXAMPLES *
 <br>
-
+ 
 # Introduction
 
 This project is a **Flight Simulation and Multiplayer Platform** built with a **C# (.NET) server** and a **React + Vite + TypeScript + Cesium client**, connected through a **WebSocket**.
