@@ -26,7 +26,7 @@ export interface MessageWrapper {
    //The type of the inner message (used for dynamic deserialization)
   type: string;
    //The mode of the message (used for routing)
-  mode: string;
+  clientMode: string;
 }
 
 export interface ScenarioPlanesSnapshot {
@@ -152,4 +152,90 @@ export class DroneKilled {
     this.killedDroneId = killedDroneId;
     this.bulletId = bulletId;
   }
+}
+
+
+
+// Base trajectory
+export interface AircraftTrajectory {
+  aircraftType: string;
+  aircraftId: string;
+  aircraftName: string;
+  geoPoints: GeoPoint[];
+  velocity: number;
+}
+
+export interface DroneTrajectory extends AircraftTrajectory {
+  // Drone-specific properties (none for now)
+}
+
+export interface PlaneTrajectory extends AircraftTrajectory {
+  // Plane-specific properties (none for now)
+}
+
+export interface BalloonTrajectory extends AircraftTrajectory {
+  // Balloon-specific properties (none for now)
+}
+
+export interface B2spiritTrajectory extends AircraftTrajectory {
+  // B2 Spirit-specific properties (none for now)
+}
+
+export interface F16Trajectory extends AircraftTrajectory {
+  // F-16-specific properties (none for now)
+}
+
+export interface F34Trajectory extends AircraftTrajectory {
+  // F-34-specific properties (none for now)
+}
+
+export interface IaiKfirTrajectory extends AircraftTrajectory {
+  // IAI Kfir-specific properties (none for now)
+}
+
+export interface UavTrajectory extends AircraftTrajectory {
+  // UAV-specific properties (none for now)
+}
+
+// Base status
+export interface AircraftStatus {
+  aircraftType: string;
+  aircraftId: string;
+  aircraftName: string;
+  trajectoryPoints: TrajectoryPoint[]; // actually one point, but kept as array for server consistency
+  tailPoints: TrajectoryPoint[];
+  isInDangerZone: boolean;
+  dangerZonesIn: string[];
+}
+
+export interface DroneStatus extends AircraftStatus {
+  // Drone-specific properties (none for now)
+}
+
+export interface PlaneStatus extends AircraftStatus {
+  // Plane-specific properties (none for now)
+}
+
+export interface BalloonStatus extends AircraftStatus {
+  // Balloon-specific properties (none for now)
+}
+
+export interface B2spiritStatus extends AircraftStatus {
+  // B2 Spirit-specific properties (none for now)
+}
+
+export interface F16Status extends AircraftStatus {
+  // F-16-specific properties (none for now)
+}
+
+export interface F34Status extends AircraftStatus {
+  // F-34-specific properties (none for now)
+}
+
+export interface IaiKfirStatus extends AircraftStatus {
+  // IAI Kfir-specific properties (none for now)
+}
+
+export interface UavStatus extends AircraftStatus {
+  // UAV-specific properties (none for now)
 }
