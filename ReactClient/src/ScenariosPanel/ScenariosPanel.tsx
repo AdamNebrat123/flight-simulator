@@ -58,7 +58,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
 
     // Add Scenario
     const handleAddScenarioClick = () => {
-        setSelectedScenarioObj({ planes: [], scenarioName: "ScenarioName", scenarioId: "" });
+        setSelectedScenarioObj({ aircrafts: [], scenarioName: "ScenarioName", scenarioId: "" });
         setOnSaveSceanrio(() => SaveTrajectory); // set the onSave to Save function
         scenarioPlayer.selectScenario(null);
         openCreateTrajectoryPanel();

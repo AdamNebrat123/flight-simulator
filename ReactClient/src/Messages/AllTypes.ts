@@ -4,7 +4,7 @@ export interface AllTypes {
     multiPlaneTrajectoryResult:      ScenarioPlanesSnapshot;
     planeCalculatedTrajectoryPoints: PlaneCalculatedTrajectoryPoints;
     planesTrajectoryPointsEvent:     Scenario;
-    planeTrajectoryPoints:           PlaneTrajectoryPoints;
+    planeTrajectoryPoints:           AircraftTrajectory;
     trajectoryPoint:                 TrajectoryPoint;
     //[property: string]: any;
 }
@@ -53,20 +53,15 @@ export interface TrajectoryPoint {
     //[property: string]: any;
 }
 
-export interface PlaneTrajectoryPoints {
-    planeId: string;
-    geoPoints: GeoPoint[];
-    planeName: string;
-    velocity:  number;
-    //[property: string]: any;
-}
+
 
 export interface Scenario {
     scenarioId: string;
-    planes: PlaneTrajectoryPoints[];
+    aircrafts: AircraftTrajectory[];
     scenarioName: string;
     //[property: string]: any;
 }
+
 
 export interface ScenariosReadyToPlay {
   scenariosIds: string[];
@@ -158,11 +153,12 @@ export class DroneKilled {
 
 // Base trajectory
 export interface AircraftTrajectory {
-  aircraftType: string;
-  aircraftId: string;
-  aircraftName: string;
-  geoPoints: GeoPoint[];
-  velocity: number;
+    aircraftType: string;
+    aircraftId: string;
+    geoPoints: GeoPoint[];
+    aircraftName: string;
+    velocity:  number;
+    //[property: string]: any;
 }
 
 export interface DroneTrajectory extends AircraftTrajectory {

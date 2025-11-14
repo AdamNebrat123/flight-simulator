@@ -1,57 +1,55 @@
 import { useState } from "react";
 import "./AerialUnitSelection.css";
+import { AircraftTypeEnum } from "../Messages/AircraftTypeEnum";
+
+interface AerialUnitSelectionProps {
+    selectedType: string | null;                  // סוג נבחר כרגע
+    onSelectType: (type: string) => void;         // פונקציה לעדכון בחירה
+}
 
 
-
-
-export default function AerialUnitSelection(){
+export default function AerialUnitSelection({ selectedType, onSelectType }: AerialUnitSelectionProps){
     const [isImgSelctionOpen, setIsImgSelctionOpen] = useState(false);
-    const [selectedAerialUnit, setSelectedAerialUnit] = useState<string | null>(null);
 
     const options = [
-        { value: "plane", img: "/Images/AerialUnitsImages/ImgPlane.png" },
-        { value: "drone", img: "/Images/AerialUnitsImages/ImgDrone.png" },
-        { value: "balloon", img: "/Images/AerialUnitsImages/ImgBalloon.png" },
-        
-        { value: "b2spirit", img: "/Images/AerialUnitsImages/b2spirit.png" },
-        { value: "f16", img: "/Images/AerialUnitsImages/f16.png" },
-        { value: "f34", img: "/Images/AerialUnitsImages/f34.png" },
-        { value: "IAIKfir", img: "/Images/AerialUnitsImages/IAIKfir.png" },
-        { value: "UAV", img: "/Images/AerialUnitsImages/UAV.png" },
+        { value: AircraftTypeEnum.Plane , img: "/Images/AerialUnitsImages/ImgPlane.png" },
+        { value: AircraftTypeEnum.Drone, img: "/Images/AerialUnitsImages/ImgDrone.png" },
+        { value: AircraftTypeEnum.Balloon, img: "/Images/AerialUnitsImages/ImgBalloon.png" },
+        { value: AircraftTypeEnum.B2spirit, img: "/Images/AerialUnitsImages/b2spirit.png" },
+        { value: AircraftTypeEnum.F16, img: "/Images/AerialUnitsImages/f16.png" },
+        { value: AircraftTypeEnum.F34, img: "/Images/AerialUnitsImages/f34.png" },
+        { value: AircraftTypeEnum.IaiKfir, img: "/Images/AerialUnitsImages/IAIKfir.png" },
+        { value: AircraftTypeEnum.Uav, img: "/Images/AerialUnitsImages/UAV.png" },
     ];
 
     return(
         <div>
-            <label
-            style={{fontSize: 20}}>AerialUnit type: {selectedAerialUnit ? selectedAerialUnit : "Not choosed"}</label>
+            <label style={{fontSize: 20}}>
+                AerialUnit type: {selectedType ? selectedType : "Not choosed"}
+            </label>
             <button 
-            className="changeType-button"
-            onClick={() => setIsImgSelctionOpen(!isImgSelctionOpen)}
+                className="changeType-button"
+                onClick={() => setIsImgSelctionOpen(!isImgSelctionOpen)}
             >
-            Change AerialUnit Type
+                Change AerialUnit Type
             </button>
 
             {isImgSelctionOpen && (
-            <div>
-                {options.map((opt) => (
-                    
-                    <div key={opt.value} style={{ display: "inline-block", textAlign: "center", margin: "4px" }}>
-                    <label style={{ display: "block", fontSize: "12px" }}>{opt.value}</label>
-                    <img
-                        className= {opt.value === selectedAerialUnit ? "selected-image-option" : "image-option"}
-                        src={opt.img}
-                        width={70}
-                        height={70}
-                        onClick={() => {
-                        setSelectedAerialUnit(opt.value);
-                        //setIsImgSelctionOpen(false);
-                        }}
-                    />
-                    </div>
-                ))}
-            </div>
+                <div>
+                    {options.map((opt) => (
+                        <div key={opt.value} style={{ display: "inline-block", textAlign: "center", margin: "4px" }}>
+                            <label style={{ display: "block", fontSize: "12px" }}>{opt.value}</label>
+                            <img
+                                className={opt.value === selectedType ? "selected-image-option" : "image-option"}
+                                src={opt.img}
+                                width={70}
+                                height={70}
+                                onClick={() => onSelectType(opt.value)} // <-- כאן שולחים החוצה את הבחירה
+                            />
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
-
     );
 }

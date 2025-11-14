@@ -153,11 +153,12 @@ public partial class Scenario
 {
     [JsonPropertyName("scenarioId")]
     public string scenarioId { get; set; }
-    [JsonPropertyName("planes")]
-    public List<PlaneTrajectoryPoints> planes { get; set; }
+
+    [JsonPropertyName("aircrafts")]
+    public List<AircraftTrajectory> aircrafts { get; set; }
+
     [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
-
 }
 public partial class ScenariosReadyToPlay
 {

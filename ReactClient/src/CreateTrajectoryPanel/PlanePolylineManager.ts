@@ -90,10 +90,10 @@ export class PlanePolylineManager {
   }
 
   loadExistingPolylines(scenario: Scenario) {
-    if (!scenario || !scenario.planes) return;
+    if (!scenario || !scenario.aircrafts) return;
 
-    for (const plane of scenario.planes) {
-      const { planeName, geoPoints } = plane;
+    for (const plane of scenario.aircrafts) {
+      const { aircraftName: planeName, geoPoints } = plane;
 
       // Create a new polyline for this plane
       this.createPolyline(planeName);
