@@ -14,10 +14,10 @@ public partial class AllTypes
     public MessageWrapper messageWrapper { get; set; }
 
     [JsonPropertyName("multiPlaneTrajectoryResult")]
-    public ScenarioPlanesSnapshot multiPlaneTrajectoryResult { get; set; }
+    public ScenarioAirCraftsSnapshot multiPlaneTrajectoryResult { get; set; }
 
     [JsonPropertyName("planeCalculatedTrajectoryPoints")]
-    public PlaneCalculatedTrajectoryPoints planeCalculatedTrajectoryPoints { get; set; }
+    public AircraftStatus planeCalculatedTrajectoryPoints { get; set; }
 
     [JsonPropertyName("planesTrajectoryPointsEvent")]
     public Scenario planesTrajectoryPointsEvent { get; set; }
@@ -78,36 +78,20 @@ public partial class MessageWrapper
     public string? clientMode { get; set; }
 }
 
-public partial class ScenarioPlanesSnapshot
+public partial class ScenarioAirCraftsSnapshot
 {
     [JsonPropertyName("scenarioId")]
     public string scenarioId { get; set; }
 
     [JsonPropertyName("planes")]
-    public List<PlaneCalculatedTrajectoryPoints> planes { get; set; }
-    public ScenarioPlanesSnapshot(List<PlaneCalculatedTrajectoryPoints> planes)
+    public List<AircraftStatus> planes { get; set; }
+    public ScenarioAirCraftsSnapshot(List<AircraftStatus> planes)
     {
         this.planes = planes;
     }
 }
 
-public partial class PlaneCalculatedTrajectoryPoints
-{
-    [JsonPropertyName("planeId")]
-    public string planeId { get; set; }
 
-    [JsonPropertyName("planeName")]
-    public string planeName { get; set; }
-
-    [JsonPropertyName("trajectoryPoints")]
-    public List<TrajectoryPoint> trajectoryPoints { get; set; } // it is actually one point everytime. not list. its a list because it needed to be used sometime a list in server side.
-    [JsonPropertyName("tailPoints")]
-    public List<TrajectoryPoint> tailPoints { get; set; }
-    [JsonPropertyName("isInDangerZone")]
-    public bool isInDangerZone { get; set; }
-    [JsonPropertyName("dangerZonesIn")]
-    public List<string> dangerZonesIn { get; set; }
-}
 
 public partial class TrajectoryPoint
 {
@@ -320,46 +304,156 @@ public partial class AircraftTrajectory
 
     [JsonPropertyName("velocity")]
     public double velocity { get; set; }
+
+    public virtual AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new AircraftStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class DroneTrajectory : AircraftTrajectory
 {
-    // Drone-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new DroneStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class PlaneTrajectory : AircraftTrajectory
 {
-    // Plane-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new PlaneStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class BalloonTrajectory : AircraftTrajectory
 {
-    // Balloon-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new BalloonStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class B2spiritTrajectory : AircraftTrajectory
 {
-    // B2 Spirit-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new B2spiritStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class F16Trajectory : AircraftTrajectory
 {
-    // F16-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new F16Status
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class F34Trajectory : AircraftTrajectory
 {
-    // F34-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new F34Status
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class IaiKfirTrajectory : AircraftTrajectory
 {
-    // IAI Kfir-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new IaiKfirStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 public partial class UavTrajectory : AircraftTrajectory
 {
-    // UAV-specific properties will go here (none for now)
+    public override AircraftStatus CreateStatus(TrajectoryPoint point)
+    {
+        return new UavStatus
+        {
+            aircraftType = this.aircraftType,
+            aircraftId = this.aircraftId,
+            aircraftName = this.aircraftName,
+            trajectoryPoints = new List<TrajectoryPoint> { point },
+            tailPoints = new List<TrajectoryPoint>(),
+            isInDangerZone = false,
+            dangerZonesIn = new List<string>()
+        };
+    }
 }
 
 // Base status
@@ -367,7 +461,6 @@ public partial class AircraftStatus
 {
     [JsonPropertyName("aircraftType")]
     public string aircraftType { get; set; }
-
     [JsonPropertyName("aircraftId")]
     public string aircraftId { get; set; }
 

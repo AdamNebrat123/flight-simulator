@@ -38,24 +38,24 @@ public class PlaySelectedScenarioHandler
         
         // a history of points for each plane by its name
         Dictionary<string, Queue<TrajectoryPoint>> history = new();
-        foreach (ScenarioPlanesSnapshot result in scenario.points)
+        foreach (ScenarioAirCraftsSnapshot result in scenario.points)
         {
             while (scenario.isPaused)
             {
                 await Task.Delay(100);
             }
 
-            foreach (PlaneCalculatedTrajectoryPoints plane in result.planes)
+            foreach (AircraftStatus plane in result.planes)
             {
                 // Make sure every plane has a history queue
-                if (!history.ContainsKey(plane.planeName))
-                    history[plane.planeName] = new Queue<TrajectoryPoint>();
+                if (!history.ContainsKey(plane.aircraftName))
+                    history[plane.aircraftName] = new Queue<TrajectoryPoint>();
 
                 // If there is a current point, add it to history
                 if (plane.trajectoryPoints != null && plane.trajectoryPoints.Any())
                 {
                     TrajectoryPoint currentPoint = plane.trajectoryPoints.First();
-                    history[plane.planeName].Enqueue(currentPoint);
+                    history[plane.aircraftName].Enqueue(currentPoint);
 
                     // Check if point is in danger zone
                     List<string> dangerZonesIn = dangerZoneChecker.GetZonesContainingPoint(currentPoint.position);
@@ -65,12 +65,12 @@ public class PlaySelectedScenarioHandler
                     plane.isInDangerZone = dangerZonesIn.Count > 0;
 
                     // Keep max 30 points in history
-                    if (history[plane.planeName].Count > 30)
-                        history[plane.planeName].Dequeue();
+                    if (history[plane.aircraftName].Count > 30)
+                        history[plane.aircraftName].Dequeue();
                 }
 
                 // Update tailPoints from history
-                plane.tailPoints = history[plane.planeName].ToList();
+                plane.tailPoints = history[plane.aircraftName].ToList();
             }
 
             string responseJson = WebSocketServer.prepareMessageToClient(
