@@ -48,7 +48,7 @@ public class WebSocketServer
                     }
 
                     var jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    //Console.WriteLine("Received: " + jsonString);
+                    Console.WriteLine("Received: " + jsonString);
                     await _uiMsgHandler.HandleIncomingMessage(webSocket, jsonString);
 
                 }

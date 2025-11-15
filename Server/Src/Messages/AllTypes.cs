@@ -83,11 +83,11 @@ public partial class ScenarioAirCraftsSnapshot
     [JsonPropertyName("scenarioId")]
     public string scenarioId { get; set; }
 
-    [JsonPropertyName("planes")]
-    public List<AircraftStatus> planes { get; set; }
-    public ScenarioAirCraftsSnapshot(List<AircraftStatus> planes)
+    [JsonPropertyName("aircrafts")]
+    public List<AircraftStatus> aircrafts { get; set; }
+    public ScenarioAirCraftsSnapshot(List<AircraftStatus> aircrafts)
     {
-        this.planes = planes;
+        this.aircrafts = aircrafts;
     }
 }
 
@@ -284,15 +284,15 @@ public partial class DroneKilled
 [JsonDerivedType(typeof(DroneTrajectory), "Drone")]
 [JsonDerivedType(typeof(PlaneTrajectory), "Plane")]
 [JsonDerivedType(typeof(BalloonTrajectory), "Balloon")]
-[JsonDerivedType(typeof(B2spiritTrajectory), "B2Spirit")]
+[JsonDerivedType(typeof(B2spiritTrajectory), "B2spirit")]
 [JsonDerivedType(typeof(F16Trajectory), "F16")]
-[JsonDerivedType(typeof(F34Trajectory), "F34")]
+[JsonDerivedType(typeof(F34Trajectory), "F35")]
 [JsonDerivedType(typeof(IaiKfirTrajectory), "IaiKfir")]
-[JsonDerivedType(typeof(UavTrajectory), "UAV")]
+[JsonDerivedType(typeof(UavTrajectory), "Uav")]
 public partial class AircraftTrajectory
 {
-    [JsonPropertyName("aircraftType")]
-    public string aircraftType { get; set; }
+    //[JsonPropertyName("aircraftType")]
+    //public string aircraftType { get; set; }
     [JsonPropertyName("aircraftId")]
     public string aircraftId { get; set; }
 
@@ -309,7 +309,7 @@ public partial class AircraftTrajectory
     {
         return new AircraftStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = "NONE",
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -326,7 +326,7 @@ public partial class DroneTrajectory : AircraftTrajectory
     {
         return new DroneStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.Drone.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -343,7 +343,7 @@ public partial class PlaneTrajectory : AircraftTrajectory
     {
         return new PlaneStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.Plane.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -360,7 +360,7 @@ public partial class BalloonTrajectory : AircraftTrajectory
     {
         return new BalloonStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.Balloon.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -377,7 +377,7 @@ public partial class B2spiritTrajectory : AircraftTrajectory
     {
         return new B2spiritStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.B2spirit.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -394,7 +394,7 @@ public partial class F16Trajectory : AircraftTrajectory
     {
         return new F16Status
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.F16.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -411,7 +411,7 @@ public partial class F34Trajectory : AircraftTrajectory
     {
         return new F34Status
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.F35.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -428,7 +428,7 @@ public partial class IaiKfirTrajectory : AircraftTrajectory
     {
         return new IaiKfirStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.IaiKfir.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -445,7 +445,7 @@ public partial class UavTrajectory : AircraftTrajectory
     {
         return new UavStatus
         {
-            aircraftType = this.aircraftType,
+            aircraftType = AircraftTypeEnum.Uav.ToString(),
             aircraftId = this.aircraftId,
             aircraftName = this.aircraftName,
             trajectoryPoints = new List<TrajectoryPoint> { point },
@@ -479,40 +479,40 @@ public partial class AircraftStatus
 
 public partial class DroneStatus : AircraftStatus
 {
-    // Drone-specific properties will go here (none for now)
+    public DroneStatus() => aircraftType = AircraftTypeEnum.Drone.ToString();
 }
 
 public partial class PlaneStatus : AircraftStatus
 {
-    // Plane-specific properties will go here (none for now)
+    public PlaneStatus() => aircraftType = AircraftTypeEnum.Plane.ToString();
 }
 
 public partial class BalloonStatus : AircraftStatus
 {
-    // Balloon-specific properties will go here (none for now)
+    public BalloonStatus() => aircraftType = AircraftTypeEnum.Balloon.ToString();
 }
 
 public partial class B2spiritStatus : AircraftStatus
 {
-    // B2 Spirit-specific properties will go here (none for now)
+    public B2spiritStatus() => aircraftType = AircraftTypeEnum.B2spirit.ToString();
 }
 
 public partial class F16Status : AircraftStatus
 {
-    // F16-specific properties will go here (none for now)
+    public F16Status() => aircraftType = AircraftTypeEnum.F16.ToString();
 }
 
 public partial class F34Status : AircraftStatus
 {
-    // F34-specific properties will go here (none for now)
+    public F34Status() => aircraftType = AircraftTypeEnum.F35.ToString();
 }
 
 public partial class IaiKfirStatus : AircraftStatus
 {
-    // IAI Kfir-specific properties will go here (none for now)
+    public IaiKfirStatus() => aircraftType = AircraftTypeEnum.IaiKfir.ToString();
 }
 
 public partial class UavStatus : AircraftStatus
 {
-    // UAV-specific properties will go here (none for now)
+    public UavStatus() => aircraftType = AircraftTypeEnum.Uav.ToString();
 }

@@ -5,7 +5,7 @@ public enum AircraftTypeEnum
     Balloon,
     B2spirit,
     F16,
-    F34,
+    F35,
     IaiKfir,
     Uav
 }

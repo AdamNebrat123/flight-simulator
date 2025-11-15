@@ -1,8 +1,8 @@
 export interface AllTypes {
     geoPoint:                        GeoPoint;
     messageWrapper:                  MessageWrapper;
-    multiPlaneTrajectoryResult:      ScenarioPlanesSnapshot;
-    planeCalculatedTrajectoryPoints: PlaneCalculatedTrajectoryPoints;
+    multiPlaneTrajectoryResult:      ScenarioAirCraftsSnapshot;
+    planeCalculatedTrajectoryPoints: AircraftStatus;
     planesTrajectoryPointsEvent:     Scenario;
     planeTrajectoryPoints:           AircraftTrajectory;
     trajectoryPoint:                 TrajectoryPoint;
@@ -29,21 +29,13 @@ export interface MessageWrapper {
   clientMode: string;
 }
 
-export interface ScenarioPlanesSnapshot {
+export interface ScenarioAirCraftsSnapshot {
     scenarioId: string;
-    planes: PlaneCalculatedTrajectoryPoints[];
+    aircrafts: AircraftStatus[];
     //[property: string]: any;
 }
 
-export interface PlaneCalculatedTrajectoryPoints {
-    planeId:          string;
-    planeName:        string;
-    trajectoryPoints: TrajectoryPoint[]; // it's usually one point
-    tailPoints: TrajectoryPoint[];
-    isInDangerZone: boolean;
-    dangerZonesIn: string[];
-    //[property: string]: any;
-}
+
 
 export interface TrajectoryPoint {
     heading:  number;
@@ -195,13 +187,14 @@ export interface UavTrajectory extends AircraftTrajectory {
 
 // Base status
 export interface AircraftStatus {
-  aircraftType: string;
-  aircraftId: string;
-  aircraftName: string;
-  trajectoryPoints: TrajectoryPoint[]; // actually one point, but kept as array for server consistency
-  tailPoints: TrajectoryPoint[];
-  isInDangerZone: boolean;
-  dangerZonesIn: string[];
+    aircraftType: string;
+    aircraftId:          string;
+    aircraftName:        string;
+    trajectoryPoints: TrajectoryPoint[]; // actually one point, but kept as array for server consistency
+    tailPoints: TrajectoryPoint[];
+    isInDangerZone: boolean;
+    dangerZonesIn: string[];
+    //[property: string]: any;
 }
 
 export interface DroneStatus extends AircraftStatus {

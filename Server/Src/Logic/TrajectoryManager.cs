@@ -22,7 +22,7 @@ public class TemporaryCalculatedPointsStorage
             var point = newTrajectory[i];
             var wrapped = aircraft.CreateStatus(point);
 
-            CalculatedTrajectoryPoints[i].planes.Add(wrapped);
+            CalculatedTrajectoryPoints[i].aircrafts.Add(wrapped);
         }
     }
 }

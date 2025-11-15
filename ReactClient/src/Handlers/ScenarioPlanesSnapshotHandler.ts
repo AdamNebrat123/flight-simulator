@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import type { ScenarioPlanesSnapshot } from "../Messages/AllTypes";
+import type { ScenarioAirCraftsSnapshot } from "../Messages/AllTypes";
 import { PlaneEntityManager } from "./PlaneEntityManager";
 import { PlaneTailManager } from "./PlaneTailManager";
 import type { DangerZoneEntityManager } from "../DangerZonePanel/DangerZoneEntityManager";
@@ -18,7 +18,7 @@ export class ScenarioPlanesSnapshotHandler {
   // Public entry point for raw data
   public HandleScenarioPlanesSnapshot(data: any) {
     try {
-      const scenarioPlanesSnapshot = data as ScenarioPlanesSnapshot;
+      const scenarioPlanesSnapshot = data as ScenarioAirCraftsSnapshot;
       console.log("ALL PLANE POINTS:", scenarioPlanesSnapshot);
 
       this.processTrajectoryResult(scenarioPlanesSnapshot);
@@ -28,40 +28,40 @@ export class ScenarioPlanesSnapshotHandler {
   }
 
   private async processTrajectoryResult(
-    scenarioPlanesSnapshot: ScenarioPlanesSnapshot
+    scenarioPlanesSnapshot: ScenarioAirCraftsSnapshot
   ): Promise<void> {
     const uniqueDangerZones = new Set<string>();
 
-    for (const plane of scenarioPlanesSnapshot.planes) {
-      for (const point of plane.trajectoryPoints) {
+    for (const aircraft of scenarioPlanesSnapshot.aircrafts) {
+      for (const point of aircraft.trajectoryPoints) {
         const position = Cesium.Cartesian3.fromDegrees(
           point.position.longitude,
           point.position.latitude,
           point.position.altitude
         );
-
         // Update the plane itself
         this.planeEntityManager.updateOrCreateEntity(
-          plane.planeName,
+          aircraft,
+          aircraft.aircraftName,
           position,
           point.heading,
           point.pitch
         );
 
         // Check if plane is in danger zone - to make the plane blink
-        if (plane.isInDangerZone) {
-          this.planeEntityManager.startBlinking(plane.planeName);
+        if (aircraft.isInDangerZone) {
+          this.planeEntityManager.startBlinking(aircraft.aircraftName);
         } else {
-          this.planeEntityManager.stopBlinking(plane.planeName);
+          this.planeEntityManager.stopBlinking(aircraft.aircraftName);
         }
 
         // Add every danger zone name to the set
-        for (const dz of plane.dangerZonesIn) {
+        for (const dz of aircraft.dangerZonesIn) {
             uniqueDangerZones.add(dz);
         }
 
         // Update the tail
-        this.tailManager.updateTail(plane.planeName, plane.tailPoints);
+        this.tailManager.updateTail(aircraft.aircraftName, aircraft.tailPoints);
       }
     }
     // After processing all planes, check all danger zones to know what danger zone(s) should blink

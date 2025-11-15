@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import type { AircraftStatus } from '../Messages/AllTypes';
 
 export class PlaneEntityManager {
   private static instance: PlaneEntityManager | null = null;
@@ -29,12 +30,14 @@ export class PlaneEntityManager {
   }
 
   updateOrCreateEntity(
-    planeName: string,
+    aircraft: AircraftStatus,
+    aircraftName: string,
     position: Cesium.Cartesian3,
     headingDegrees: number,
     pitchDegrees: number
   ) {
     if (!this.viewer) return;
+    
 
     const heading = Cesium.Math.toRadians(headingDegrees - 90);
     const pitch = Cesium.Math.toRadians(pitchDegrees);
@@ -43,8 +46,8 @@ export class PlaneEntityManager {
     const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
     const orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
 
-    if (this.planeNameToEntity.has(planeName)) {
-      const entity = this.planeNameToEntity.get(planeName)!;
+    if (this.planeNameToEntity.has(aircraftName)) {
+      const entity = this.planeNameToEntity.get(aircraftName)!;
       entity.position = new Cesium.ConstantPositionProperty(position);
       entity.orientation = new Cesium.ConstantProperty(orientation);
     } else {
@@ -52,7 +55,7 @@ export class PlaneEntityManager {
         position: position,
         orientation: orientation,
         model: {
-          uri: "https://raw.githubusercontent.com/CesiumGS/cesium/master/Apps/SampleData/models/CesiumAir/Cesium_Air.glb",
+          uri: `/models/${aircraft.aircraftType}.glb`,
           scale: 1.5,
           minimumPixelSize: 64,
           color: Cesium.Color.WHITE,
@@ -61,7 +64,7 @@ export class PlaneEntityManager {
           silhouetteSize: 2.0,
         },
         label: {
-          text: planeName,
+          text: aircraftName,
           font: "14px sans-serif",
           fillColor: Cesium.Color.WHITE,
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -69,9 +72,9 @@ export class PlaneEntityManager {
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -12),
         },
-        name: planeName,
+        name: aircraftName,
       });
-      this.planeNameToEntity.set(planeName, entity);
+      this.planeNameToEntity.set(aircraftName, entity);
       console.log("added plane!!!!")
     }
   }

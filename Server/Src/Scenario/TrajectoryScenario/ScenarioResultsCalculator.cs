@@ -34,6 +34,10 @@ public class ScenarioResultsCalculator
             temporaryCalculatedPointsStorage.AddTrajectory(trajectory, aircraft);
         }
 
+        foreach(ScenarioAirCraftsSnapshot snapshot in temporaryCalculatedPointsStorage.CalculatedTrajectoryPoints)
+        {
+            snapshot.scenarioId = scenario.scenarioId;
+        }
         ScenarioResults scenarioResult = new ScenarioResults
         {
             scenarioId = scenario.scenarioId,

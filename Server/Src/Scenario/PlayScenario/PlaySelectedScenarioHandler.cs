@@ -45,7 +45,7 @@ public class PlaySelectedScenarioHandler
                 await Task.Delay(100);
             }
 
-            foreach (AircraftStatus plane in result.planes)
+            foreach (AircraftStatus plane in result.aircrafts)
             {
                 // Make sure every plane has a history queue
                 if (!history.ContainsKey(plane.aircraftName))
@@ -81,6 +81,8 @@ public class PlaySelectedScenarioHandler
 
             WebSocketServer.SendMsgToClients(responseJson, clientMode);
 
+            System.Console.WriteLine("sent: " + responseJson);
+            
             int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);
             await Task.Delay(adjustedDelay);
         }
