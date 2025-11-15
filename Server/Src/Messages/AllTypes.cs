@@ -23,7 +23,7 @@ public partial class AllTypes
     public Scenario planesTrajectoryPointsEvent { get; set; }
 
     [JsonPropertyName("planeTrajectoryPoints")]
-    public PlaneTrajectoryPoints planeTrajectoryPoints { get; set; }
+    public AircraftTrajectory planeTrajectoryPoints { get; set; }
 
     [JsonPropertyName("trajectoryPoint")]
     public TrajectoryPoint trajectoryPoint { get; set; }
@@ -134,31 +134,16 @@ public partial class TrajectoryPoint
     }
 }
 
-public partial class PlaneTrajectoryPoints
-{
-    [JsonPropertyName("planeId")]
-    public string planeId { get; set; }
-
-    [JsonPropertyName("geoPoints")]
-    public List<GeoPoint> geoPoints { get; set; }
-
-    [JsonPropertyName("planeName")]
-    public string planeName { get; set; }
-
-    [JsonPropertyName("velocity")]
-    public double velocity { get; set; }
-}
 
 public partial class Scenario
 {
     [JsonPropertyName("scenarioId")]
     public string scenarioId { get; set; }
-
     [JsonPropertyName("aircrafts")]
     public List<AircraftTrajectory> aircrafts { get; set; }
-
     [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
+
 }
 public partial class ScenariosReadyToPlay
 {
@@ -310,24 +295,32 @@ public partial class DroneKilled
 
 
 // Base trajectory
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "aircraftType")]
+[JsonDerivedType(typeof(DroneTrajectory), "Drone")]
+[JsonDerivedType(typeof(PlaneTrajectory), "Plane")]
+[JsonDerivedType(typeof(BalloonTrajectory), "Balloon")]
+[JsonDerivedType(typeof(B2spiritTrajectory), "B2Spirit")]
+[JsonDerivedType(typeof(F16Trajectory), "F16")]
+[JsonDerivedType(typeof(F34Trajectory), "F34")]
+[JsonDerivedType(typeof(IaiKfirTrajectory), "IaiKfir")]
+[JsonDerivedType(typeof(UavTrajectory), "UAV")]
 public partial class AircraftTrajectory
 {
     [JsonPropertyName("aircraftType")]
     public string aircraftType { get; set; }
-
     [JsonPropertyName("aircraftId")]
     public string aircraftId { get; set; }
-
-    [JsonPropertyName("aircraftName")]
-    public string aircraftName { get; set; }
 
     [JsonPropertyName("geoPoints")]
     public List<GeoPoint> geoPoints { get; set; }
 
+    [JsonPropertyName("aircraftName")]
+    public string aircraftName { get; set; }
+
     [JsonPropertyName("velocity")]
     public double velocity { get; set; }
 }
-
 
 public partial class DroneTrajectory : AircraftTrajectory
 {

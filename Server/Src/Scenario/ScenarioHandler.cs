@@ -33,11 +33,11 @@ public class ScenarioHandler
             scenario.scenarioId = uuidString;
 
             // create a new unique ID for every plane
-            foreach (PlaneTrajectoryPoints plane in scenario.planes)
+            foreach (AircraftTrajectory aircraft in scenario.aircrafts)
             {
-                Guid planeUuid = Guid.NewGuid();
-                string planeUuidString = planeUuid.ToString();
-                plane.planeId = planeUuidString;
+                Guid aircraftId = Guid.NewGuid();
+                string aircraftIdString = aircraftId.ToString();
+                aircraft.aircraftId = aircraftIdString;
             }
 
             // add in file

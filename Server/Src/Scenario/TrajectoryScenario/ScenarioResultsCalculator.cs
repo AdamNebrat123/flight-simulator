@@ -19,19 +19,19 @@ public class ScenarioResultsCalculator
 
     public ScenarioResults? CalculateScenarioResults(Scenario scenario)
     {
-        if (scenario == null || scenario.planes == null)
+        if (scenario == null || scenario.aircrafts == null)
         {
             // Return a default ScenarioResults or throw an exception
             return null;
         }
 
         TemporaryCalculatedPointsStorage temporaryCalculatedPointsStorage = new TemporaryCalculatedPointsStorage();
-        List<PlaneTrajectoryPoints> planesTrajectoryPoints = scenario.planes;
+        List<AircraftTrajectory> planesTrajectoryPoints = scenario.aircrafts;
 
-        foreach (PlaneTrajectoryPoints plane in planesTrajectoryPoints)
+        foreach (AircraftTrajectory plane in planesTrajectoryPoints)
         {
             List<TrajectoryPoint> trajectory = HandleSinglePlane(plane);
-            temporaryCalculatedPointsStorage.AddTrajectory(trajectory, plane.planeName);
+            temporaryCalculatedPointsStorage.AddTrajectory(trajectory, plane.aircraftName);
         }
 
         ScenarioResults scenarioResult = new ScenarioResults
@@ -46,7 +46,7 @@ public class ScenarioResultsCalculator
         return scenarioResult;
     }
 
-    private List<TrajectoryPoint> HandleSinglePlane(PlaneTrajectoryPoints plane)
+    private List<TrajectoryPoint> HandleSinglePlane(AircraftTrajectory plane)
     {
         List<TrajectoryPoint> fullTrajectory = new List<TrajectoryPoint>();
 
