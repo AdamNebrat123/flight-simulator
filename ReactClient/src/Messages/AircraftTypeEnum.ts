@@ -5,7 +5,7 @@ export enum AircraftTypeEnum {
   Balloon = "Balloon",
   B2spirit = "B2spirit",
   F16 = "F16",
-  F34 = "F34",
+  F35 = "F35",
   IaiKfir = "IaiKfir",
   Uav = "Uav"
 }

@@ -17,7 +17,7 @@ export default function AerialUnitSelection({ selectedType, onSelectType }: Aeri
         { value: AircraftTypeEnum.Balloon, img: "/Images/AerialUnitsImages/ImgBalloon.png" },
         { value: AircraftTypeEnum.B2spirit, img: "/Images/AerialUnitsImages/b2spirit.png" },
         { value: AircraftTypeEnum.F16, img: "/Images/AerialUnitsImages/f16.png" },
-        { value: AircraftTypeEnum.F34, img: "/Images/AerialUnitsImages/f34.png" },
+        { value: AircraftTypeEnum.F35, img: "/Images/AerialUnitsImages/f34.png" },
         { value: AircraftTypeEnum.IaiKfir, img: "/Images/AerialUnitsImages/IAIKfir.png" },
         { value: AircraftTypeEnum.Uav, img: "/Images/AerialUnitsImages/UAV.png" },
     ];

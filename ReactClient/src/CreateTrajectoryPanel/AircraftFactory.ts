@@ -14,7 +14,7 @@ export function createAircraftByType(
     [AircraftTypeEnum.Balloon]: createBalloon,
     [AircraftTypeEnum.B2spirit]: createB2spirit,
     [AircraftTypeEnum.F16]: createF16,
-    [AircraftTypeEnum.F34]: createF34,
+    [AircraftTypeEnum.F35]: createF34,
     [AircraftTypeEnum.IaiKfir]: createIaiKfir,
     [AircraftTypeEnum.Uav]: createUav,
   };
@@ -101,7 +101,7 @@ export function createF16(): F16Trajectory {
 
 export function createF34(): F34Trajectory {
   const f34 = {
-    aircraftType: AircraftTypeEnum.F34,
+    aircraftType: AircraftTypeEnum.F35,
     aircraftId: "",
     aircraftName: "F34",
     geoPoints: [],
