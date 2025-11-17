@@ -27,34 +27,34 @@ export class AircraftModelData {
 
   // פונקציות נפרדות לכל סוג
   public static getDroneData(): ModelAdaptationData {
-    return { headingOffset: 5, modelSize: 1 };
+    return { headingOffset: 90, modelSize: 6 };
   }
 
   public static getPlaneData(): ModelAdaptationData {
-    return { headingOffset: 10, modelSize: 2 };
+    return { headingOffset: -90, modelSize: 2.5 };
   }
 
   public static getBalloonData(): ModelAdaptationData {
-    return { headingOffset: 2, modelSize: 3 };
+    return { headingOffset: 0, modelSize: 1.5 };
   }
 
   public static getB2spiritData(): ModelAdaptationData {
-    return { headingOffset: 15, modelSize: 5 };
+    return { headingOffset: 0, modelSize: 0.16 };
   }
 
   public static getF16Data(): ModelAdaptationData {
-    return { headingOffset: 8, modelSize: 2 };
+    return { headingOffset: 0, modelSize: 0.5 };
   }
 
   public static getF35Data(): ModelAdaptationData {
-    return { headingOffset: 12, modelSize: 3 };
+    return { headingOffset: 0, modelSize: 3.5 };
   }
 
   public static getIaiKfirData(): ModelAdaptationData {
-    return { headingOffset: 7, modelSize: 2 };
+    return { headingOffset: -90, modelSize: 4.3 };
   }
 
   public static getUavData(): ModelAdaptationData {
-    return { headingOffset: 4, modelSize: 1 };
+    return { headingOffset: -90, modelSize: 7 };
   }
 }

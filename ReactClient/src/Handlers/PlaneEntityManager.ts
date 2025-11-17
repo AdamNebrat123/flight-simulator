@@ -1,5 +1,7 @@
 import * as Cesium from 'cesium';
 import type { AircraftStatus } from '../Messages/AllTypes';
+import { AircraftModelData } from '../ModelAdaptation/AircraftModelData';
+import type { ModelAdaptationData } from '../ModelAdaptation/ModelAdaptationData';
 
 export class PlaneEntityManager {
   private static instance: PlaneEntityManager | null = null;
@@ -38,8 +40,14 @@ export class PlaneEntityManager {
   ) {
     if (!this.viewer) return;
     
+    const modeldata: ModelAdaptationData | null = AircraftModelData.getModelDataByString(aircraft.aircraftType)
+    if(modeldata === null) return;
+    
+    const headingOffset = modeldata.headingOffset;
+    const modelSize = modeldata.modelSize;
 
-    const heading = Cesium.Math.toRadians(headingDegrees - 90);
+    
+    const heading = Cesium.Math.toRadians(headingDegrees + headingOffset);
     const pitch = Cesium.Math.toRadians(pitchDegrees);
     const roll = 0.0;
 
@@ -56,7 +64,7 @@ export class PlaneEntityManager {
         orientation: orientation,
         model: {
           uri: `/models/${aircraft.aircraftType}.glb`,
-          scale: 1.5,
+          scale: modelSize,
           minimumPixelSize: 64,
           color: Cesium.Color.WHITE,
           lightColor: new Cesium.Color(1.0, 1.0, 1.0, 1.0),
