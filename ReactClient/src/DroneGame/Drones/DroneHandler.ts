@@ -48,6 +48,7 @@ export class DroneHandler {
     } catch (err) {
       console.error("Data could not be parsed to Drone:", err);
     }
+
   }
 
   public HandleDroneError(data: any) {

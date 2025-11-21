@@ -43,7 +43,7 @@ export class PlaneEntityManager {
     const modeldata: ModelAdaptationData | null = AircraftModelData.getModelDataByString(aircraft.aircraftType)
     if(modeldata === null) return;
     
-    const headingOffset = modeldata.headingOffset;
+    const headingOffset = modeldata.heading;
     const modelSize = modeldata.modelSize;
 
     

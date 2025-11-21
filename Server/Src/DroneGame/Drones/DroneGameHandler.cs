@@ -11,20 +11,20 @@ public class DroneGameHandler
     private readonly HitDetector hitDetector = HitDetector.GetInstance();
     private readonly DroneKilledHandler droneKilledHandler = DroneKilledHandler.GetInstance();
     private readonly ArenaBoundaryChecker arenaBoundaryChecker = ArenaBoundaryChecker.GetInstance();
-    private readonly ConcurrentDictionary<string, bool> recentlyKilledDrones = new();
+    private readonly ConcurrentDictionary<string, bool> doNotUpdateDrones = new();
     private const int KILL_TIMEOUT_MS = 5000; // 5 seconds, adjust as needed
 
     private DroneGameHandler() { }
 
-    private void AddToRecentlyKilled(string droneId)
+    private void AddToDoNotUpdateDrones(string droneId)
     {
-        // Add to recently killed drones
-        recentlyKilledDrones.TryAdd(droneId, true);
+        // Add to recently Do Not Update Drones
+        doNotUpdateDrones.TryAdd(droneId, true);
 
         // Start a task to remove it after timeout
         Task.Delay(KILL_TIMEOUT_MS).ContinueWith(_ =>
         {
-            recentlyKilledDrones.TryRemove(droneId, out bool _);
+            doNotUpdateDrones.TryRemove(droneId, out bool _);
         });
     }
 
@@ -78,6 +78,11 @@ public class DroneGameHandler
             if (removed)
             {
                 Console.WriteLine($"{drone.id} - Drone removed successfully.");
+
+                // Add To Do Not Update Drones
+                // Because i dont want to accidentaly get an update exactly after leaving.
+                AddToDoNotUpdateDrones(drone.id);
+
                 SendRemoveDrone(drone, clientMode);
             }
             else
@@ -101,7 +106,7 @@ public class DroneGameHandler
                 throw new Exception("Deserialization returned null");
 
             // If drone is in recently killed list, ignore the update
-            if (recentlyKilledDrones.ContainsKey(drone.id))
+            if (doNotUpdateDrones.ContainsKey(drone.id))
             {
                 return;
             }
@@ -111,7 +116,7 @@ public class DroneGameHandler
             {
                 Console.WriteLine($"{drone.id} - Drone killed for leaving arena boundaries.");
                 this.droneKilledHandler.HandleArenaKill(drone.id);
-                AddToRecentlyKilled(drone.id);
+                AddToDoNotUpdateDrones(drone.id);
                 return;
             }
 
@@ -121,7 +126,7 @@ public class DroneGameHandler
             {
                 // Handle kill
                 this.droneKilledHandler.HandleKill(drone.id, bulletId, clientMode);
-                AddToRecentlyKilled(drone.id);
+                AddToDoNotUpdateDrones(drone.id);
                 // Do not update or send update for killed drone
                 return;
             }
