@@ -1,9 +1,9 @@
 import * as Cesium from "cesium";
 import { toast } from "react-toastify";
-import type { DangerZone } from "../Messages/AllTypes";
+import type {Zone, JamZone, DangerZone } from "../Messages/AllTypes";
 
-export class DangerZoneEntityManager {
-  private static instance: DangerZoneEntityManager | null = null;
+export class ZoneEntityManager {
+  private static instance: ZoneEntityManager | null = null;
 
   private viewer: Cesium.Viewer;
   private zoneIdToEntity: Map<string, Cesium.Entity>;
@@ -15,38 +15,38 @@ export class DangerZoneEntityManager {
     this.zoneIdToEntity = new Map<string, Cesium.Entity>();
   }
 
-  public static GetInstance(viewer?: Cesium.Viewer): DangerZoneEntityManager {
-    if (!DangerZoneEntityManager.instance) {
+  public static GetInstance(viewer?: Cesium.Viewer): ZoneEntityManager {
+    if (!ZoneEntityManager.instance) {
       if (!viewer) {
         throw new Error("Viewer must be provided for the first GetInstance call");
       }
-      DangerZoneEntityManager.instance = new DangerZoneEntityManager(viewer);
+      ZoneEntityManager.instance = new ZoneEntityManager(viewer);
     }
-    return DangerZoneEntityManager.instance;
+    return ZoneEntityManager.instance;
   }
 
-  tryAddDangerZone(dangerZone: DangerZone) {
-    if (!dangerZone || !dangerZone.zoneId) {
+  tryAddZone(zone: Zone) {
+    if (!zone || !zone.zoneId) {
       toast.error("Invalid DangerZone or missing zoneId");
       return;
     }
 
-    if (this.zoneIdToEntity.has(dangerZone.zoneId)) {
+    if (this.zoneIdToEntity.has(zone.zoneId)) {
       toast.error(
-        `A danger zone with id ${dangerZone.zoneId} already exists. Couldn't save.`
+        `A danger zone with id ${zone.zoneId} already exists. Couldn't save.`
       );
       return;
     }
 
-    const entity = this.tryCreatePolygon(dangerZone);
-    this.zoneIdToEntity.set(dangerZone.zoneId, entity);
+    const entity = this.tryCreatePolygon(zone);
+    this.zoneIdToEntity.set(zone.zoneId, entity);
   }
 
-  getDangerZone(zoneId: string): Cesium.Entity | null {
+  getZone(zoneId: string): Cesium.Entity | null {
     return this.zoneIdToEntity.get(zoneId) ?? null;
   }
 
-  removeDangerZone(zoneId: string) {
+  removeZone(zoneId: string) {
     const entity = this.zoneIdToEntity.get(zoneId);
     if (entity) {
       this.viewer.entities.remove(entity);
@@ -55,30 +55,30 @@ export class DangerZoneEntityManager {
     }
   }
 
-  editDangerZone(dangerZone: DangerZone) {
-    if (!dangerZone || !dangerZone.zoneId) {
-      toast.error("Invalid DangerZone or missing zoneId");
+  editZone(zone: Zone) {
+    if (!zone || !zone.zoneId) {
+      toast.error("Invalid Zone or missing zoneId");
       return false;
     }
 
-    if (!this.zoneIdToEntity.has(dangerZone.zoneId)) {
-      toast.error(`Danger zone with id ${dangerZone.zoneId} does not exist`);
+    if (!this.zoneIdToEntity.has(zone.zoneId)) {
+      toast.error(`Danger zone with id ${zone.zoneId} does not exist`);
       return false;
     }
 
     // remove the old entity
-    const oldEntity = this.zoneIdToEntity.get(dangerZone.zoneId);
+    const oldEntity = this.zoneIdToEntity.get(zone.zoneId);
     if (oldEntity) {
       this.viewer.entities.remove(oldEntity);
     }
 
     // create and save new entity
-    const newEntity = this.tryCreatePolygon(dangerZone);
-    this.zoneIdToEntity.set(dangerZone.zoneId, newEntity);
+    const newEntity = this.tryCreatePolygon(zone);
+    this.zoneIdToEntity.set(zone.zoneId, newEntity);
 
     // if this zone was blinking, restart its blinking effect
-    if (this.blinkingZones.has(dangerZone.zoneId)) {
-      this.startBlinking(dangerZone.zoneId);
+    if (this.blinkingZones.has(zone.zoneId)) {
+      this.startBlinking(zone.zoneId);
     }
 
     return true;
@@ -96,11 +96,11 @@ export class DangerZoneEntityManager {
     if (!entity) return;
     entity.show = true;
   }
-  getAllDangerZoneIds(): string[] {
+  getAllZoneIds(): string[] {
     return Array.from(this.zoneIdToEntity.keys());
   }
 
-  clearAllDangerZones() {
+  clearAllZones() {
     for (const entity of this.zoneIdToEntity.values()) {
       this.viewer.entities.remove(entity);
     }
@@ -145,18 +145,18 @@ export class DangerZoneEntityManager {
     entity.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.RED);
   }
 
-  private tryCreatePolygon(dangerZone: DangerZone): Cesium.Entity {
+  private tryCreatePolygon(zone: Zone): Cesium.Entity {
     const entity = this.viewer!.entities.add({
-      name: dangerZone.zoneName,
+      name: zone.zoneName,
       polygon:
-        dangerZone.points.length >= 3
+        zone.points.length >= 3
           ? {
               hierarchy: Cesium.Cartesian3.fromDegreesArray(
-                dangerZone.points.flatMap((p) => [p.longitude, p.latitude])
+                zone.points.flatMap((p) => [p.longitude, p.latitude])
               ),
               perPositionHeight: true,
-              height: dangerZone.bottomHeight,
-              extrudedHeight: dangerZone.topHeight,
+              height: zone.bottomHeight,
+              extrudedHeight: zone.topHeight,
               material: Cesium.Color.RED.withAlpha(0.3),
               outline: true,
               outlineColor: Cesium.Color.RED,

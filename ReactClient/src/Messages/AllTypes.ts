@@ -1,3 +1,5 @@
+import type { ZoneTypeEnum } from "./ZoneTypeEnum";
+
 export interface AllTypes {
     geoPoint:                        GeoPoint;
     messageWrapper:                  MessageWrapper;
@@ -81,21 +83,31 @@ export interface ChangeScenarioPlaySpeedCmd {
   playSpeed: number;
 }
 
-export interface DangerZone {
+export interface Zone {
+  zoneType: string;
   zoneId: string;
   zoneName: string;
   points: GeoPoint[];
   topHeight: number;
-  bottomHeight: number; 
+  bottomHeight: number;
 }
 
-export interface DangerZoneError {
+export interface DangerZone extends Zone {
+  zoneType: ZoneTypeEnum.Danger;
+}
+
+export interface JamZone extends Zone {
+  zoneType: ZoneTypeEnum.Jam;
+}
+
+export interface ZoneError {
     errorMsg: string;
 }
 
+
 export interface InitData {
     scenarios: Scenario[];
-    dangerZones: DangerZone[];
+    zones: DangerZone[];
 }
 
 export interface ScenarioError {

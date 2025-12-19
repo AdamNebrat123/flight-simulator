@@ -3,7 +3,7 @@ import TopLeftButtons from '../TopLeftButtons/TopLeftButtons';
 import ScenarioPlayControlPanel from '../ScenarioPlayControlPanel/ScenarioPlayControlPanel';
 import { SimState } from '../SimState/SimState';
 import ScenariosPanel from '../ScenariosPanel/ScenariosPanel';
-import DangerZonesPanel from '../DangerZonePanel/DangerZonesPanel';
+import ZonesPanel from '../ZonesPanel/ZonesPanel';
 
 
 interface PanelsAndButtonsProps {
@@ -55,7 +55,7 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
       )}
 
       {showDangerZonesPanel && (
-        <DangerZonesPanel
+        <ZonesPanel
           onClose={closeDangerZonesPanel}
           viewerRef={viewerRef}
         />

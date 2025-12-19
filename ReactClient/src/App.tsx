@@ -7,8 +7,8 @@ import { ToastContainer } from 'react-toastify';
 import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
 import { PlaneTailManager } from './Handlers/PlaneTailManager';
 import { ScenarioPlanesSnapshotHandler } from './Handlers/ScenarioPlanesSnapshotHandler';
-import { DangerZoneEntityManager } from './DangerZonePanel/DangerZoneEntityManager';
-import { DangerZoneHandler } from './Handlers/DangerZoneHandler';
+import { ZoneEntityManager } from './ZonesPanel/ZoneEntityManager';
+import { ZoneHandler } from './Handlers/ZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
 import { handleInitData } from './Handlers/InitDataHandler';
 import PanelsAndButtons from './PanelsAndButtons/PanelsAndButtons';
@@ -23,9 +23,9 @@ export default function App() {
   //needed for ScenarioPlanesSnapshotHandler
   let planeEntityManager: PlaneEntityManager | null;
   let planeTailManager: PlaneTailManager | null;
-  const dangerZoneEntityManagerRef = useRef<DangerZoneEntityManager | null>(null)
+  const dangerZoneEntityManagerRef = useRef<ZoneEntityManager | null>(null)
   const ScenarioPlanesSnapshotHandlerRef = useRef<ScenarioPlanesSnapshotHandler | null>(null)
-  const dangerZoneHandlerRef =  useRef<DangerZoneHandler | null>(null);
+  const dangerZoneHandlerRef =  useRef<ZoneHandler | null>(null);
 
   const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
 
@@ -36,7 +36,7 @@ export default function App() {
       
       planeEntityManager = PlaneEntityManager.getInstance(viewerRef.current);
       planeTailManager = PlaneTailManager.getInstance(viewerRef.current)
-      dangerZoneEntityManagerRef.current = DangerZoneEntityManager.GetInstance(viewerRef.current);
+      dangerZoneEntityManagerRef.current = ZoneEntityManager.GetInstance(viewerRef.current);
 
       ScenarioPlanesSnapshotHandlerRef.current = new ScenarioPlanesSnapshotHandler(
         planeEntityManager,
@@ -44,7 +44,7 @@ export default function App() {
         dangerZoneEntityManagerRef.current
       );
 
-      dangerZoneHandlerRef.current = DangerZoneHandler.getInstance(viewerRef.current);
+      dangerZoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);
       scenarioHandlerRef.current = ScenarioHandler.getInstance();
 
       // register to all of the events
@@ -68,23 +68,23 @@ export default function App() {
     });
 
     // type : AddDanerZone
-    const unsubAddDanerZone = on(S2CMessageType.AddDangerZone , (data) => {
-      dangerZoneHandlerRef.current?.HandleAddDangerZone(data);
+    const unsubAddDanerZone = on(S2CMessageType.AddZone , (data) => {
+      dangerZoneHandlerRef.current?.HandleAddZone(data);
     });
 
     // type : RemoveDangerZone
-    const unsubRemoveDangerZone = on(S2CMessageType.RemoveDangerZone , (data) => {
-      dangerZoneHandlerRef.current?.HandleRemoveDangerZone(data);
+    const unsubRemoveDangerZone = on(S2CMessageType.RemoveZone , (data) => {
+      dangerZoneHandlerRef.current?.HandleRemoveZone(data);
     });
 
     // type : EditDangerZone
-    const unsubEditDangerZone = on(S2CMessageType.EditDangerZone , (data) => {
-      dangerZoneHandlerRef.current?.HandleEditDangerZone(data);
+    const unsubEditDangerZone = on(S2CMessageType.EditZone , (data) => {
+      dangerZoneHandlerRef.current?.HandleEditZone(data);
     });
 
     // type : DangerZoneError
-    const unsubDangerZoneError = on(S2CMessageType.DangerZoneError , (data) => {
-      dangerZoneHandlerRef.current?.HandleDangerZoneError(data);
+    const unsubDangerZoneError = on(S2CMessageType.DangerError , (data) => {
+      dangerZoneHandlerRef.current?.HandleZoneError(data);
     });
 
     // type : AddScenario

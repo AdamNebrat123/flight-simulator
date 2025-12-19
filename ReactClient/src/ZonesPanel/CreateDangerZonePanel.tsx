@@ -1,34 +1,37 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as Cesium from "cesium";
-import type { GeoPoint } from "../Messages/AllTypes";
+import type { GeoPoint, Zone } from "../Messages/AllTypes";
 import type { DangerZone } from "../Messages/AllTypes";
 import "./CreateDangerZonePanel.css";
 import { DangerZoneEntity } from "./DangerZoneEntity";
-import { DangerZonePolyline } from "./DangerZonePolylineManager";
+import { ZonePolyline } from "./ZonePolylineManager";
+import { ZoneTypeEnum } from "../Messages/ZoneTypeEnum";
 
 interface DangerZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
-  initialDangerZone: DangerZone;
+  initialZone: Zone;
   onClose: () => void;
   onSave: (zone: DangerZone) => void;
 }
 
-export default function CreateDangerZonePanel({viewerRef,initialDangerZone, onClose, onSave }: DangerZonePanelProps) {
-const [dangerZone, setDangerZone] = useState<DangerZone>(JSON.parse(JSON.stringify(initialDangerZone)));
-  /*
-  const [dangerZone, setDangerZone] = useState<DangerZone>({
-    zoneName: "ZoneName",
-    points: [],
-    topHeight: 100,
-    bottomHeight: 0,
-    zoneId: ""
-  });
-  */
+export default function CreateDangerZonePanel({viewerRef,initialZone, onClose, onSave }: DangerZonePanelProps) {
+
+  const initialDangerZone: DangerZone = {
+  zoneType: ZoneTypeEnum.Danger, //  צריך להיות ראשון
+  zoneId: initialZone.zoneId,
+  zoneName: initialZone.zoneName,
+  points: initialZone.points,
+  topHeight: initialZone.topHeight,
+  bottomHeight: initialZone.bottomHeight,
+};
+  
+  const [dangerZone, setDangerZone] = useState<DangerZone>(JSON.parse(JSON.stringify(initialDangerZone)));
+
   const [isDrawing, setIsDrawing] = useState(false);
   const isDrawingRef = useRef(isDrawing);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
-  const dangerZonePolylineRef = useRef<DangerZonePolyline | null>(null);
+  const dangerZonePolylineRef = useRef<ZonePolyline | null>(null);
   const currentMousePositionRef = useRef<Cesium.Cartesian3 | null>(null);
   
   // Temporary polylines for the lines that follow the mouse
@@ -69,7 +72,7 @@ const handleDangerZonePointChange = (
         viewerRef.current,
         dangerZone
       );
-      dangerZonePolylineRef.current = new DangerZonePolyline(viewerRef.current);
+      dangerZonePolylineRef.current = new ZonePolyline(viewerRef.current);
 
       if(dangerZone.points && dangerZone.points.length > 0){
         // load existing polylines

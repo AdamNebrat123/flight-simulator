@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import { DangerZoneHandler } from "./DangerZoneHandler";
+import { ZoneHandler } from "./ZoneHandler";
 import type { InitData } from "../Messages/AllTypes";
 import { ScenarioHandler } from "./ScenarioHandler";
 
@@ -8,10 +8,10 @@ export function handleInitData(data: any, viewer : Cesium.Viewer){
         const initData = data as InitData;
 
         // save the danger zones
-        const dangerZones = initData.dangerZones;
-        const dangerZoneHandler = DangerZoneHandler.getInstance(viewer);
+        const dangerZones = initData.zones;
+        const dangerZoneHandler = ZoneHandler.getInstance(viewer);
         for(const dangerZone of dangerZones){
-            dangerZoneHandler.AddDangerZone(dangerZone)
+            dangerZoneHandler.AddZone(dangerZone)
         }
 
         // save the scenarios

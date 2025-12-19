@@ -69,15 +69,15 @@ public class UIMsgHandler
                     scenarioHandler.HandleEditScenario(wrapper.data, clientMode);
                     break;
 
-                case C2SMessageType.AddDangerZone:
+                case C2SMessageType.AddZone:
                     dangerZoneHandler.HandleAddZone(wrapper.data, clientMode);
                     break;
 
-                case C2SMessageType.RemoveDangerZone:
+                case C2SMessageType.RemoveZone:
                     dangerZoneHandler.HandleRemoveZone(wrapper.data, clientMode);
                     break;
 
-                case C2SMessageType.EditDangerZone:
+                case C2SMessageType.EditZone:
                     dangerZoneHandler.HandleEditZone(wrapper.data, clientMode);
                     break;
 

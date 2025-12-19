@@ -1,9 +1,9 @@
 export enum S2CMessageType {
     ScenarioPlanesSnapshot = "ScenarioPlanesSnapshot",
-    AddDangerZone = "AddDangerZone",
-    RemoveDangerZone = "RemoveDangerZone",
-    EditDangerZone = "EditDangerZone",
-    DangerZoneError = "DangerZoneError",
+    AddZone = "AddZone",
+    RemoveZone = "RemoveZone",
+    EditZone = "EditZone",
+    DangerError = "DangerError",
     InitData = "InitData",
     AddScenario = "AddScenario",
     RemoveScenario = "RemoveScenario",

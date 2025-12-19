@@ -5,6 +5,10 @@ public class ZoneHandler
     private static ZoneHandler instance;
     private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
     private readonly ZonesDataManager zonesDataManager = ZonesDataManager.GetInstance();
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
     
     private ZoneHandler()
     {
@@ -22,7 +26,8 @@ public class ZoneHandler
     {
         try
         {
-            Zone zone = data.Deserialize<Zone>();
+            Zone zone = JsonSerializer.Deserialize<Zone>(data);
+
             Guid uuid = Guid.NewGuid();
             string uuidString = uuid.ToString();
             zone.zoneId = uuidString;
@@ -46,7 +51,8 @@ public class ZoneHandler
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine("Error in HandleAddDangerZone: " + ex.Message);
+            System.Console.WriteLine("Error in HandleAddZone: " + ex.Message);
+            System.Console.WriteLine("AAAAA");
         }
     }
 

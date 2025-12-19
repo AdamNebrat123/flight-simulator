@@ -2,14 +2,14 @@ import * as Cesium from "cesium";
 import type { ScenarioAirCraftsSnapshot } from "../Messages/AllTypes";
 import { PlaneEntityManager } from "./PlaneEntityManager";
 import { PlaneTailManager } from "./PlaneTailManager";
-import type { DangerZoneEntityManager } from "../DangerZonePanel/DangerZoneEntityManager";
+import type { ZoneEntityManager } from "../ZonesPanel/ZoneEntityManager";
 
 export class ScenarioPlanesSnapshotHandler {
   private planeEntityManager: PlaneEntityManager;
   private tailManager: PlaneTailManager;
-  private dangerZoneEntityManager: DangerZoneEntityManager;
+  private dangerZoneEntityManager: ZoneEntityManager;
 
-  constructor(planeManager: PlaneEntityManager, tailManager: PlaneTailManager, dangerZoneEntityManager: DangerZoneEntityManager) {
+  constructor(planeManager: PlaneEntityManager, tailManager: PlaneTailManager, dangerZoneEntityManager: ZoneEntityManager) {
     this.planeEntityManager = planeManager;
     this.tailManager = tailManager;
     this.dangerZoneEntityManager = dangerZoneEntityManager;
@@ -65,7 +65,7 @@ export class ScenarioPlanesSnapshotHandler {
       }
     }
     // After processing all planes, check all danger zones to know what danger zone(s) should blink
-    const allDangerIds = this.dangerZoneEntityManager.getAllDangerZoneIds();
+    const allDangerIds = this.dangerZoneEntityManager.getAllZoneIds();
     console.log(allDangerIds)
     for (const zoneId of allDangerIds) {
         if (uniqueDangerZones.has(zoneId)) {
