@@ -1,21 +1,17 @@
 import React from "react";
-import type { DangerZone } from "../Messages/AllTypes";
+import type { DangerZone, Zone } from "../Messages/AllTypes";
 
 interface DangerPanelProps {
-  initialZone: DangerZone;
-  onSave: (zone: DangerZone) => void;
-  onClose: () => void;
+  zone: DangerZone;
+  setZone: React.Dispatch<React.SetStateAction<Zone>>;
   viewerRef: React.MutableRefObject<any>;
 }
 
-export default function CreateDangerZonePanel({ initialZone }: DangerPanelProps) {
+export default function CreateDangerZonePanel({ zone, setZone }: DangerPanelProps) {
+    console.log(zone);
   return (
     <div>
       {/* Here are only the fields special to DangerZone */}
-
-      <label>
-        SHUMANNNNNNNNNNNNNNNNNNNNNNNNNNN
-      </label>
 
     </div>
   );

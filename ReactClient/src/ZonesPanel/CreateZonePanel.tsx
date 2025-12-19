@@ -17,9 +17,10 @@ interface ZonePanelProps {
 }
 
 
+
 export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave }: ZonePanelProps) {
 
-      const [zone, setZone] = useState<Zone>(JSON.parse(JSON.stringify(initialZone)));
+      const [zone, setZone] = useState<Zone>({...initialZone});
       const [zoneType, setZoneType] = useState<string>("Danger");
 
       const [isDrawing, setIsDrawing] = useState(false);
@@ -43,6 +44,15 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
     
     const handleZoneTypeChange = (type: string) => {
         setZoneType(type);
+        setZone({
+            zoneType: zone.zoneType,
+            zoneId: zone.zoneId,
+            zoneName: zone.zoneName,
+            points: zone.points,
+            topHeight: zone.topHeight,
+            bottomHeight: zone.bottomHeight,
+        });
+
     };
 
     const handleDangerZonePointChange = (
@@ -312,21 +322,22 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
                 />
               </label>
             </div>
-
-            <label>
-                Zone Type:
-                <select value={zoneType} onChange={(e) => handleZoneTypeChange(e.target.value as ZoneTypeEnum)}>
-                <option value={"Danger"}>Danger</option>
-                <option value={"Jam"}>Jam</option>
-                </select>
-            </label>
-
+            
+            <div className="zone-fields">
+                <label>
+                    Zone Type:
+                    <select  className="zone-select"  value={zoneType} onChange={(e) => handleZoneTypeChange(e.target.value)}>
+                    <option value={"Danger"}>Danger</option>
+                    <option value={"Jam"}>Jam</option>
+                    </select>
+                </label>
+            </div>
             {zoneType === ZoneTypeEnum.Danger && (
-                <CreateDangerZonePanel viewerRef={viewerRef} initialZone={zone as DangerZone} onClose={onClose} onSave={onSave} />
+                <CreateDangerZonePanel viewerRef={viewerRef} zone={zone as DangerZone} setZone={setZone} />
               )}
 
             {zoneType === ZoneTypeEnum.Jam && (
-                <CreateJamZonePanel viewerRef={viewerRef} initialZone={zone as JamZone} onClose={onClose} onSave={onSave} />
+                <CreateJamZonePanel viewerRef={viewerRef} zone={zone as JamZone} setZone={setZone} />
             )}
 
     

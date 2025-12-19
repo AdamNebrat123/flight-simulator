@@ -1,21 +1,18 @@
 import React from "react";
-import type { JamZone } from "../Messages/AllTypes";
+import type { JamZone, Zone } from "../Messages/AllTypes";
 
 interface JamPanelProps {
-  initialZone: JamZone;
-  onSave: (zone: JamZone) => void;
-  onClose: () => void;
   viewerRef: React.MutableRefObject<any>;
+  zone: JamZone;
+  setZone: React.Dispatch<React.SetStateAction<Zone>>;
 }
 
-export default function CreateJamZonePanel({ initialZone }: JamPanelProps) {
-    const zone = initialZone as JamZone;
+export default function CreateJamZonePanel({ zone, setZone }: JamPanelProps) {
+    console.log(zone);
   return (
     <div>
       {/* Here are only the fields specific to JamZone */}
-      <label>
-        Jam SHMIN FLITZZZZZZZZZZZZZZZZZZZZZZ
-      </label>
+
     </div>
   );
 }

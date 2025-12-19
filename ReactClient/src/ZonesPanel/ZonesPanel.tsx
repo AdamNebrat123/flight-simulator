@@ -3,7 +3,6 @@ import { C2SMessageType } from "../Messages/C2SMessageType";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import type { DangerZone, Zone } from "../Messages/AllTypes";
 import { ZoneManager } from "../Managers/ZoneManager";
-import CreateDangerZonePanel from "./CreateDangerZonePanel";
 import "./ZonesPanel.css";
 import { ZoneEntityManager } from "./ZoneEntityManager";
 import CreateZonePanel from "./CreateZonePanel";

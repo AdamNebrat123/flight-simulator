@@ -42,6 +42,34 @@
   color: #fff;
 }
 
+
+
+
+.zone-select {
+  font-size: 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 2px 6px;
+  width: 120px;
+  cursor: pointer;
+  text-align: center;
+  
+}
+.zone-select option {
+  background: #222; /* עובד רק חלקית, תלוי בדפדפן */
+  color: #fff;
+}
+
+
+.zone-select:focus {
+  outline: 1px solid #28a745;
+}
+
+
+
+
+
 .zone-fields input[type="number"] {
   all: unset;
   width: 60px;
