@@ -6,6 +6,7 @@ import { ZoneManager } from "../Managers/ZoneManager";
 import CreateDangerZonePanel from "./CreateDangerZonePanel";
 import "./ZonesPanel.css";
 import { ZoneEntityManager } from "./ZoneEntityManager";
+import CreateZonePanel from "./CreateZonePanel";
 
 
 interface Props {
@@ -129,7 +130,7 @@ export default function ZonesPanel({ onClose, viewerRef }: Props){
         )}
 
         {showCreateDangerZonePanel && (
-            <CreateDangerZonePanel 
+            <CreateZonePanel 
             initialZone={selectedZoneObj!}
             onSave={onSaveZone!}
             onClose={closeCreateDangerZonePanel}
