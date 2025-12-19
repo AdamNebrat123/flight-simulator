@@ -1,10 +1,10 @@
 public enum S2CMessageType
 {
     ScenarioPlanesSnapshot,
-    AddDangerZone,
-    RemoveDangerZone,
-    EditDangerZone,
-    DangerZoneError,
+    AddZone,
+    RemoveZone,
+    EditZone,
+    ZoneError,
     InitData,
     AddScenario,
     RemoveScenario,

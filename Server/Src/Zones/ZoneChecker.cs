@@ -1,6 +1,6 @@
 public class DangerZoneChecker
 {
-    private readonly DangerZoneManager dangerZoneManager = DangerZoneManager.GetInstance();
+    private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
 
     public DangerZoneChecker()
     {
@@ -11,7 +11,7 @@ public class DangerZoneChecker
     {
         var zonesContainingPoint = new List<string>();
 
-        foreach (var zone in dangerZoneManager.GetAllZones())
+        foreach (var zone in zoneManager.GetAllZones())
         {
             if (IsPointInZone(point, zone))
             {
@@ -23,7 +23,7 @@ public class DangerZoneChecker
     }
 
     // Checks if a point is inside a specific danger zone
-    private bool IsPointInZone(GeoPoint point, DangerZone zone)
+    private bool IsPointInZone(GeoPoint point, Zone zone)
     {
         // Check height first
         if (point.altitude < zone.bottomHeight || point.altitude > zone.topHeight)

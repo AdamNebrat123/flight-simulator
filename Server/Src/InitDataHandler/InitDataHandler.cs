@@ -4,7 +4,7 @@ public class InitDataHandler
 {
     private static InitDataHandler _instance;
     private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
-    private readonly DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
+    private readonly ZonesDataManager zonesDataManager = ZonesDataManager.GetInstance();
 
     private InitDataHandler()
     {
@@ -26,14 +26,14 @@ public class InitDataHandler
         scenariosDataManager.ReadData();
         List<Scenario> scenarios = scenariosDataManager.GetScenarios();
 
-        // get DangerZones
-        dangerZonesDataManager.ReadData();
-        List<DangerZone> dangerZones = dangerZonesDataManager.GetDangerZones();
+        // get Zones
+        zonesDataManager.ReadData();
+        List<Zone> zones = zonesDataManager.GetZones();
 
         InitData initData = new InitData()
         {
             scenarios = scenarios,
-            dangerZones = dangerZones
+            zones = zones
         };
 
         string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData, ModeEnum.ScenarioSimulator);

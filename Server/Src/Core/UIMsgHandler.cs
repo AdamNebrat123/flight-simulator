@@ -8,7 +8,7 @@ public class UIMsgHandler
     private readonly WebSocketModeHandler webSocketModeHandler = WebSocketModeHandler.GetInstance();
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler = PlaySelectedScenarioHandler.GetInstance();
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
-    private readonly DangerZoneHandler dangerZoneHandler = DangerZoneHandler.GetInstance();
+    private readonly ZoneHandler dangerZoneHandler = ZoneHandler.GetInstance();
     private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
     private readonly DroneGameHandler droneHandler = DroneGameHandler.GetInstance();
     private readonly FreeFlightHandler freeFlightHandler = FreeFlightHandler.GetInstance();
@@ -70,15 +70,15 @@ public class UIMsgHandler
                     break;
 
                 case C2SMessageType.AddDangerZone:
-                    dangerZoneHandler.HandleAddDangerZone(wrapper.data, clientMode);
+                    dangerZoneHandler.HandleAddZone(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.RemoveDangerZone:
-                    dangerZoneHandler.HandleRemoveDangerZone(wrapper.data, clientMode);
+                    dangerZoneHandler.HandleRemoveZone(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.EditDangerZone:
-                    dangerZoneHandler.HandleEditDangerZone(wrapper.data, clientMode);
+                    dangerZoneHandler.HandleEditZone(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.PlaySelectedScenarioCmd:

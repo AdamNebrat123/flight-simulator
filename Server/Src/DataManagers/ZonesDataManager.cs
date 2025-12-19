@@ -5,21 +5,21 @@ using System.Text.Json;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-public class DangerZonesDataManager
+public class ZonesDataManager
 {
-    private static DangerZonesDataManager _instance;
-    private DangerZonesData _dangerZonesData = new();
+    private static ZonesDataManager _instance;
+    private ZonesData _zonesData = new();
     private string _dataFilePath;
 
-    private DangerZonesDataManager()
+    private ZonesDataManager()
     {
     }
 
-    public static DangerZonesDataManager GetInstance()
+    public static ZonesDataManager GetInstance()
     {
         if (_instance == null)
         {
-            _instance = new DangerZonesDataManager();
+            _instance = new ZonesDataManager();
         }
         return _instance;
     }
@@ -54,7 +54,7 @@ public class DangerZonesDataManager
 
     public void Save()
     {
-        var json = JsonSerializer.Serialize(_dangerZonesData, new JsonSerializerOptions
+        var json = JsonSerializer.Serialize(_zonesData, new JsonSerializerOptions
         {
             WriteIndented = true,
             Converters = { new JsonStringEnumConverter() }
@@ -67,13 +67,13 @@ public class DangerZonesDataManager
         var json = File.ReadAllText(_dataFilePath);
         if (!string.IsNullOrWhiteSpace(json))
         {
-            _dangerZonesData = JsonSerializer.Deserialize<DangerZonesData>(json) ?? new DangerZonesData();
+            _zonesData = JsonSerializer.Deserialize<ZonesData>(json) ?? new ZonesData();
         }
     }
 
-    public DangerZonesData GetData()
+    public ZonesData GetData()
     {
-        return _dangerZonesData;
+        return _zonesData;
     }
 
     public string GetDataFilePath()
@@ -81,39 +81,39 @@ public class DangerZonesDataManager
         return _dataFilePath;
     }
 
-    public void AddAndSaveDangerZone(DangerZone zone)
+    public void AddAndSaveZone(Zone zone)
     {
-        _dangerZonesData.data.Add(zone);
+        _zonesData.data.Add(zone);
         Save();
     }
 
-    public List<DangerZone> GetDangerZones()
+    public List<Zone> GetZones()
     {
-        return _dangerZonesData.data;
+        return _zonesData.data;
     }
-    public List<string> GetAllDangerZoneNames()
+    public List<string> GetAllZoneNames()
     {
-        return _dangerZonesData.data.Select(z => z.zoneName).ToList();
+        return _zonesData.data.Select(z => z.zoneName).ToList();
     }
-    public bool RemoveAndSaveDangerZone(string zoneId)
+    public bool RemoveAndSaveZone(string zoneId)
     {
-        var zone = _dangerZonesData.data.FirstOrDefault(z => z.zoneId == zoneId);
+        var zone = _zonesData.data.FirstOrDefault(z => z.zoneId == zoneId);
         if (zone != null)
         {
-            _dangerZonesData.data.Remove(zone);
+            _zonesData.data.Remove(zone);
             Save();
             return true;
         }
         return false;
     }
-    public bool EditAndSaveDangerZone(string zoneId, DangerZone updatedZone)
+    public bool EditAndSaveZone(string zoneId, Zone updatedZone)
     {
         // Find the existing region by name
-        var existingZone = _dangerZonesData.data.FirstOrDefault(z => z.zoneId == zoneId);
+        var existingZone = _zonesData.data.FirstOrDefault(z => z.zoneId == zoneId);
         if (existingZone != null)
         {
-            int index = _dangerZonesData.data.IndexOf(existingZone);
-            _dangerZonesData.data[index] = updatedZone;
+            int index = _zonesData.data.IndexOf(existingZone);
+            _zonesData.data[index] = updatedZone;
 
             Save();
             return true;

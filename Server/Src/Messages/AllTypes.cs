@@ -161,20 +161,47 @@ public partial class ChangeScenarioPlaySpeedCmd
     [JsonPropertyName("playSpeed")]
     public double playSpeed { get; set; }
 }
-public partial class DangerZone
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "zoneType")]
+[JsonDerivedType(typeof(DangerZone), "Danger")]
+[JsonDerivedType(typeof(JamZone), "Jam")]
+public abstract class Zone
 {
     [JsonPropertyName("zoneId")]
     public string zoneId { get; set; }
+
     [JsonPropertyName("zoneName")]
     public string zoneName { get; set; }
+
     [JsonPropertyName("points")]
     public List<GeoPoint> points { get; set; }
+
     [JsonPropertyName("topHeight")]
     public double topHeight { get; set; }
+
     [JsonPropertyName("bottomHeight")]
     public double bottomHeight { get; set; }
+
+    [JsonPropertyName("zoneType")]
+    public string zoneType { get; set; }
 }
-public class DangerZoneError
+public class DangerZone : Zone
+{
+    public DangerZone()
+    {
+        zoneType = ZoneType.Danger.ToString();
+    }
+}
+public class JamZone : Zone
+{
+    public JamZone()
+    {
+        zoneType = ZoneType.Jam.ToString();
+    }
+}
+
+
+public class ZoneError
 {
     [JsonPropertyName("errorMsg")]
     public string errorMsg { get; set; }
@@ -184,8 +211,8 @@ public partial class InitData
 {
     [JsonPropertyName("scenarios")]
     public List<Scenario> scenarios { get; set; }
-    [JsonPropertyName("dangerZones")]
-    public List<DangerZone> dangerZones{ get; set; }
+    [JsonPropertyName("zones")]
+    public List<Zone> zones{ get; set; }
 
 }
 

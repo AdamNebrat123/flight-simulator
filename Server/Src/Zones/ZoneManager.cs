@@ -1,23 +1,23 @@
-public class DangerZoneManager
+public class ZoneManager
 {
-    private static DangerZoneManager instance;
-    private readonly Dictionary<string, DangerZone> _zones = new();
+    private static ZoneManager instance;
+    private readonly Dictionary<string, Zone> _zones = new();
 
-    private DangerZoneManager() { }
+    private ZoneManager() { }
 
-    public static DangerZoneManager GetInstance()
+    public static ZoneManager GetInstance()
     {
         if (instance == null)
-            instance = new DangerZoneManager();
+            instance = new ZoneManager();
         return instance;
     }
 
-    public IEnumerable<DangerZone> GetAllZones()
+    public IEnumerable<Zone> GetAllZones()
     {
         return _zones.Values;
     }
 
-    public bool TryAddZone(DangerZone zone)
+    public bool TryAddZone(Zone zone)
     {
         if (zone == null || string.IsNullOrWhiteSpace(zone.zoneId))
             return false;
@@ -29,7 +29,7 @@ public class DangerZoneManager
         return true;
     }
 
-    public DangerZone? TryGetZone(string zoneId)
+    public Zone? TryGetZone(string zoneId)
     {
         if (string.IsNullOrWhiteSpace(zoneId))
             return null;
@@ -46,7 +46,7 @@ public class DangerZoneManager
         return _zones.Remove(zoneId);
     }
 
-    public bool TryEditDangerZone(string zoneId, DangerZone updatedZone)
+    public bool TryEditZone(string zoneId, Zone updatedZone)
     {
         if (string.IsNullOrWhiteSpace(zoneId) || updatedZone == null)
             return false;

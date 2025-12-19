@@ -126,20 +126,20 @@ public class WebSocketServer
             }
         }
 
-        DangerZonesDataManager dangerZonesDataManager = DangerZonesDataManager.GetInstance();
-        dangerZonesDataManager.ReadData();
+        ZonesDataManager zonesDataManager = ZonesDataManager.GetInstance();
+        zonesDataManager.ReadData();
 
-        List<DangerZone> allDangerZones = dangerZonesDataManager.GetDangerZones();
-        DangerZoneManager dangerZoneManager = DangerZoneManager.GetInstance();
+        List<Zone> allZones = zonesDataManager.GetZones();
+        ZoneManager zoneManager = ZoneManager.GetInstance();
 
-        // store all existing danger zones in a map from a file
-        foreach (var dangerZone in allDangerZones)
+        // store all existing zones in a map from a file
+        foreach (var zone in allZones)
         {
-            bool isAdded = dangerZoneManager.TryAddZone(dangerZone);
+            bool isAdded = zoneManager.TryAddZone(zone);
             if (isAdded)
-                System.Console.WriteLine(dangerZone.zoneName + " - Added zone successfully.");
+                System.Console.WriteLine(zone.zoneName + " - Added zone successfully.");
             else
-                System.Console.WriteLine(dangerZone.zoneName + " - Failed to add zone.");
+                System.Console.WriteLine(zone.zoneName + " - Failed to add zone.");
         }
     }
 }
