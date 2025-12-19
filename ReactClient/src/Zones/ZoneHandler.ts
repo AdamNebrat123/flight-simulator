@@ -1,4 +1,4 @@
-import { ZoneEntityManager } from "../ZonesPanel/ZoneEntityManager";
+import { ZoneEntityManager } from "./ZoneEntityManager";
 import * as Cesium from "cesium";
 import type { DangerZone, ZoneError as ZoneError, Zone } from "../Messages/AllTypes";
 import { toast } from "react-toastify";

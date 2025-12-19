@@ -4,7 +4,6 @@ import CesiumMap from './CesiumMap';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
 //handler imports
-import { ZoneEntityManager } from './ZonesPanel/ZoneEntityManager';
 import { ZoneHandler } from './Zones/ZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
 import { handleInitData } from './InitData/InitDataHandler';
@@ -13,6 +12,8 @@ import { PlaneEntityManager } from './Scenarios/AirCrafts/PlaneEntityManager';
 import { PlaneTailManager } from './Scenarios/AirCrafts/PlaneTailManager';
 import { ScenarioPlanesSnapshotHandler } from './Scenarios/Handlers/ScenarioPlanesSnapshotHandler';
 import { ScenarioHandler } from './Scenarios/ScenarioHandler';
+import { ZoneEntityManager } from './Zones/ZoneEntityManager';
+import { ZoneManager } from './Zones/ZoneManager';
 
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
   const dangerZoneEntityManagerRef = useRef<ZoneEntityManager | null>(null)
   const ScenarioPlanesSnapshotHandlerRef = useRef<ScenarioPlanesSnapshotHandler | null>(null)
   const dangerZoneHandlerRef =  useRef<ZoneHandler | null>(null);
+  const zoneManagerRef = useRef<ZoneManager | null>(null);
 
   const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
 
@@ -37,11 +39,14 @@ export default function App() {
       planeEntityManager = PlaneEntityManager.getInstance(viewerRef.current);
       planeTailManager = PlaneTailManager.getInstance(viewerRef.current)
       dangerZoneEntityManagerRef.current = ZoneEntityManager.GetInstance(viewerRef.current);
+      zoneManagerRef.current = ZoneManager.getInstance();
+
 
       ScenarioPlanesSnapshotHandlerRef.current = new ScenarioPlanesSnapshotHandler(
         planeEntityManager,
         planeTailManager, 
-        dangerZoneEntityManagerRef.current
+        dangerZoneEntityManagerRef.current,
+        zoneManagerRef.current
       );
 
       dangerZoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);

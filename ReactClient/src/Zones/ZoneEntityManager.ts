@@ -1,6 +1,7 @@
 import * as Cesium from "cesium";
 import { toast } from "react-toastify";
 import type {Zone, JamZone, DangerZone } from "../Messages/AllTypes";
+import { ZoneOptionsManager } from "./ZoneOptions";
 
 export class ZoneEntityManager {
   private static instance: ZoneEntityManager | null = null;
@@ -146,6 +147,11 @@ export class ZoneEntityManager {
   }
 
   private tryCreatePolygon(zone: Zone): Cesium.Entity {
+
+    const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(zone.zoneType);
+    const color = zoneOptions ? zoneOptions.color : Cesium.Color.RED;
+    const oppacity = zoneOptions ? zoneOptions.oppacity : 0.3;
+
     const entity = this.viewer!.entities.add({
       name: zone.zoneName,
       polygon:
@@ -157,9 +163,9 @@ export class ZoneEntityManager {
               perPositionHeight: true,
               height: zone.bottomHeight,
               extrudedHeight: zone.topHeight,
-              material: Cesium.Color.RED.withAlpha(0.3),
+              material: color.withAlpha(oppacity),
               outline: true,
-              outlineColor: Cesium.Color.RED,
+              outlineColor: color,
             }
           : undefined,
     });

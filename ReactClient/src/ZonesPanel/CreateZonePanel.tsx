@@ -3,11 +3,12 @@ import * as Cesium from "cesium";
 import type { GeoPoint, Zone } from "../Messages/AllTypes";
 import type { DangerZone, JamZone } from "../Messages/AllTypes";
 import { ZoneTypeEnum } from "../Messages/ZoneTypeEnum";
-import { DangerZoneEntity } from "./DangerZoneEntity";
-import { ZonePolyline } from "./ZonePolylineManager";
+import { ZoneEntity } from "../Zones/ZoneEntity";
+import { ZonePolyline } from "../Zones/ZonePolylineManager";
 import "./CreateZonePanel.css";
 import CreateDangerZonePanel from "./CreateDangerZonePanel";
 import CreateJamZonePanel from "./CreateJamZonePanel";
+import { ZoneOptionsManager } from "../Zones/ZoneOptions";
 
 interface ZonePanelProps {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -21,13 +22,13 @@ interface ZonePanelProps {
 export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave }: ZonePanelProps) {
 
       const [zone, setZone] = useState<Zone>({...initialZone});
-      const [zoneType, setZoneType] = useState<string>("Danger");
+      const [zoneType, setZoneType] = useState<string>("");
 
       const [isDrawing, setIsDrawing] = useState(false);
       const isDrawingRef = useRef(isDrawing);
       const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
-      const dangerZoneEntityRef = useRef<DangerZoneEntity | null>(null);
-      const dangerZonePolylineRef = useRef<ZonePolyline | null>(null);
+      const zoneEntityRef = useRef<ZoneEntity | null>(null);
+      const zonePolylineRef = useRef<ZonePolyline | null>(null);
       const currentMousePositionRef = useRef<Cesium.Cartesian3 | null>(null);
       
       // Temporary polylines for the lines that follow the mouse
@@ -43,19 +44,19 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
       
     
     const handleZoneTypeChange = (type: string) => {
+        const newZone = {
+        ...zone,
+        zoneType: type,
+        };
         setZoneType(type);
-        setZone({
-            zoneType: zone.zoneType,
-            zoneId: zone.zoneId,
-            zoneName: zone.zoneName,
-            points: zone.points,
-            topHeight: zone.topHeight,
-            bottomHeight: zone.bottomHeight,
-        });
+
+        setZone(newZone);
+
+        UpdateZoneEntityAndPolyline(newZone);
 
     };
 
-    const handleDangerZonePointChange = (
+    const handleZonePointChange = (
         pointIndex: number,
         field: keyof GeoPoint,
         value: number
@@ -68,28 +69,54 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
         setZone(newZone);
         zoneRef.current = newZone; 
     
-        dangerZonePolylineRef.current?.updatePoint(
+        zonePolylineRef.current?.updatePoint(
           pointIndex,
           updatedPoints[pointIndex]
         );
       };
+
+      const UpdateZoneEntityAndPolyline = (zone: Zone)=>{
+        if (viewerRef.current) {
+          if(zoneEntityRef.current){
+            zoneEntityRef.current?.RemoveEntity();
+            zoneEntityRef.current?.SetEntityNull();
+            zoneEntityRef.current?.setZone(zone);
+            zoneEntityRef.current?.tryCreatePolygon();
+          }
+          if(zonePolylineRef.current){
+            zonePolylineRef.current?.setZone(zone);
+
+            if(zone.points && zone.points.length > 0){
+              // load existing polylines
+              zonePolylineRef.current.loadExistingPolylines(zone)
+            }
+        }
+    
+        }
+      }
     
       useEffect(() => {
         if (viewerRef.current) {
-          dangerZoneEntityRef.current = new DangerZoneEntity(
+          if(zoneEntityRef.current){
+            zoneEntityRef.current?.SetEntityNull();
+          }
+          if(zonePolylineRef.current){
+            zonePolylineRef.current?.remove();
+          }
+          zoneEntityRef.current = new ZoneEntity(
             viewerRef.current,
-            zone as DangerZone
+            zone
           );
-          dangerZonePolylineRef.current = new ZonePolyline(viewerRef.current);
+          zonePolylineRef.current = new ZonePolyline(viewerRef.current, zone);
     
           if(zone.points && zone.points.length > 0){
             // load existing polylines
-            dangerZonePolylineRef.current.loadExistingPolylines(zone)
+            zonePolylineRef.current.loadExistingPolylines(zone)
           }
     
         }
         return () => {
-          dangerZoneEntityRef.current?.SetEntityNull();
+          zoneEntityRef.current?.SetEntityNull();
         };
       }, []);
     
@@ -112,13 +139,13 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
         currentMousePositionRef.current = null;
     
         // Set the closing polyline to *constant* red
-        dangerZonePolylineRef.current?.setColorConstantRed();
+        zonePolylineRef.current?.setColorConstantColor();
       
         //create the actual zone:
-        dangerZoneEntityRef.current?.tryCreatePolygon();
+        zoneEntityRef.current?.tryCreatePolygon();
         
         // if there is a visul polygon, we hide him (for comfort)
-        dangerZoneEntityRef.current?.showEntity();
+        zoneEntityRef.current?.showEntity();
     
       };
       const toggleAddingPoints = () => {
@@ -129,17 +156,17 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
         if (!viewerRef.current) return;
     
         // if there is a visul polygon, we hide him (for comfort)
-        dangerZoneEntityRef.current?.hideEntity();
+        zoneEntityRef.current?.hideEntity();
     
         const viewer = viewerRef.current;
         setIsDrawing(true);
         isDrawingRef.current = true;
     
-        dangerZonePolylineRef.current?.createPolyline();
-        dangerZonePolylineRef.current?.createClosingPolyline();
+        zonePolylineRef.current?.createPolyline();
+        zonePolylineRef.current?.createClosingPolyline();
     
         // Set the closing polyline to *transparent* red
-        dangerZonePolylineRef.current?.setColorTransparentRed();
+        zonePolylineRef.current?.setColorTransparentColor();
         if (zoneRef.current.points.length > 0) {
           const lastPoint = zoneRef.current.points[zoneRef.current.points.length - 1];
             lastPointRef.current = Cesium.Cartesian3.fromDegrees(
@@ -175,8 +202,8 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
     
     
           // update where needed
-          dangerZonePolylineRef.current?.addPoint(newPoint);
-          dangerZoneEntityRef.current?.UpdateZonePositions([...zoneRef.current.points])
+          zonePolylineRef.current?.addPoint(newPoint);
+          zoneEntityRef.current?.UpdateZonePositions([...zoneRef.current.points])
     
           if (tempLineRef.current) {
             viewer.entities.remove(tempLineRef.current);
@@ -191,7 +218,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
           currentMousePositionRef.current = null;
     
           // Set the closing polyline to *constant* red
-          dangerZonePolylineRef.current?.setColorConstantRed();
+          zonePolylineRef.current?.setColorConstantColor();
     
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     
@@ -202,7 +229,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
           if (!Cesium.defined(newPosition)) return;
     
           // Set the closing polyline to *transparent* red
-          dangerZonePolylineRef.current?.setColorTransparentRed();
+          zonePolylineRef.current?.setColorTransparentColor();
     
           currentMousePositionRef.current = newPosition;
     
@@ -238,6 +265,8 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
       const tryCreateTempLine = () =>{
         // following line (last point -> mouse) 
         if (!tempLineRef.current) {
+          const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(zone.zoneType);
+          const color = zoneOptions!.color;
           tempLineRef.current = viewerRef.current!.entities.add({
             polyline: {
               positions: new Cesium.CallbackProperty(() => {
@@ -245,7 +274,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
                 return [lastPointRef.current, currentMousePositionRef.current];
               }, false),
               width: 3,
-              material: Cesium.Color.RED,
+              material: color,
             },
           });
         }
@@ -262,6 +291,8 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
           );
     
           if (!tempClosingLineRef.current) {
+            const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(zone.zoneType);
+            const color = zoneOptions!.color;
             tempClosingLineRef.current = viewerRef.current!.entities.add({
               polyline: {
                 positions: new Cesium.CallbackProperty(() => {
@@ -269,7 +300,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
                   return [firstCartesian, currentMousePositionRef.current];
                 }, false),
                 width: 3,
-                material: Cesium.Color.RED, 
+                material: color,
               },
             });
           }
@@ -282,13 +313,13 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
         zoneRef.current = newZone;
         switch (field) {
           case "bottomHeight":
-            dangerZoneEntityRef.current?.UpdateZoneBottomHeight(value); // update the 3D polygon bottomHeight
+            zoneEntityRef.current?.UpdateZoneBottomHeight(value); // update the 3D polygon bottomHeight
             break;
           case "topHeight":
-            dangerZoneEntityRef.current?.UpdateZoneTopHeight(value); // update the 3D polygon topHeight
+            zoneEntityRef.current?.UpdateZoneTopHeight(value); // update the 3D polygon topHeight
             break;
           case "zoneName":
-            dangerZoneEntityRef.current?.UpdateZoneName(value); // update the 3D polygon name
+            zoneEntityRef.current?.UpdateZoneName(value); // update the 3D polygon name
             break;
         }
       };
@@ -367,7 +398,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
                           value={p.longitude}
                           step="0.000001"
                           onChange={(e) =>
-                            handleDangerZonePointChange(idx, "longitude", Number(e.target.value))
+                            handleZonePointChange(idx, "longitude", Number(e.target.value))
                           }
                         />
                       </td>
@@ -377,7 +408,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
                           value={p.latitude}
                           step="0.000001"
                           onChange={(e) =>
-                            handleDangerZonePointChange(idx, "latitude", Number(e.target.value))
+                            handleZonePointChange(idx, "latitude", Number(e.target.value))
                           }
                         />
                       </td>
@@ -390,9 +421,9 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
             <div className="zone-actions">
               <button className="save-button" onClick={() => 
                   {
-                    dangerZonePolylineRef.current?.remove()
-                    dangerZoneEntityRef.current?.RemoveEntity();
-                    dangerZoneEntityRef.current?.SetEntityNull();
+                    zonePolylineRef.current?.remove()
+                    zoneEntityRef.current?.RemoveEntity();
+                    zoneEntityRef.current?.SetEntityNull();
                     onSave(zone)
                     onClose()
                   }
@@ -401,9 +432,9 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
               </button>
               <button className="cancel-button" onClick={() =>
                   {
-                    dangerZonePolylineRef.current?.remove()
-                    dangerZoneEntityRef.current?.RemoveEntity();
-                    dangerZoneEntityRef.current?.SetEntityNull();
+                    zonePolylineRef.current?.remove()
+                    zoneEntityRef.current?.RemoveEntity();
+                    zoneEntityRef.current?.SetEntityNull();
                     onClose()
                   }
                   }>

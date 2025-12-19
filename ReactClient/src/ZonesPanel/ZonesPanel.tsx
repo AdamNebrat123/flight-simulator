@@ -4,7 +4,7 @@ import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import type { DangerZone, Zone } from "../Messages/AllTypes";
 import { ZoneManager } from "../Zones/ZoneManager";
 import "./ZonesPanel.css";
-import { ZoneEntityManager } from "./ZoneEntityManager";
+import { ZoneEntityManager } from "../Zones/ZoneEntityManager";
 import CreateZonePanel from "./CreateZonePanel";
 
 
@@ -52,7 +52,7 @@ export default function ZonesPanel({ onClose, viewerRef }: Props){
 
 
     const handleAddZoneClick = () => {
-        setSelectedZoneObj({ zoneName: "ZoneName", points: [], topHeight: 100, bottomHeight: 0, zoneId: "", zoneType: "" });
+        setSelectedZoneObj({ zoneType: "Danger", zoneName: "ZoneName", points: [], topHeight: 100, bottomHeight: 0, zoneId: "" });
         setOnSaveZone(() => SaveZone); // set the onSave to Save function
         openCreateDangerZonePanel();
     };

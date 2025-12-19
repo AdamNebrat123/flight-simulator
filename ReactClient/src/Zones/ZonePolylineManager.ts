@@ -1,21 +1,30 @@
 import * as Cesium from "cesium";
 import type {Zone,JamZone, DangerZone, GeoPoint } from "../Messages/AllTypes";
+import { ZoneOptionsManager } from "./ZoneOptions";
 
 export class ZonePolyline {
   private viewer: Cesium.Viewer;
+  private zone: Zone;
 
   private polyline?: Cesium.Entity;
   private closingPolyline?: Cesium.Entity;
   private points: GeoPoint[] = [];
   private pointEntities: Cesium.Entity[] = [];
 
-  constructor(viewer: Cesium.Viewer) {
+  constructor(viewer: Cesium.Viewer, zone: Zone) {
     this.viewer = viewer;
+    this.zone = zone;
+  }
+
+  setZone(zone: Zone){
+    this.zone = zone;
   }
 
   createPolyline() {
     if (this.polyline) return;
-
+    const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(this.zone.zoneType);
+    const color = zoneOptions!.color;
+    
     this.points = [];
 
     this.polyline = this.viewer.entities.add({
@@ -27,13 +36,16 @@ export class ZonePolyline {
           );
         }, false),
         width: 3,
-        material: Cesium.Color.RED,
+        material: color,
       },
     });
   }
 
   createClosingPolyline() {
     if (this.closingPolyline) return;
+
+    const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(this.zone.zoneType);
+    const color = zoneOptions!.color;
 
     this.closingPolyline = this.viewer.entities.add({
       polyline: {
@@ -47,7 +59,7 @@ export class ZonePolyline {
           ]);
         }, false),
         width: 3,
-        material: Cesium.Color.RED,
+        material: color,
       },
     });
   }
@@ -123,11 +135,17 @@ export class ZonePolyline {
     }
   }
 
-  setColorConstantRed() {
-    this.setClosingPolylineColor(Cesium.Color.RED);
+  setColorConstantColor() {
+    const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(this.zone.zoneType);
+    const color = zoneOptions!.color;
+
+    this.setClosingPolylineColor(color);
   }
 
-  setColorTransparentRed() {
-    this.setClosingPolylineColor(Cesium.Color.RED.withAlpha(0.3));
+  setColorTransparentColor() {
+    const zoneOptions = ZoneOptionsManager.getZoneOptionsByString(this.zone.zoneType);
+    const color = zoneOptions!.color;
+
+    this.setClosingPolylineColor(color.withAlpha(0.3));
   }
 }
