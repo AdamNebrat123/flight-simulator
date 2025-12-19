@@ -1,8 +1,8 @@
 import * as Cesium from "cesium";
-import type { ScenarioAirCraftsSnapshot } from "../Messages/AllTypes";
-import { PlaneEntityManager } from "./PlaneEntityManager";
-import { PlaneTailManager } from "./PlaneTailManager";
-import type { ZoneEntityManager } from "../ZonesPanel/ZoneEntityManager";
+import type { ScenarioAirCraftsSnapshot } from "../../Messages/AllTypes";
+import type { ZoneEntityManager } from "../../ZonesPanel/ZoneEntityManager";
+import type { PlaneEntityManager } from "../AirCrafts/PlaneEntityManager";
+import type { PlaneTailManager } from "../AirCrafts/PlaneTailManager";
 
 export class ScenarioPlanesSnapshotHandler {
   private planeEntityManager: PlaneEntityManager;

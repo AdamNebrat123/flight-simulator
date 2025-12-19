@@ -4,15 +4,15 @@ import CesiumMap from './CesiumMap';
 import { useWebSocket } from './WebSocket/WebSocketProvider';
 import { ToastContainer } from 'react-toastify';
 //handler imports
-import { PlaneEntityManager } from './Handlers/PlaneEntityManager';
-import { PlaneTailManager } from './Handlers/PlaneTailManager';
-import { ScenarioPlanesSnapshotHandler } from './Handlers/ScenarioPlanesSnapshotHandler';
 import { ZoneEntityManager } from './ZonesPanel/ZoneEntityManager';
-import { ZoneHandler } from './Handlers/ZoneHandler';
+import { ZoneHandler } from './Zones/ZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
-import { handleInitData } from './Handlers/InitDataHandler';
+import { handleInitData } from './InitData/InitDataHandler';
 import PanelsAndButtons from './PanelsAndButtons/PanelsAndButtons';
-import { ScenarioHandler } from './Handlers/ScenarioHandler';
+import { PlaneEntityManager } from './Scenarios/AirCrafts/PlaneEntityManager';
+import { PlaneTailManager } from './Scenarios/AirCrafts/PlaneTailManager';
+import { ScenarioPlanesSnapshotHandler } from './Scenarios/Handlers/ScenarioPlanesSnapshotHandler';
+import { ScenarioHandler } from './Scenarios/ScenarioHandler';
 
 
 export default function App() {

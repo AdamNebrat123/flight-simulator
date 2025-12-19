@@ -2,7 +2,7 @@ import { ZoneEntityManager } from "../ZonesPanel/ZoneEntityManager";
 import * as Cesium from "cesium";
 import type { DangerZone, ZoneError as ZoneError, Zone } from "../Messages/AllTypes";
 import { toast } from "react-toastify";
-import { ZoneManager } from "../Managers/ZoneManager";
+import { ZoneManager } from "./ZoneManager";
 
 export class ZoneHandler{
     private static instance: ZoneHandler | null = null;

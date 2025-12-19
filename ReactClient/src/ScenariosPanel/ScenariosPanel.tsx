@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react";
-import { ScenarioManager } from "../Managers/ScenarioManager";
+import { ScenarioManager } from "../Scenarios/ScenarioManager";
 import "./ScenariosPanel.css"
 import { SimState } from "../SimState/SimState";
-import { PlaneEntityManager } from "../Handlers/PlaneEntityManager";
-import { PlaneTailManager } from "../Handlers/PlaneTailManager";
 import type { Scenario } from "../Messages/AllTypes";
 import CreateTrajectoryPanel from "../CreateTrajectoryPanel/CreateTrajectoryPanel";
 import { C2SMessageType } from "../Messages/C2SMessageType";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
+import { PlaneEntityManager } from "../Scenarios/AirCrafts/PlaneEntityManager";
+import { PlaneTailManager } from "../Scenarios/AirCrafts/PlaneTailManager";
 
 
 interface Props {

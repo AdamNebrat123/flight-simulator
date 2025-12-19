@@ -2,7 +2,7 @@ import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { useContext, useState } from "react";
 import "./PlayScenarioPanel.css";
 import { SimState } from "../SimState/SimState";
-import { ScenarioManager } from "../Managers/ScenarioManager";
+import { ScenarioManager } from "../Scenarios/ScenarioManager";
 
 interface Props {
   onPlay: (scenarioId: string, scenarioName: string) => void;

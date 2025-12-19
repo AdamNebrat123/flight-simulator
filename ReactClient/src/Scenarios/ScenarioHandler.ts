@@ -1,5 +1,5 @@
 import type { Scenario, ScenarioError } from "../Messages/AllTypes";
-import { ScenarioManager } from "../Managers/ScenarioManager";
+import { ScenarioManager } from "../Scenarios/ScenarioManager";
 import { toast } from "react-toastify/unstyled";
 
 export class ScenarioHandler {

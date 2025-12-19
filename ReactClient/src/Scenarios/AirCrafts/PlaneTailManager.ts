@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import type { TrajectoryPoint } from '../Messages/AllTypes';
+import type { TrajectoryPoint } from '../../Messages/AllTypes';
 
 export class PlaneTailManager {
   private static instance: PlaneTailManager | null = null;

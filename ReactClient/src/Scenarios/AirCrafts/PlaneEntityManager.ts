@@ -1,7 +1,7 @@
 import * as Cesium from 'cesium';
-import type { AircraftStatus } from '../Messages/AllTypes';
-import { AircraftModelData } from '../ModelAdaptation/AircraftModelData';
-import type { ModelAdaptationData } from '../ModelAdaptation/ModelAdaptationData';
+import type { AircraftStatus } from '../../Messages/AllTypes';
+import type { ModelAdaptationData } from '../../ModelAdaptation/ModelAdaptationData';
+import { AircraftModelData } from '../../ModelAdaptation/AircraftModelData';
 
 export class PlaneEntityManager {
   private static instance: PlaneEntityManager | null = null;
@@ -43,7 +43,7 @@ export class PlaneEntityManager {
     const modeldata: ModelAdaptationData | null = AircraftModelData.getModelDataByString(aircraft.aircraftType)
     if(modeldata === null) return;
     
-    const headingOffset = modeldata.heading;
+    const headingOffset = modeldata.headingOffset;
     const modelSize = modeldata.modelSize;
 
     

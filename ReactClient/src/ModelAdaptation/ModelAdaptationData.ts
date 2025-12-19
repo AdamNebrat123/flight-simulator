@@ -1,4 +1,4 @@
 export interface ModelAdaptationData{
-    heading: number
+    headingOffset: number
     modelSize: number
 }

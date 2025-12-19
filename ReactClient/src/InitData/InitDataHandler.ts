@@ -1,7 +1,7 @@
 import * as Cesium from "cesium";
-import { ZoneHandler } from "./ZoneHandler";
+import { ZoneHandler } from "../Zones/ZoneHandler";
 import type { InitData } from "../Messages/AllTypes";
-import { ScenarioHandler } from "./ScenarioHandler";
+import { ScenarioHandler } from "../Scenarios/ScenarioHandler";
 
 export function handleInitData(data: any, viewer : Cesium.Viewer){
     try {
