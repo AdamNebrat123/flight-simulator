@@ -19,35 +19,31 @@ public class ScenarioResultsCalculator
 
     public ScenarioResults? CalculateScenarioResults(Scenario scenario)
     {
-        if (scenario == null || scenario.aircrafts == null)
-        {
-            // Return a default ScenarioResults or throw an exception
+        if (scenario?.aircrafts == null)
             return null;
-        }
 
-        TemporaryCalculatedPointsStorage temporaryCalculatedPointsStorage = new TemporaryCalculatedPointsStorage();
-        List<AircraftTrajectory> aircraftsTrajectories = scenario.aircrafts;
+        var aircraftsDict = new Dictionary<string, AircraftRuntimeData>();
 
-        foreach (AircraftTrajectory aircraft in aircraftsTrajectories)
+        foreach (AircraftTrajectory aircraft in scenario.aircrafts)
         {
             List<TrajectoryPoint> trajectory = HandleSinglePlane(aircraft);
-            temporaryCalculatedPointsStorage.AddTrajectory(trajectory, aircraft);
+
+            aircraftsDict[aircraft.aircraftId] = new AircraftRuntimeData
+            {
+                AircraftId = aircraft.aircraftId,
+                Aircraft = aircraft,
+                Trajectory = new Queue<TrajectoryPoint>(trajectory)
+            };
         }
 
-        foreach(ScenarioAirCraftsSnapshot snapshot in temporaryCalculatedPointsStorage.CalculatedTrajectoryPoints)
-        {
-            snapshot.scenarioId = scenario.scenarioId;
-        }
-        ScenarioResults scenarioResult = new ScenarioResults
+        return new ScenarioResults
         {
             scenarioId = scenario.scenarioId,
             scenarioName = scenario.scenarioName,
-            points = temporaryCalculatedPointsStorage.CalculatedTrajectoryPoints,
+            Aircrafts = aircraftsDict,
             isPaused = false,
             playSpeed = 1.0
         };
-
-        return scenarioResult;
     }
 
     private List<TrajectoryPoint> HandleSinglePlane(AircraftTrajectory plane)

@@ -30,65 +30,77 @@ public class PlaySelectedScenarioHandler
             System.Console.WriteLine(scenarioId + " doesnt exist.....");
     }
 
-    public async Task SendCalculatedTrajectoryPointsAsync(ScenarioResults scenario, ModeEnum clientMode)
+    public async Task SendCalculatedTrajectoryPointsAsync(
+    ScenarioResults originalScenario,
+    ModeEnum clientMode)
     {
-        Console.WriteLine("entered SendCalculatedTrajectoryPointsAsync");
-        scenario.Resume();
-        scenario.SetPlaySpeed(1.0);
-        
-        // a history of points for each plane by its name
-        Dictionary<string, Queue<TrajectoryPoint>> history = new();
-        foreach (ScenarioAirCraftsSnapshot result in scenario.points)
+        // Deep copy to runtime
+        var runtimeAircrafts = originalScenario.Aircrafts.ToDictionary(
+            kvp => kvp.Key,
+            kvp => new AircraftRuntimeData
+            {
+                AircraftId = kvp.Value.AircraftId,
+                Aircraft = kvp.Value.Aircraft,
+                Trajectory = new Queue<TrajectoryPoint>(kvp.Value.Trajectory)
+            });
+
+        var history = new Dictionary<string, Queue<TrajectoryPoint>>();
+
+        originalScenario.Resume();
+        originalScenario.SetPlaySpeed(1.0);
+
+        while (runtimeAircrafts.Values.Any(a => a.Trajectory.Count > 0))
         {
-            while (scenario.isPaused)
-            {
+            while (originalScenario.isPaused)
                 await Task.Delay(100);
-            }
 
-            foreach (AircraftStatus plane in result.aircrafts)
+            var snapshot = new ScenarioAirCraftsSnapshot(new List<AircraftStatus>())
             {
-                // Make sure every plane has a history queue
-                if (!history.ContainsKey(plane.aircraftName))
-                    history[plane.aircraftName] = new Queue<TrajectoryPoint>();
+                scenarioId = originalScenario.scenarioId
+            };
 
-                // If there is a current point, add it to history
-                if (plane.trajectoryPoints != null && plane.trajectoryPoints.Any())
-                {
-                    TrajectoryPoint currentPoint = plane.trajectoryPoints.First();
-                    history[plane.aircraftName].Enqueue(currentPoint);
+            foreach (var aircraft in runtimeAircrafts.Values)
+            {
+                if (aircraft.Trajectory.Count == 0)
+                    continue;
 
-                    // Check if point is in danger zone
-                    List<string> dangerZonesIn = dangerZoneChecker.GetZonesContainingPoint(currentPoint.position);
-                    plane.dangerZonesIn = dangerZonesIn; // null if not in any zone
+                var point = aircraft.Trajectory.Dequeue();
 
-                    // set the boolean isInDangerZone
-                    plane.isInDangerZone = dangerZonesIn.Count > 0;
+                if (!history.ContainsKey(aircraft.AircraftId))
+                    history[aircraft.AircraftId] = new Queue<TrajectoryPoint>();
 
-                    // Keep max 30 points in history
-                    if (history[plane.aircraftName].Count > 30)
-                        history[plane.aircraftName].Dequeue();
-                }
+                history[aircraft.AircraftId].Enqueue(point);
+                if (history[aircraft.AircraftId].Count > 30)
+                    history[aircraft.AircraftId].Dequeue();
 
-                // Update tailPoints from history
-                plane.tailPoints = history[plane.aircraftName].ToList();
+                var dangerZones = dangerZoneChecker.GetZonesContainingPoint(point.position);
+
+
+
+                AircraftStatus aircraftStatus = aircraft.Aircraft.CreateStatus(point);
+
+                System.Console.WriteLine(aircraftStatus.ToString());
+                System.Console.WriteLine(typeof(AircraftStatus));
+                aircraftStatus.dangerZonesIn = dangerZones;
+                aircraftStatus.isInDangerZone = dangerZones.Count > 0;
+                aircraftStatus.tailPoints = history[aircraft.AircraftId].ToList();
+
+                snapshot.aircrafts.Add(aircraftStatus);
             }
 
-            string responseJson = WebSocketServer.prepareMessageToClient(
+            string msg = WebSocketServer.prepareMessageToClient(
                 S2CMessageType.ScenarioPlanesSnapshot,
-                result,
+                snapshot,
                 clientMode
             );
 
-            WebSocketServer.SendMsgToClients(responseJson, clientMode);
+            WebSocketServer.SendMsgToClients(msg, clientMode);
 
-            System.Console.WriteLine("sent: " + responseJson);
-            
-            int adjustedDelay = (int)(timeStepSeconds * 1000 / scenario.playSpeed);
-            await Task.Delay(adjustedDelay);
+            int delay = (int)(timeStepSeconds * 1000 / originalScenario.playSpeed);
+            await Task.Delay(delay);
         }
-
         // reset scenario defaults
-        scenario.Resume();
-        scenario.SetPlaySpeed(1.0);
+        originalScenario.Resume();
+        originalScenario.SetPlaySpeed(1.0);
     }
 }
