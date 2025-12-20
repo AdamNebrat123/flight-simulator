@@ -193,9 +193,11 @@ public class DangerZone : Zone
 }
 public class JamZone : Zone
 {
+    public List<string> jammersIds { get; set; }
     public JamZone()
     {
         zoneType = ZoneType.Jam.ToString();
+        jammersIds = new List<string>();
     }
 }
 
@@ -348,6 +350,8 @@ public partial class AircraftTrajectory
 
 public partial class DroneTrajectory : AircraftTrajectory
 {
+    [JsonPropertyName("frequency")]
+    public string frequency { get; set; }
     public override AircraftStatus CreateStatus(TrajectoryPoint point)
     {
         return new DroneStatus
@@ -358,7 +362,8 @@ public partial class DroneTrajectory : AircraftTrajectory
             trajectoryPoints = new List<TrajectoryPoint> { point },
             tailPoints = new List<TrajectoryPoint>(),
             isInDangerZone = false,
-            dangerZonesIn = new List<string>()
+            dangerZonesIn = new List<string>(),
+            frequency = this.frequency
         };
     }
 }
@@ -505,6 +510,7 @@ public partial class AircraftStatus
 
 public partial class DroneStatus : AircraftStatus
 {
+    public string frequency { get; set; }
     public DroneStatus() => aircraftType = AircraftTypeEnum.Drone.ToString();
 }
 
