@@ -16,7 +16,21 @@ public class JammerAssignmentManager
     public async Task AssignJammers(ScenarioAirCraftsSnapshot snapshot)
     {
         List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(snapshot);
+        JammersSnapshot previous = _jammerManager.CreateSnapshot();
         UpdateJammers(jamZoneContexts);
+
+        List<Jammer> changedJammers = GetChangedJammers(previous, _jammerManager.CreateSnapshot());
+        if (changedJammers == null || changedJammers.Count == 0)
+            return;
+
+        string msg = WebSocketServer.prepareMessageToClient(
+            S2CMessageType.JammersUpdate,
+            changedJammers,
+            ModeEnum.ScenarioSimulator
+        );
+
+        // send only changed jammers
+        WebSocketServer.SendMsgToClients(msg, ModeEnum.ScenarioSimulator);
     }
 
     public void UpdateJammers(IEnumerable<JamZoneContext> zones)
@@ -130,4 +144,42 @@ public class JammerAssignmentManager
             return new List<JamZoneContext>();
         }
     }
+    public List<Jammer> GetChangedJammers(JammersSnapshot previous, JammersSnapshot current)
+    {
+        List<Jammer> changed = new();
+
+        foreach (var kvp in current.States)
+        {
+            string id = kvp.Key;
+            JammerStateSnapshot curr = kvp.Value;
+
+            if (!previous.States.TryGetValue(id, out var prev))
+            {
+                Jammer? jammer = _jammerManager.GetJammerById(id);
+                if (jammer == null)
+                    changed.Add(jammer);
+                continue;
+            }
+
+            if (curr.JamMode != prev.JamMode)
+            {
+                Jammer? jammer = _jammerManager.GetJammerById(id);
+                if (jammer == null)
+                    changed.Add(jammer);
+                continue;
+            }
+
+            if (curr.JamMode == JamMode.Directional &&
+                curr.DirectionDegrees != prev.DirectionDegrees)
+            {
+                Jammer? jammer = _jammerManager.GetJammerById(id);
+                if (jammer == null)
+                    changed.Add(jammer);
+                continue;
+            }
+        }
+
+        return changed;
+    }
+
 }

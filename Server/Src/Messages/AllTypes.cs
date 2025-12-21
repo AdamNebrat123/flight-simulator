@@ -548,3 +548,9 @@ public partial class UavStatus : AircraftStatus
 {
     public UavStatus() => aircraftType = AircraftTypeEnum.Uav.ToString();
 }
+
+public partial class JammersUpdate
+{
+    [JsonPropertyName("jammers")]
+    public List<Jammer> jammers { get; set; }
+}

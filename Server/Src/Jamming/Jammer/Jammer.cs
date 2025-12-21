@@ -9,8 +9,7 @@ public class Jammer : ISetJammingMode
     public List<Frequency> supportedFrequencies { get; set;}
     public double Radius { get; set;}
 
-
-    private string? _currentTargetDroneId;
+    public double? DirectionDegrees { get; set; } // for directional jamming
 
     public Jammer()
     {
