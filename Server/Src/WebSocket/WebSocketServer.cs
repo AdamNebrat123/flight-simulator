@@ -141,5 +141,22 @@ public class WebSocketServer
             else
                 System.Console.WriteLine(zone.zoneName + " - Failed to add zone.");
         }
+
+        JammersDataManager jammersDataManager = JammersDataManager.GetInstance();
+        jammersDataManager.ReadData();
+
+        List<Jammer> allJammers = jammersDataManager.GetJammers();
+        JammerManager jammerManager = JammerManager.GetInstance();
+
+        // store all existing jammers in a map from a file
+        foreach( var jammer in allJammers)
+        {
+            bool isAdded = jammerManager.TryAddJammer(jammer);
+            if (isAdded)
+                System.Console.WriteLine(jammer.id + " - Added jammer successfully.");
+            else
+                System.Console.WriteLine(jammer.id + " - Failed to add jammer.");
+        }
+
     }
 }

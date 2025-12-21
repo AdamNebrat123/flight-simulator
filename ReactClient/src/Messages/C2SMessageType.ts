@@ -13,5 +13,8 @@ export enum C2SMessageType {
     UpdateDrone = "UpdateDrone",
     RequestDroneInitData = "RequestDroneInitData",
     CreateBullet = "CreateBullet",
-    ClientMode = "ClientMode"
+    ClientMode = "ClientMode",
+    AddJammer = "AddJammer",
+    EditJammer = "EditJammer",
+    RemoveJammer = "RemoveJammer",
 }

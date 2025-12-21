@@ -1,3 +1,5 @@
+import type { Jammer } from "../Jamming/Jammer/Jammer";
+import type { Frequency } from "../Jamming/Jammer/JammerRelatedEnums";
 import type { ZoneTypeEnum } from "./ZoneTypeEnum";
 
 export interface AllTypes {
@@ -97,6 +99,7 @@ export interface DangerZone extends Zone {
 }
 
 export interface JamZone extends Zone {
+  jammersIds: string[];
   zoneType: ZoneTypeEnum.Jam;
 }
 
@@ -108,6 +111,7 @@ export interface ZoneError {
 export interface InitData {
     scenarios: Scenario[];
     zones: DangerZone[];
+    jammers: Jammer[];
 }
 
 export interface ScenarioError {
@@ -166,7 +170,7 @@ export interface AircraftTrajectory {
 }
 
 export interface DroneTrajectory extends AircraftTrajectory {
-  // Drone-specific properties (none for now)
+  frequency: Frequency;
 }
 
 export interface PlaneTrajectory extends AircraftTrajectory {
@@ -210,7 +214,7 @@ export interface AircraftStatus {
 }
 
 export interface DroneStatus extends AircraftStatus {
-  // Drone-specific properties (none for now)
+  frequency: Frequency;
 }
 
 export interface PlaneStatus extends AircraftStatus {
@@ -239,4 +243,8 @@ export interface IaiKfirStatus extends AircraftStatus {
 
 export interface UavStatus extends AircraftStatus {
   // UAV-specific properties (none for now)
+}
+
+export interface JammerError {
+  errorMsg: string;
 }

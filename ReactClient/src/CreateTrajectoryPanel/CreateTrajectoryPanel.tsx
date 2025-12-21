@@ -105,11 +105,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
             geoPoints: oldAircraft.geoPoints,
             velocity: oldAircraft.velocity,
         });
-        console.log("******************************")
-        console.log("******************************")
-        console.log(updatedAircraft.aircraftType)
-        console.log("******************************")
-        console.log("******************************")
+
         const updatedAircrafts = [...scenario.aircrafts];
         updatedAircrafts[index] = updatedAircraft;
         updatedAircrafts[index].aircraftName = `${newType} ${index + 1}`;

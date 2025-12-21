@@ -4,6 +4,7 @@ import ScenarioPlayControlPanel from '../ScenarioPlayControlPanel/ScenarioPlayCo
 import { SimState } from '../SimState/SimState';
 import ScenariosPanel from '../ScenariosPanel/ScenariosPanel';
 import ZonesPanel from '../ZonesPanel/ZonesPanel';
+import JammersPanel from '../Jamming/JammersPanel/JammersPanel';
 
 
 interface PanelsAndButtonsProps {
@@ -15,6 +16,7 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
     
     const [showSceanriosPanel, setShowSceanriosPanel] = useState(false);
     const [showDangerZonesPanel, setShowDangerZonesPanel] = useState(false);
+    const [showJammersPanel, setShowJammersPanel] = useState(false);
 
     // ScenarioPlayer instance
     const simStateContext  = useContext(SimState);
@@ -23,21 +25,24 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
     // Handlers for opening panels
     const openSceanriosPanel = () => setShowSceanriosPanel(true);
     const openDangerZonesPanel = () => setShowDangerZonesPanel(true);
+    const openJammersPanel = () => setShowJammersPanel(true);
 
 
     // Handlers for closing panels
     const closeSceanriosPanel = () => setShowSceanriosPanel(false);
     const closeDangerZonesPanel = () => setShowDangerZonesPanel(false);
+    const closeJammersPanel = () => setShowJammersPanel(false);
 
 
     
     return (
     <>
       {/* Only show buttons if no panels are open */}
-      {!showSceanriosPanel && !showDangerZonesPanel && (
+      {!showSceanriosPanel && !showDangerZonesPanel && !showJammersPanel && (
         <TopLeftButtons
           onScenariosClick={openSceanriosPanel}
           onDangerZonesClick={openDangerZonesPanel}
+          onJammersClick={openJammersPanel}
         />
       )}
 
@@ -52,6 +57,13 @@ export default function PanelsAndButtons({viewerRef} : PanelsAndButtonsProps){
       {scenarioPlayer.playingScenarioName && (
         
         <ScenarioPlayControlPanel/>
+      )}
+
+      {showJammersPanel && (
+        <JammersPanel
+          onClose={closeJammersPanel}
+          viewerRef={viewerRef}
+        />
       )}
 
       {showDangerZonesPanel && (

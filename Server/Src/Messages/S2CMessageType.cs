@@ -16,5 +16,9 @@ public enum S2CMessageType
     DroneInitData,
     BulletsMsg,
     DroneKilled,
-    JammersUpdate
+    JammersUpdate,
+    AddJammer,
+    RemoveJammer,
+    EditJammer,
+    JammerError
 }

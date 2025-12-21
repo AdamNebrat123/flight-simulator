@@ -14,5 +14,8 @@ public enum C2SMessageType
     UpdateDrone,
     RequestDroneInitData,
     CreateBullet,
-    ClientMode
+    ClientMode,
+    AddJammer,
+    RemoveJammer,
+    EditJammer,
 }

@@ -13,9 +13,27 @@ public class JammerManager
         return _instance;
     }
 
-    public void AddJammer(Jammer jammer)
+    public bool TryAddJammer(Jammer jammer)
     {
+        if (_jammers.ContainsKey(jammer.id))
+            return false;
+
         _jammers[jammer.id] = jammer;
+        return true;
+    }
+
+    public bool TryRemoveJammer(string id)
+    {
+        return _jammers.Remove(id);
+    }
+
+    public bool TryEditJammer(string id, Jammer updatedJammer)
+    {
+        if (!_jammers.ContainsKey(id))
+            return false;
+
+        _jammers[id] = updatedJammer;
+        return true;
     }
 
     public Jammer? GetJammerById(string id)

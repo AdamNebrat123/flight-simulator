@@ -214,6 +214,8 @@ public partial class InitData
     public List<Scenario> scenarios { get; set; }
     [JsonPropertyName("zones")]
     public List<Zone> zones{ get; set; }
+    [JsonPropertyName("jammers")]
+    public List<Jammer> jammers { get; set; }
 
 }
 
@@ -553,4 +555,10 @@ public partial class JammersUpdate
 {
     [JsonPropertyName("jammers")]
     public List<Jammer> jammers { get; set; }
+}
+
+public partial class JammerError
+{
+    [JsonPropertyName("errorMsg")]
+    public string errorMsg { get; set; }
 }

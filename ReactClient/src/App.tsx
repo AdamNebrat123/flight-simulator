@@ -14,6 +14,7 @@ import { ScenarioPlanesSnapshotHandler } from './Scenarios/Handlers/ScenarioPlan
 import { ScenarioHandler } from './Scenarios/ScenarioHandler';
 import { ZoneEntityManager } from './Zones/ZoneEntityManager';
 import { ZoneManager } from './Zones/ZoneManager';
+import { JammerHandler } from './Jamming/Handler/JammerHandler';
 
 
 export default function App() {
@@ -24,11 +25,11 @@ export default function App() {
   //needed for ScenarioPlanesSnapshotHandler
   let planeEntityManager: PlaneEntityManager | null;
   let planeTailManager: PlaneTailManager | null;
-  const dangerZoneEntityManagerRef = useRef<ZoneEntityManager | null>(null)
+  const zoneEntityManagerRef = useRef<ZoneEntityManager | null>(null)
   const ScenarioPlanesSnapshotHandlerRef = useRef<ScenarioPlanesSnapshotHandler | null>(null)
-  const dangerZoneHandlerRef =  useRef<ZoneHandler | null>(null);
+  const zoneHandlerRef =  useRef<ZoneHandler | null>(null);
   const zoneManagerRef = useRef<ZoneManager | null>(null);
-
+  const jammerHandlerRef = useRef<JammerHandler | null>(null);
   const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
 
 
@@ -38,18 +39,18 @@ export default function App() {
       
       planeEntityManager = PlaneEntityManager.getInstance(viewerRef.current);
       planeTailManager = PlaneTailManager.getInstance(viewerRef.current)
-      dangerZoneEntityManagerRef.current = ZoneEntityManager.GetInstance(viewerRef.current);
+      zoneEntityManagerRef.current = ZoneEntityManager.GetInstance(viewerRef.current);
       zoneManagerRef.current = ZoneManager.getInstance();
-
 
       ScenarioPlanesSnapshotHandlerRef.current = new ScenarioPlanesSnapshotHandler(
         planeEntityManager,
         planeTailManager, 
-        dangerZoneEntityManagerRef.current,
+        zoneEntityManagerRef.current,
         zoneManagerRef.current
       );
 
-      dangerZoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);
+      zoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);
+      jammerHandlerRef.current = JammerHandler.getInstance(viewerRef.current);
       scenarioHandlerRef.current = ScenarioHandler.getInstance();
 
       // register to all of the events
@@ -74,22 +75,42 @@ export default function App() {
 
     // type : AddDanerZone
     const unsubAddDanerZone = on(S2CMessageType.AddZone , (data) => {
-      dangerZoneHandlerRef.current?.HandleAddZone(data);
+      zoneHandlerRef.current?.HandleAddZone(data);
     });
 
     // type : RemoveDangerZone
     const unsubRemoveDangerZone = on(S2CMessageType.RemoveZone , (data) => {
-      dangerZoneHandlerRef.current?.HandleRemoveZone(data);
+      zoneHandlerRef.current?.HandleRemoveZone(data);
     });
 
     // type : EditDangerZone
     const unsubEditDangerZone = on(S2CMessageType.EditZone , (data) => {
-      dangerZoneHandlerRef.current?.HandleEditZone(data);
+      zoneHandlerRef.current?.HandleEditZone(data);
     });
 
     // type : DangerZoneError
     const unsubDangerZoneError = on(S2CMessageType.DangerError , (data) => {
-      dangerZoneHandlerRef.current?.HandleZoneError(data);
+      zoneHandlerRef.current?.HandleZoneError(data);
+    });
+
+    // type : AddJammer
+    const unsubAddJammer = on(S2CMessageType.AddJammer, (data) => {
+      jammerHandlerRef.current?.HandleAddJammer(data);
+    });
+
+    // type : RemoveJammer
+    const unsubRemoveJammer = on(S2CMessageType.RemoveJammer, (data) => {
+      jammerHandlerRef.current?.HandleRemoveJammer(data);
+    });
+
+    // type : EditJammer
+    const unsubEditJammer = on(S2CMessageType.EditJammer, (data) => {
+      jammerHandlerRef.current?.HandleEditJammer(data);
+    });
+
+    // type : JammerError
+    const unsubJammerError = on(S2CMessageType.JammerError , (data) => {
+      jammerHandlerRef.current?.HandleJammerError(data);
     });
 
     // type : AddScenario
@@ -120,6 +141,10 @@ export default function App() {
       unsubRemoveDangerZone();
       unsubEditDangerZone();
       unsubDangerZoneError();
+      unsubAddJammer();
+      unsubRemoveJammer();
+      unsubEditJammer();
+      unsubJammerError();
       unsubAddScenario();
       unsubRemoveScenario();
       unsubEditScenario();

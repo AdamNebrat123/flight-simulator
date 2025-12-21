@@ -10,6 +10,7 @@ public class UIMsgHandler
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
     private readonly ZoneHandler dangerZoneHandler = ZoneHandler.GetInstance();
     private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
+    private readonly JammerHandler jammerHandler = JammerHandler.GetInstance();
     private readonly DroneGameHandler droneHandler = DroneGameHandler.GetInstance();
     private readonly FreeFlightHandler freeFlightHandler = FreeFlightHandler.GetInstance();
     private readonly CreateBulletHandler createBulletHandler = CreateBulletHandler.GetInstance();
@@ -79,6 +80,18 @@ public class UIMsgHandler
 
                 case C2SMessageType.EditZone:
                     dangerZoneHandler.HandleEditZone(wrapper.data, clientMode);
+                    break;
+
+                case C2SMessageType.AddJammer:
+                    jammerHandler.HandleAddJammer(wrapper.data, clientMode);
+                    break;
+
+                case C2SMessageType.RemoveJammer:
+                    jammerHandler.HandleRemoveJammer(wrapper.data, clientMode);
+                    break;
+
+                case C2SMessageType.EditJammer:
+                    jammerHandler.HandleEditJammer(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.PlaySelectedScenarioCmd:
