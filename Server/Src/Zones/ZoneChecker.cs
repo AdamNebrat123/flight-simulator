@@ -1,8 +1,8 @@
-public class DangerZoneChecker
+public class ZoneChecker
 {
     private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
 
-    public DangerZoneChecker()
+    public ZoneChecker()
     {
     }
 
@@ -16,6 +16,20 @@ public class DangerZoneChecker
             if (IsPointInZone(point, zone))
             {
                 zonesContainingPoint.Add(zone.zoneId);
+            }
+        }
+
+        return zonesContainingPoint; // empty list if point is not in any danger zone
+    }
+    public List<JamZone> GetJamZonesContainingPoint(GeoPoint point)
+    {
+        var zonesContainingPoint = new List<JamZone>();
+
+        foreach (var zone in zoneManager.GetAllZones())
+        {
+            if (IsPointInZone(point, zone) && zone.zoneType == ZoneType.Jam.ToString())
+            {
+                zonesContainingPoint.Add((JamZone)zone);
             }
         }
 

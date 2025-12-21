@@ -26,4 +26,23 @@ public class JammerManager
     {
         return _jammers.Values.ToList();
     }
+    public List<Jammer> GetJammersByIds(List<string>? ids)
+    {
+        var result = new List<Jammer>();
+
+        if (ids == null || ids.Count == 0)
+            return result; 
+
+        foreach (var id in ids)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                continue;
+
+            Jammer? jammer = GetJammerById(id);
+            if (jammer != null)
+                result.Add(jammer);
+        }
+
+        return result;
+    }
 }

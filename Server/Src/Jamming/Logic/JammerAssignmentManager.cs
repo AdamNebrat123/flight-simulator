@@ -2,8 +2,6 @@ public class JammerAssignmentManager
 {
     private static JammerAssignmentManager _instance = new JammerAssignmentManager();
     private readonly JammerManager _jammerManager = JammerManager.GetInstance();
-    private readonly ScenarioResultsManager _trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
-
     private readonly ZoneManager _zoneManager = ZoneManager.GetInstance();
     private JammerAssignmentManager()
     {
@@ -14,94 +12,122 @@ public class JammerAssignmentManager
     {
         return _instance;
     }
-
-    public void UpdateJammers(List<DronesInJamZone> dronesInJamZones)
+    
+    public async Task AssignJammers(ScenarioAirCraftsSnapshot snapshot)
     {
-        foreach (DronesInJamZone zone in dronesInJamZones)
+        List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(snapshot);
+        UpdateJammers(jamZoneContexts);
+    }
+
+    public void UpdateJammers(IEnumerable<JamZoneContext> zones)
+    {
+        foreach (JamZoneContext zone in zones)
         {
             HandleAssignmentForZone(zone);
         }
     }
 
 
-    private void HandleAssignmentForZone(DronesInJamZone zone)
+    private void HandleAssignmentForZone(JamZoneContext zone)
     {
-        Zone zone1 = _zoneManager.TryGetZone(zone.ZoneId);
-        if(zone1 == null || zone1.zoneType != ZoneType.Jam.ToString())
-            return;
-        
-        JamZone jamZone = (JamZone)zone1;
-
-        if(jamZone.jammersIds == null || jamZone.jammersIds.Count == 0)
-            return;
-        
-
-        List<Jammer> noneJammers = new();
-        List<Jammer> directionalJammers = new();
-        List<Jammer> omniJammers = new();
-
-        foreach(string zoneId in jamZone.jammersIds)
+        try
         {
-            Jammer? jammer = _jammerManager.GetJammerById(zoneId);
-            if(jammer == null || jammer.status != Status.Online)
-                continue;
+            List<Jammer> jammers = zone.Jammers;
+            List<DroneCoverageContext> drones = zone.Drones;
 
-            if(jammer.jamMode == JamMode.Directional)
-                directionalJammers.Add(jammer);
+            // reset state
+            foreach (Jammer jammer in jammers)
+                jammer.StopJamming();
 
-            else if (jammer.jamMode == JamMode.Omnidirectional)
-                omniJammers.Add(jammer);
+            foreach (var drone in drones)
+                drone.CoveredBy = CoveredBy.None;
 
-            else
-                noneJammers.Add(jammer);
+            // build coverage map. JammerId -> List of drones in its range
+            JammerCoverageMap coverageMap = JammerCoverageBuilder.Build(jammers, drones);
+
+            // omni phase
+            // OmniCandidate - a jammer with its potential drones to cover
+            // sorted by most drones covered!
+            List<OmniCandidate> omniCandidates = OmniCandidateBuilder.BuildCandidates(jammers, coverageMap);
+
+            // assign omni jammers. 
+            OmniAssignmentProcessor.AssignOmniJammers(omniCandidates);
+
+            // directional phase
+            DirectionalAssignmentProcessor.AssignDirectionalJammers(drones, jammers);
         }
-        /*
-        List<DroneTrajectory> dronesInZone = new();
-        foreach(string droneId in zone.DroneIds)
+        catch (Exception ex)
         {
-            DroneTrajectory? drone = _trajectoryScenarioResultsManager.TryGetDrone(droneId);
-            if(drone != null)
-                dronesInZone.Add(drone);
+            System.Console.WriteLine("Error in JammerAssignmentManager.HandleAssignmentForZone: " + ex.Message);
         }
-        */
-
-        
     }
 
 
-    private void HandleDroneInZone(DroneStatus drone, JamZone jamZone, List<Jammer> noneJammers, List<Jammer> directionalJammers, List<Jammer> omniJammers)
+    public List<JamZoneContext> BuildJamZoneContexts(ScenarioAirCraftsSnapshot snapshot)
     {
-        // Omnidirectional - if is already covered by omni, do nothing
-        if (JammerSelector.IsDroneCoveredByOmni(omniJammers, drone))
-            return;
-
-
-        // There is no omni coverage - try to promote jammers
-        // Directional - promote closest directional to omni
-        if (directionalJammers.Count > 0)
+        try
         {
-            var closestDirectional =
-                JammerSelector.FindClosestMatchingJammer(
-                    directionalJammers, drone);
+            var zonesDict = new Dictionary<string, List<DroneCoverageContext>>();
+            ZoneChecker zoneChecker = new();
 
-            if (closestDirectional != null)
+            
+            foreach (AircraftStatus aircraftStatus in snapshot.aircrafts)
             {
-                JammerJamModeTransitions.PromoteDirectionalToOmni(closestDirectional, directionalJammers, omniJammers);
-                return;
+                if(aircraftStatus.aircraftType != AircraftTypeEnum.Drone.ToString())
+                    continue;
+
+                DroneStatus droneStatus = (DroneStatus)aircraftStatus;
+
+                TrajectoryPoint trajectoryPoint = droneStatus.trajectoryPoints.FirstOrDefault();
+                if (trajectoryPoint == null)
+                    continue;
+
+                List<JamZone>? jamZonesIn = zoneChecker.GetJamZonesContainingPoint(trajectoryPoint.position);
+                if (jamZonesIn == null || jamZonesIn.Count == 0)
+                    continue;
+
+
+                foreach (JamZone jamZone in jamZonesIn)
+                {
+                    if (!zonesDict.TryGetValue(jamZone.zoneId, out var droneList))
+                    {
+                        droneList = new List<DroneCoverageContext>();
+                        zonesDict[jamZone.zoneId] = droneList;
+                    }
+
+                    droneList.Add(new DroneCoverageContext(droneStatus));
+                }
             }
+
+            // Now build JamZoneContexts
+
+            List<JamZoneContext> jamZoneContexts = new List<JamZoneContext>();
+
+            foreach (var kvp in zonesDict)
+            {
+                string zoneId = kvp.Key;
+                List<DroneCoverageContext> drones = kvp.Value;
+
+                Zone zone = _zoneManager.TryGetZone(zoneId);
+                if(zone == null || zone.zoneType != ZoneType.Jam.ToString())
+                    continue;
+                
+                JamZone jamZone = (JamZone)zone;
+                List<string> jammersIds = jamZone.jammersIds;
+                List<Jammer> jammers = _jammerManager.GetJammersByIds(jammersIds);
+
+                if (jammers.Count == 0)
+                    continue;
+
+                jamZoneContexts.Add(new JamZoneContext(zoneId, jammers, drones));
+            }
+            return jamZoneContexts;
         }
 
-        // There is no directional coverage
-        // None - promote closest none to directional
-        if (noneJammers.Count > 0)
+        catch (Exception ex)
         {
-            var closestIdle =
-                JammerSelector.FindClosestMatchingJammer(noneJammers, drone);
-
-            if (closestIdle != null)
-            {
-                JammerJamModeTransitions.PromoteNoneToDirectional(closestIdle, drone, noneJammers, directionalJammers);
-            }
+            System.Console.WriteLine("Error in JammerAssignmentManager.BuildJamZoneContexts: " + ex.Message);
+            return new List<JamZoneContext>();
         }
     }
 }

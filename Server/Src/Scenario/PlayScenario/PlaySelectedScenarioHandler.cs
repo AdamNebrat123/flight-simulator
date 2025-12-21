@@ -2,9 +2,12 @@ using System.Text.Json;
 
 public class PlaySelectedScenarioHandler
 {
+    private const double JammerAssignmentIntervalSeconds = 1.0; // interval to re-evaluate jammer assignments
+    private double _timeSinceLastJammerAssignment = 0.0;
     private const double timeStepSeconds = 0.1;
     private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
-    private readonly DangerZoneChecker dangerZoneChecker = new();
+    private readonly ZoneChecker zoneChecker = new();
+    private readonly JammerAssignmentManager jammerAssignmentManager = JammerAssignmentManager.GetInstance();
 
     private static PlaySelectedScenarioHandler _instance;
 
@@ -73,19 +76,24 @@ public class PlaySelectedScenarioHandler
                 if (history[aircraft.AircraftId].Count > 30)
                     history[aircraft.AircraftId].Dequeue();
 
-                var dangerZones = dangerZoneChecker.GetZonesContainingPoint(point.position);
-
-
+                List<string>? zones = zoneChecker.GetZonesContainingPoint(point.position);
 
                 AircraftStatus aircraftStatus = aircraft.Aircraft.CreateStatus(point);
 
-                System.Console.WriteLine(aircraftStatus.ToString());
-                System.Console.WriteLine(typeof(AircraftStatus));
-                aircraftStatus.dangerZonesIn = dangerZones;
-                aircraftStatus.isInDangerZone = dangerZones.Count > 0;
+                aircraftStatus.dangerZonesIn = zones;
+                aircraftStatus.isInDangerZone = zones.Count > 0;
                 aircraftStatus.tailPoints = history[aircraft.AircraftId].ToList();
 
                 snapshot.aircrafts.Add(aircraftStatus);
+            }
+
+
+            // Handle jammer assignments if needed
+            _timeSinceLastJammerAssignment += timeStepSeconds / originalScenario.playSpeed;
+            if (_timeSinceLastJammerAssignment >= JammerAssignmentIntervalSeconds)
+            {
+                _timeSinceLastJammerAssignment = 0.0;
+                jammerAssignmentManager.AssignJammers(snapshot);
             }
 
             string msg = WebSocketServer.prepareMessageToClient(
