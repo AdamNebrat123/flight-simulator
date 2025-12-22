@@ -8,6 +8,7 @@ import { PlanePolylineInteraction } from "./PlanePolylineInteraction";
 import AerialUnitSelection from "./AerialUnitSelection";
 import { createAircraftByType } from "./AircraftFactory";
 import { AircraftTypeEnum } from "../Messages/AircraftTypeEnum";
+import CreateDrone from "./CreateDrone";
 
 
 interface Props {
@@ -366,6 +367,10 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
                         style={{ marginLeft: 8, width: 60 }}
                         />
                     </label>
+
+                    {selectedAircraftIndex !== null && scenario.aircrafts[selectedAircraftIndex].aircraftType === AircraftTypeEnum.Drone && (
+                            <CreateDrone viewerRef={viewerRef} setScenario={setScenario} selectedAircraftIndex={selectedAircraftIndex} scenario={scenario}/>
+                        )}
 
                     {scenario.aircrafts[selectedAircraftIndex].geoPoints.length > 0 && (
                         <div className="points-section">
