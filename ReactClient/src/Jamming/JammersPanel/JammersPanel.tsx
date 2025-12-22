@@ -24,8 +24,10 @@ export default function JammersPanel({ onClose, viewerRef }: Props) {
   const [onSaveJammer, setOnSaveJammer] = useState<((data: Jammer) => void) | null>(null);
   
   
-  const closeCreateJammerPanel = () => setShowCreateJammerPanel(false);
-
+  const onCancel = () => {
+    setShowCreateJammerPanel(false)
+    setSelectedJammer(null);
+  }
 
   useEffect(() => {
       const unsubscribe = jammersManager.subscribe((newJammers: Jammer[]) => {
@@ -140,7 +142,7 @@ export default function JammersPanel({ onClose, viewerRef }: Props) {
                 <CreateJammerPanel 
                 initialJammer={selectedJammer!}
                 onSave={onSaveJammer!}
-                onCancel={closeCreateJammerPanel}
+                onCancel={onCancel}
                 viewerRef={viewerRef}
                 />
             )}

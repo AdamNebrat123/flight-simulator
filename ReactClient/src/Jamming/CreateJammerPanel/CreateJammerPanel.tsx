@@ -4,6 +4,7 @@ import "./CreateJammerPanel.css";
 import type { Jammer } from "../Jammer/Jammer";
 import type { GeoPoint } from "../../Messages/AllTypes";
 import { Frequency } from "../Jammer/JammerRelatedEnums";
+import { JammerEntity } from "../EntitiesManagment/JammerEntity";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -19,17 +20,37 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
 
   const [isSelectingPosition, setIsSelectingPosition] = useState(false);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
+  const jammerEntityRef = useRef<JammerEntity | null>(null);
+  
 
   useEffect(() => {
+    if (!viewerRef.current) return;
+    if (!jammerEntityRef.current) {
+        jammerEntityRef.current = new JammerEntity(viewerRef.current, jammer);
+
+    }
+    
+
     return () => {
       handlerRef.current?.destroy();
       handlerRef.current = null;
     };
   }, []);
 
-  const handleRadiusChange = (value: number) => {
-        setJammer(prev => ({...prev, radius: value}) );
 
+  const handleRadiusChange = (value: number) => {
+    setJammer(prev => ({...prev, radius: value}) );
+    if (jammerEntityRef.current) {
+        jammerEntityRef.current.updateRadius(value)
+    }
+
+  }
+
+  const handlePositionChange = (newPosition: GeoPoint) => {
+    setJammer(prev => ({...prev, position: newPosition}) );
+    if (jammerEntityRef.current) {
+        jammerEntityRef.current.updatePosition(newPosition);
+    }
   }
 
   const startSelectPosition = () => {
@@ -70,9 +91,7 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
   }
 
 
-  const handlePositionChange = (newPosition: GeoPoint) => {
-    setJammer(prev => ({...prev, position: newPosition}) );
-  }
+  
   const toggleFrequency = (freq: Frequency) => {
     setJammer(prev => {
       const exists = prev.supportedFrequencies.includes(freq);
@@ -138,13 +157,21 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
       <div className="jammer-actions">
         <button
           className="action-button save-button"
-          onClick={() => onSave(jammer)}
+          onClick={() => {
+            jammerEntityRef?.current?.removeEntities();
+            jammerEntityRef.current = null
+            onSave(jammer);
+        }}
         >
           Save
         </button>
         <button
           className="action-button cancel-button"
-          onClick={onCancel}
+          onClick={() => {
+            jammerEntityRef?.current?.removeEntities();
+            jammerEntityRef.current = null
+            onCancel();
+          }}
         >
           Cancel
         </button>

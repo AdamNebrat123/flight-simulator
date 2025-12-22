@@ -108,9 +108,9 @@ export class JammerEntity {
                     color:options?.color.withAlpha(1),
                     colorBlendMode: Cesium.ColorBlendMode.MIX,
                     colorBlendAmount: 0.1,
-                    silhouetteColor: options?.outlineColor,
-                    silhouetteSize: 2,
-                }
+                        silhouetteColor: options?.outlineColor,
+                        silhouetteSize: 2,
+                    }
         });
 
         this.rangeEntity = this.viewer.entities.add({
@@ -155,28 +155,32 @@ export class JammerEntity {
             });
 
 
-        this.leftWallEntity = this.viewer.entities.add({
-                show: false,
-                polygon: {
-                    hierarchy: new Cesium.CallbackProperty(() => this.getHalfCircleHierarchy(true), false),
-                    material: Cesium.Color.RED.withAlpha(0.6),
-                    perPositionHeight: true,
-                    outline: false
-                }
-        });
-
-        this.rightWallEntity = this.viewer.entities.add({
-                show: false,
-                polygon: {
-                    hierarchy: new Cesium.CallbackProperty(() => this.getHalfCircleHierarchy(false), false),
-                    material: Cesium.Color.RED.withAlpha(0.6),
-                    perPositionHeight: true,
-                    outline: false
-                }
-        });
-
+// דופן שמאל
+this.leftWallEntity = this.viewer.entities.add({
+    show: false,
+    wall: {
+        positions: new Cesium.CallbackProperty(() => this.getWallEntityOptions(true).positions, false),
+        minimumHeights: new Cesium.CallbackProperty(() => this.getWallEntityOptions(true).minHeights, false),
+        maximumHeights: new Cesium.CallbackProperty(() => this.getWallEntityOptions(true).maxHeights, false),
+        material: Cesium.Color.RED.withAlpha(0.6),
+        outline: false
     }
+});
 
+// דופן ימין
+this.rightWallEntity = this.viewer.entities.add({
+    show: false,
+    wall: {
+        positions: new Cesium.CallbackProperty(() => this.getWallEntityOptions(false).positions, false),
+        minimumHeights: new Cesium.CallbackProperty(() => this.getWallEntityOptions(false).minHeights, false),
+        maximumHeights: new Cesium.CallbackProperty(() => this.getWallEntityOptions(false).maxHeights, false),
+        material: Cesium.Color.RED.withAlpha(0.6),
+        outline: false
+    }
+});
+
+        this.showDirectional(90);
+    }
 
     removeEntities(){
         if(this.jammerEntity){
@@ -230,8 +234,8 @@ export class JammerEntity {
         this.directionDeg = directionDeg;
 
         if (this.leftWallEntity) this.leftWallEntity.show = true;
-        if (this.rightWallEntity) this.rightWallEntity.show = true;
-            const half = this.beamWidthDeg / 2;
+    if (this.rightWallEntity) this.rightWallEntity.show = true;
+        const half = this.beamWidthDeg / 2;
 
         const minClock = Cesium.Math.toRadians(this.directionDeg - half);
         const maxClock = Cesium.Math.toRadians(this.directionDeg + half);
@@ -250,45 +254,39 @@ export class JammerEntity {
             this.directionalEntity.show = false;
         }
         if (this.leftWallEntity) this.leftWallEntity.show = false;
-        if (this.rightWallEntity) this.rightWallEntity.show = false;
+    if (this.rightWallEntity) this.rightWallEntity.show = false;
     }
 
-    private getHalfCircleHierarchy(isLeft: boolean) {
-    const radius = this.jammer.radius;
-    const centerCartesian = Cesium.Cartesian3.fromDegrees(
-        this.jammer.position.longitude,
-        this.jammer.position.latitude,
-        this.jammer.position.altitude
-    );
 
-    const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(centerCartesian);
-    
-    const angle = isLeft ? 
-        this.directionDeg - (this.beamWidthDeg / 2) : 
-        this.directionDeg + (this.beamWidthDeg / 2);
-    
-    const headingRad = Cesium.Math.toRadians(90 - angle);
-
-    const positions: Cesium.Cartesian3[] = [];
-    
-    positions.push(centerCartesian);
-
-    const samples = 50; 
-    for (let i = 0; i <= samples; i++) {
-        const phi = (Math.PI / 2) - (i / samples) * Math.PI;
+   private getWallEntityOptions(isLeft: boolean) {
+        const angle = isLeft ? 
+            this.directionDeg - (this.beamWidthDeg / 2 ) : 
+            this.directionDeg + (this.beamWidthDeg / 2 );
         
-        const localZ = radius * Math.sin(phi);
-        const horizontalDist = radius * Math.cos(phi);
+        const radius = this.jammer.radius;
+        const center = this.jammer.position;
+        const angleRad = Cesium.Math.toRadians(angle);
 
-        const localX = horizontalDist * Math.sin(headingRad);
-        const localY = horizontalDist * Math.cos(headingRad);
+        const positions: Cesium.Cartesian3[] = [];
+        const minHeights: number[] = [];
+        const maxHeights: number[] = [];
 
-        const localPoint = new Cesium.Cartesian3(localX, localY, localZ);
-        
-        const globalPoint = Cesium.Matrix4.multiplyByPoint(modelMatrix, localPoint, new Cesium.Cartesian3());
-        positions.push(globalPoint);
+        const samples = 16; // הגדלתי ל-16 נקודות כדי שהקימור יהיה חלק מאוד
+        for (let i = 0; i <= samples; i++) {
+            const distance = (i / samples) * radius;
+            
+            const lon = center.longitude + (distance * Math.cos(angleRad) / 111320);
+            const lat = center.latitude + (distance * Math.sin(angleRad) / 110540);
+            
+            positions.push(Cesium.Cartesian3.fromDegrees(lon, lat));
+            
+            // חישוב חצי הגובה בנקודה הזו (כדי שיהיה סימטרי למעלה ולמטה)
+            const halfHeight = Math.sqrt(Math.max(0, Math.pow(radius, 2) - Math.pow(distance, 2)));
+            
+            maxHeights.push(center.altitude + halfHeight); // התקרה של הקיר
+            minHeights.push(center.altitude - halfHeight); // הרצפה של הקיר
+        }
+
+        return { positions, minHeights, maxHeights };
     }
-
-    return new Cesium.PolygonHierarchy(positions);
-}
 }
