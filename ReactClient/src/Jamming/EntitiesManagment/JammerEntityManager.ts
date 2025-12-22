@@ -47,7 +47,7 @@ export class JammerEntityManager {
   removeJammer(jammerId: string) {
     const jammerEntity = this.jammerIdToEntity.get(jammerId);
     if (jammerEntity) {
-      jammerEntity.removeEntity();
+      jammerEntity.removeEntities();
       this.jammerIdToEntity.delete(jammerId);
     }
   }
@@ -69,19 +69,9 @@ export class JammerEntityManager {
     return true;
   }
 
-  hideJammer(jammerId: string) {
-    const jammerEntity = this.jammerIdToEntity.get(jammerId);
-    if (!jammerEntity) return;
-    const entity = jammerEntity.getEntity();
-    if (entity) entity.show = false;
-  }
 
-  showJammer(jammerId: string) {
-    const jammerEntity = this.jammerIdToEntity.get(jammerId);
-    if (!jammerEntity) return;
-    const entity = jammerEntity.getEntity();
-    if (entity) entity.show = true;
-  }
+
+
 
   getAllJammerIds(): string[] {
     return Array.from(this.jammerIdToEntity.keys());
@@ -89,7 +79,7 @@ export class JammerEntityManager {
 
   clearAllJammers() {
     for (const jammerEntity of this.jammerIdToEntity.values()) {
-      jammerEntity.removeEntity();
+      jammerEntity.removeEntities();
     }
     this.jammerIdToEntity.clear();
   }

@@ -9,7 +9,7 @@ public class JammerStateSnapshot
         JammerId = jammer.id;
         JamMode = jammer.jamMode;
         DirectionDegrees = jammer.jamMode == JamMode.Directional
-            ? jammer.DirectionDegrees
+            ? jammer.directionDegrees
             : null;
     }
 }

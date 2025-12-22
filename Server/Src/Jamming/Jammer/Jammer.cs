@@ -1,15 +1,25 @@
 
+using System.Text.Json.Serialization;
+
 public class Jammer : ISetJammingMode
 {
+    [JsonPropertyName("id")]
+
     public string id { get; set; }
+    [JsonPropertyName("position")]
+
     public GeoPoint position { get;  set;}
+    [JsonPropertyName("status")]
+
     public Status status { get;  set; }
+    [JsonPropertyName("jamMode")]
     public JamMode jamMode { get;  set; }
-
+    [JsonPropertyName("supportedFrequencies")]
     public List<Frequency> supportedFrequencies { get; set;}
-    public double Radius { get; set;}
+    [JsonPropertyName("radius")]
+    public double radius { get; set;}
 
-    public double? DirectionDegrees { get; set; } // for directional jamming
+    public double? directionDegrees { get; set; } // for directional jamming
 
     public Jammer()
     {
@@ -19,7 +29,7 @@ public class Jammer : ISetJammingMode
     {
         this.id = id;
         this.position = position;
-        Radius = radius;
+        this.radius = radius;
         this.supportedFrequencies = supportedFrequencies;
 
         status = Status.Online;
@@ -52,7 +62,7 @@ public class Jammer : ISetJammingMode
     public bool IsInJammerRange(GeoPoint targetPosition)
     {
         double distance = GetDistance(targetPosition);
-        return distance <= Radius;
+        return distance <= radius;
     }
     public double GetDistance(GeoPoint targetPosition)
     {

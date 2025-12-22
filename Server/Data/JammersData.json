@@ -1,37 +1,4 @@
 {
   "dataType": "JammersData",
-  "data": [
-    {
-      "id": "3b3ec2c4-142d-47a6-93bd-199a7ea9ca18",
-      "position": {
-        "altitude": 41.29879141913885,
-        "latitude": 32.037965117676514,
-        "longitude": 34.781234945529704
-      },
-      "status": "Online",
-      "jamMode": "None",
-      "supportedFrequencies": [
-        "Rc_58GHz"
-      ],
-      "Radius": 0,
-      "DirectionDegrees": null
-    },
-    {
-      "id": "a00585a0-3b6f-4b2b-a15c-249304e39015",
-      "position": {
-        "altitude": 41.68035303002883,
-        "latitude": 32.03209991353966,
-        "longitude": 34.77787540011346
-      },
-      "status": "Online",
-      "jamMode": "None",
-      "supportedFrequencies": [
-        "GNSS_L1",
-        "Rc_58GHz",
-        "Rc_24GHz"
-      ],
-      "Radius": 0,
-      "DirectionDegrees": null
-    }
-  ]
+  "data": []
 }
