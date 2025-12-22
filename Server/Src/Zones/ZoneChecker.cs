@@ -33,7 +33,7 @@ public class ZoneChecker
             }
         }
 
-        return zonesContainingPoint; // empty list if point is not in any danger zone
+        return zonesContainingPoint; // empty list if point is not in any zone
     }
 
     // Checks if a point is inside a specific danger zone

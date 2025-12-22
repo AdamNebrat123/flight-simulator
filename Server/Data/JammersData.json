@@ -1,4 +1,44 @@
 {
   "dataType": "JammersData",
-  "data": []
+  "data": [
+    {
+      "id": "e5c2c1b2-a866-4eab-9e4a-4cf8b69f0b67",
+      "position": {
+        "altitude": 41.17470147962431,
+        "latitude": 32.03464731114435,
+        "longitude": 34.77847103828603
+      },
+      "status": "Online",
+      "jamMode": "None",
+      "supportedFrequencies": [],
+      "radius": 100,
+      "directionDegrees": null
+    },
+    {
+      "id": "4217de29-12e5-40e8-8e28-ab6020264fe3",
+      "position": {
+        "altitude": 41.84903980234017,
+        "latitude": 32.032248299211375,
+        "longitude": 34.77775979641402
+      },
+      "status": "Online",
+      "jamMode": "None",
+      "supportedFrequencies": [],
+      "radius": 200,
+      "directionDegrees": null
+    },
+    {
+      "id": "23f5a6ba-7be9-4c13-a029-1e7bf427d1df",
+      "position": {
+        "altitude": 41.43011714415426,
+        "latitude": 32.033212666252105,
+        "longitude": 34.77869250431484
+      },
+      "status": "Critical",
+      "jamMode": "None",
+      "supportedFrequencies": [],
+      "radius": 150,
+      "directionDegrees": null
+    }
+  ]
 }

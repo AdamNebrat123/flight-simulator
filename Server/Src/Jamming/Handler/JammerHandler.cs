@@ -5,6 +5,9 @@ public class JammerHandler
     private static JammerHandler instance;
     private readonly JammerManager jammerManager = JammerManager.GetInstance();
     private readonly JammersDataManager jammersDataManager = JammersDataManager.GetInstance();
+    private readonly ZonesDataManager zonesDataManager= ZonesDataManager.GetInstance();
+    private readonly ZoneChecker zoneChecker = new();
+
 
     private JammerHandler()
     {
@@ -26,6 +29,8 @@ public class JammerHandler
             // unique ID
             Guid uuid = Guid.NewGuid();
             jammer.id = uuid.ToString();
+
+            AddIdToJamZoneJammersIds(jammer);
 
             // add to file/db
             jammersDataManager.AddAndSaveJammer(jammer);
@@ -56,6 +61,8 @@ public class JammerHandler
             Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
             string jammerId = jammer.id;
 
+            RemoveIdFromJammersIds(jammer);
+            
             bool isRemoved = jammersDataManager.RemoveAndSaveJammer(jammerId);
             if (isRemoved)
             {
@@ -89,7 +96,9 @@ public class JammerHandler
         {
             Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
             string jammerId = jammer.id;
-
+            
+            AddIdToJamZoneJammersIds(jammer);
+            
             bool isEdited = jammersDataManager.EditAndSaveJammer(jammerId, jammer);
             if (isEdited)
             {
@@ -140,5 +149,32 @@ public class JammerHandler
         JammerError error = new JammerError() { errorMsg = errorMsg };
         string data = WebSocketServer.prepareMessageToClient(S2CMessageType.JammerError, error, clientMode);
         WebSocketServer.SendMsgToClients(data, clientMode);
+    }
+
+    private void AddIdToJamZoneJammersIds(Jammer jammer)
+    {
+        List<JamZone> jamZones = zoneChecker.GetJamZonesContainingPoint(jammer.position);
+        if (jamZones.Count == 0)
+            return;
+        foreach (JamZone jamZone in jamZones)
+        {
+            System.Console.WriteLine(jamZone.zoneId);
+            jamZone.jammersIds.Add(jammer.id);
+            System.Console.WriteLine(string.Join(",", jamZone.jammersIds));
+            zonesDataManager.EditAndSaveZone(jamZone.zoneId,jamZone);
+        }
+        
+    }
+    private void RemoveIdFromJammersIds(Jammer jammer)
+    {
+        List<JamZone> jamZones = zoneChecker.GetJamZonesContainingPoint(jammer.position);
+        if (jamZones.Count == 0)
+            return;
+        foreach (JamZone jamZone in jamZones)
+        {
+            jamZone.jammersIds.Remove(jammer.id);
+            zonesDataManager.EditAndSaveZone(jamZone.zoneId,jamZone);
+        }
+        
     }
 }

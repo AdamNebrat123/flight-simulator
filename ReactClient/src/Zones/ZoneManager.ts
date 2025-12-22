@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
-import type { DangerZone, Zone } from "../Messages/AllTypes";
+import type { DangerZone, GeoPoint, Zone } from "../Messages/AllTypes";
+import { ZoneTypeEnum } from "../Messages/ZoneTypeEnum";
 
 export class ZoneManager {
     private static instance: ZoneManager | null = null;
@@ -85,4 +86,46 @@ export class ZoneManager {
         this.zoneIdToZone.clear();
         this.notify();
     }
+    public isPointInsideAnyJamZone(point: GeoPoint): boolean {
+        if (!point) return false;
+
+        const jamZones = this.getAllZones().filter(
+            z => z.zoneType === ZoneTypeEnum.Jam
+        );
+
+        for (const zone of jamZones) {
+            if (!this.isAltitudeInsideZone(point, zone)) continue;
+            if (this.isPointInsidePolygon(point, zone.points)) {
+                return true; // מצאנו, אפשר להפסיק לחפש כמו אנשים נורמליים
+            }
+        }
+
+        return false;
+    }
+    private isAltitudeInsideZone(point: GeoPoint, zone: Zone): boolean {
+        return (
+            point.altitude >= zone.bottomHeight &&
+            point.altitude <= zone.topHeight
+        );
+    }
+    private isPointInsidePolygon(point: GeoPoint, polygon: GeoPoint[]): boolean {
+        let inside = false;
+
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const xi = polygon[i].longitude;
+            const yi = polygon[i].latitude;
+            const xj = polygon[j].longitude;
+            const yj = polygon[j].latitude;
+
+            const intersect =
+                ((yi > point.latitude) !== (yj > point.latitude)) &&
+                (point.longitude <
+                    (xj - xi) * (point.latitude - yi) / (yj - yi) + xi);
+
+            if (intersect) inside = !inside;
+        }
+
+        return inside;
+    }
+
 }

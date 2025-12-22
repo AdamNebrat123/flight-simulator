@@ -5,6 +5,8 @@ import type { Jammer } from "../Jammer/Jammer";
 import type { GeoPoint } from "../../Messages/AllTypes";
 import { Frequency } from "../Jammer/JammerRelatedEnums";
 import { JammerEntity } from "../EntitiesManagment/JammerEntity";
+import { ZoneManager } from "../../Zones/ZoneManager";
+import { toast } from "react-toastify";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
@@ -21,6 +23,7 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
   const [isSelectingPosition, setIsSelectingPosition] = useState(false);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const jammerEntityRef = useRef<JammerEntity | null>(null);
+  const zoneManagerRef = useRef<ZoneManager | null>(null);
   
 
   useEffect(() => {
@@ -29,6 +32,7 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
         jammerEntityRef.current = new JammerEntity(viewerRef.current, jammer);
 
     }
+    zoneManagerRef.current = ZoneManager.getInstance();
     
 
     return () => {
@@ -47,6 +51,13 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
   }
 
   const handlePositionChange = (newPosition: GeoPoint) => {
+    if(!zoneManagerRef.current)
+        return;
+    const isInAnyZone : boolean =  zoneManagerRef.current.isPointInsideAnyJamZone(newPosition);
+    if (isInAnyZone === false){
+        toast.error("You can place a jammer only in a JamZone!");
+        return;
+    }
     setJammer(prev => ({...prev, position: newPosition}) );
     if (jammerEntityRef.current) {
         jammerEntityRef.current.updatePosition(newPosition);
