@@ -23,7 +23,6 @@ export class ScenarioPlanesSnapshotHandler {
   public HandleScenarioPlanesSnapshot(data: any) {
     try {
       const scenarioPlanesSnapshot = data as ScenarioAirCraftsSnapshot;
-      console.log("ALL PLANE POINTS:", scenarioPlanesSnapshot);
 
       this.processTrajectoryResult(scenarioPlanesSnapshot);
     } catch (err) {

@@ -245,6 +245,10 @@ export interface UavStatus extends AircraftStatus {
   // UAV-specific properties (none for now)
 }
 
+export interface JammersUpdate {
+  jammers: Jammer[];
+}
+
 export interface JammerError {
   errorMsg: string;
 }

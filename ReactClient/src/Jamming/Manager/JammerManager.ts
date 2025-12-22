@@ -27,6 +27,13 @@ export class JammersManager {
         }
         return this.instance;
     }
+    public setJammer(jammer: Jammer): boolean {
+        if (!jammer || !jammer.id) return false;
+        if (!this.jammerIdToJammer.has(jammer.id)) return false;
+
+        this.jammerIdToJammer.set(jammer.id, jammer);
+        return true;
+    }
 
     tryAddJammer(jammer: Jammer): boolean {
         if (!jammer || !jammer.id) {

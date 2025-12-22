@@ -10,14 +10,14 @@ export class JammerHandler {
   private jammerManager: JammersManager;
   private jammerEntityManager: JammerEntityManager;
 
-  private constructor(viewer: Cesium.Viewer) {
+  private constructor() {
     this.jammerManager = JammersManager.getInstance();
-    this.jammerEntityManager = JammerEntityManager.GetInstance(viewer);
+    this.jammerEntityManager = JammerEntityManager.GetInstance();
   }
 
-  public static getInstance(viewer: Cesium.Viewer): JammerHandler {
+  public static getInstance(): JammerHandler {
     if (this.instance === null) {
-      this.instance = new JammerHandler(viewer);
+      this.instance = new JammerHandler();
     }
     return this.instance;
   }

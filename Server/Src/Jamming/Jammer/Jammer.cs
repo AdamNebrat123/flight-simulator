@@ -38,17 +38,24 @@ public class Jammer : ISetJammingMode
 
     public void StartDirectionalJamming(double directionDegrees)
     {
+        this.directionDegrees = directionDegrees;
         jamMode = JamMode.Directional;
+        System.Console.WriteLine("StartDirectionalJamming!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     public void StartOmnidirectionalJamming()
     {
+        this.directionDegrees = 0;
         jamMode = JamMode.Omnidirectional;
+        System.Console.WriteLine("StartOmnidirectionalJamming!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     public void StopJamming()
     {
+        this.directionDegrees = 0;
         jamMode = JamMode.None;
+        System.Console.WriteLine("StopJamming!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
     }
 
     public bool HasJamFrequency(string frequency)

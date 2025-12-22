@@ -25,6 +25,15 @@ export class JammerEntityManager {
     return JammerEntityManager.instance;
   }
 
+
+  public setJammer(jammer: Jammer): boolean {
+    const entity = this.jammerIdToEntity.get(jammer.id);
+    if (!entity) return false;
+
+    entity.setJammer(jammer);
+    return true;
+  }
+  
   tryAddJammer(jammer: Jammer) {
     if (!jammer || !jammer.id) {
       console.error("Invalid Jammer or missing id");

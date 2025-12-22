@@ -3,7 +3,7 @@ export enum S2CMessageType {
     AddZone = "AddZone",
     RemoveZone = "RemoveZone",
     EditZone = "EditZone",
-    DangerError = "DangerError",
+    ZoneError = "ZoneError",
     InitData = "InitData",
     AddScenario = "AddScenario",
     RemoveScenario = "RemoveScenario",
@@ -19,4 +19,5 @@ export enum S2CMessageType {
     EditJammer = "EditJammer",
     RemoveJammer = "RemoveJammer",
     JammerError = "JammerError",
+    JammersUpdate = "JammersUpdate",
 }

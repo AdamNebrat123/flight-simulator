@@ -15,6 +15,7 @@ import { ScenarioHandler } from './Scenarios/ScenarioHandler';
 import { ZoneEntityManager } from './Zones/ZoneEntityManager';
 import { ZoneManager } from './Zones/ZoneManager';
 import { JammerHandler } from './Jamming/Handler/JammerHandler';
+import { JammersUpdateHandler } from './Jamming/Handler/JammersUpdateHandler';
 
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
   const zoneManagerRef = useRef<ZoneManager | null>(null);
   const jammerHandlerRef = useRef<JammerHandler | null>(null);
   const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
+  const jammersUpdateHandlerRef = useRef<JammersUpdateHandler | null>(null);
 
 
   // when a viewer it initialized, this function is run, everything that need the viewer should be put here
@@ -48,7 +50,7 @@ export default function App() {
         zoneEntityManagerRef.current,
         zoneManagerRef.current
       );
-
+      jammersUpdateHandlerRef.current = JammersUpdateHandler.GetInstance(viewerRef.current);
       zoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);
       jammerHandlerRef.current = JammerHandler.getInstance(viewerRef.current);
       scenarioHandlerRef.current = ScenarioHandler.getInstance();
@@ -73,23 +75,23 @@ export default function App() {
       ScenarioPlanesSnapshotHandlerRef.current?.HandleScenarioPlanesSnapshot(data);
     });
 
-    // type : AddDanerZone
-    const unsubAddDanerZone = on(S2CMessageType.AddZone , (data) => {
+    // type : AddZone
+    const unsubAddZone = on(S2CMessageType.AddZone , (data) => {
       zoneHandlerRef.current?.HandleAddZone(data);
     });
 
-    // type : RemoveDangerZone
-    const unsubRemoveDangerZone = on(S2CMessageType.RemoveZone , (data) => {
+    // type : RemoveZone
+    const unsubRemoveZone = on(S2CMessageType.RemoveZone , (data) => {
       zoneHandlerRef.current?.HandleRemoveZone(data);
     });
 
-    // type : EditDangerZone
-    const unsubEditDangerZone = on(S2CMessageType.EditZone , (data) => {
+    // type : EditZone
+    const unsubEditZone = on(S2CMessageType.EditZone , (data) => {
       zoneHandlerRef.current?.HandleEditZone(data);
     });
 
-    // type : DangerZoneError
-    const unsubDangerZoneError = on(S2CMessageType.DangerError , (data) => {
+    // type : ZoneError
+    const unsubZoneError = on(S2CMessageType.ZoneError , (data) => {
       zoneHandlerRef.current?.HandleZoneError(data);
     });
 
@@ -111,6 +113,11 @@ export default function App() {
     // type : JammerError
     const unsubJammerError = on(S2CMessageType.JammerError , (data) => {
       jammerHandlerRef.current?.HandleJammerError(data);
+    });
+
+    // type : JammersUpdate
+    const unsubJammersUpdate = on(S2CMessageType.JammersUpdate , (data) => {
+      jammersUpdateHandlerRef.current?.HandleJammersUpdate(data);
     });
 
     // type : AddScenario
@@ -137,14 +144,15 @@ export default function App() {
     return () => {
       unsubInitData();
       unsubScenarioPlanesSnapshot();
-      unsubAddDanerZone();
-      unsubRemoveDangerZone();
-      unsubEditDangerZone();
-      unsubDangerZoneError();
+      unsubAddZone();
+      unsubRemoveZone();
+      unsubEditZone();
+      unsubZoneError();
       unsubAddJammer();
       unsubRemoveJammer();
       unsubEditJammer();
       unsubJammerError();
+      unsubJammersUpdate();
       unsubAddScenario();
       unsubRemoveScenario();
       unsubEditScenario();

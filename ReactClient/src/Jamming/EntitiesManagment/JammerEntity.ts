@@ -36,17 +36,6 @@ export class JammerEntity {
         this.jammerEntity = null;
     }
 
-    removeEntity() {
-        if (this.jammerEntity) {
-        this.viewer?.entities.remove(this.jammerEntity);
-        this.jammerEntity = null;
-        }
-    }
-
-    getEntity(): Cesium.Entity | null {
-        return this.jammerEntity;
-    }
-
     // update position
     updatePosition(position: GeoPoint) {
         this.jammer.position = position;
@@ -135,7 +124,7 @@ export class JammerEntity {
                     this.jammer.radius,
                     this.jammer.radius
                     ),
-                    material: Cesium.Color.RED.withAlpha(0.6),
+                    material: Cesium.Color.RED.withAlpha(0.4),
                     outline: false
                 },
                 show: false // starting as hidden.
@@ -159,7 +148,7 @@ export class JammerEntity {
                 show: false,
                 polygon: {
                     hierarchy: new Cesium.CallbackProperty(() => this.getHalfCircleHierarchy(true), false),
-                    material: Cesium.Color.RED.withAlpha(0.6),
+                    material: Cesium.Color.RED.withAlpha(0.4),
                     perPositionHeight: true,
                     outline: false
                 }
@@ -169,7 +158,7 @@ export class JammerEntity {
                 show: false,
                 polygon: {
                     hierarchy: new Cesium.CallbackProperty(() => this.getHalfCircleHierarchy(false), false),
-                    material: Cesium.Color.RED.withAlpha(0.6),
+                    material: Cesium.Color.RED.withAlpha(0.4),
                     perPositionHeight: true,
                     outline: false
                 }
@@ -225,25 +214,25 @@ export class JammerEntity {
     }
 
     showDirectional(directionDeg: number) {
-        if (!this.directionalEntity?.ellipsoid) return;
-        
-        this.directionDeg = directionDeg;
+    if (!this.directionalEntity?.ellipsoid) return;
+    
+    this.directionDeg = directionDeg;
+    if (this.leftWallEntity) this.leftWallEntity.show = true;
+    if (this.rightWallEntity) this.rightWallEntity.show = true;
+    const half = this.beamWidthDeg / 2;
 
-        if (this.leftWallEntity) this.leftWallEntity.show = true;
-        if (this.rightWallEntity) this.rightWallEntity.show = true;
-            const half = this.beamWidthDeg / 2;
+    // התיקון הקריטי:
+    // 1. הופכים את הכיוון (מכיוון השעון לנגד כיוון השעון) ע"י מינוס.
+    // 2. מוסיפים 90 מעלות כדי להזיז את ה-0 מהמזרח לצפון.
+    const cesiumCenterAngle = 90 - directionDeg;
 
-        const minClock = Cesium.Math.toRadians(this.directionDeg - half);
-        const maxClock = Cesium.Math.toRadians(this.directionDeg + half);
+    const minClock = Cesium.Math.toRadians(cesiumCenterAngle - half);
+    const maxClock = Cesium.Math.toRadians(cesiumCenterAngle + half);
 
-        this.directionalEntity.ellipsoid.minimumClock =
-            new Cesium.ConstantProperty(minClock);
-
-        this.directionalEntity.ellipsoid.maximumClock =
-            new Cesium.ConstantProperty(maxClock);
-
-        this.directionalEntity.show = true;
-    }
+    this.directionalEntity.ellipsoid.minimumClock = new Cesium.ConstantProperty(minClock);
+    this.directionalEntity.ellipsoid.maximumClock = new Cesium.ConstantProperty(maxClock);
+    this.directionalEntity.show = true;
+}
 
     hideDirectional() {
         if (this.directionalEntity) {
@@ -254,41 +243,41 @@ export class JammerEntity {
     }
 
     private getHalfCircleHierarchy(isLeft: boolean) {
-    const radius = this.jammer.radius;
-    const centerCartesian = Cesium.Cartesian3.fromDegrees(
-        this.jammer.position.longitude,
-        this.jammer.position.latitude,
-        this.jammer.position.altitude
-    );
+        const radius = this.jammer.radius;
+        const centerCartesian = Cesium.Cartesian3.fromDegrees(
+            this.jammer.position.longitude,
+            this.jammer.position.latitude,
+            this.jammer.position.altitude
+        );
 
-    const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(centerCartesian);
-    
-    const angle = isLeft ? 
-        this.directionDeg - (this.beamWidthDeg / 2) : 
-        this.directionDeg + (this.beamWidthDeg / 2);
-    
-    const headingRad = Cesium.Math.toRadians(90 - angle);
-
-    const positions: Cesium.Cartesian3[] = [];
-    
-    positions.push(centerCartesian);
-
-    const samples = 50; 
-    for (let i = 0; i <= samples; i++) {
-        const phi = (Math.PI / 2) - (i / samples) * Math.PI;
+        const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(centerCartesian);
         
-        const localZ = radius * Math.sin(phi);
-        const horizontalDist = radius * Math.cos(phi);
-
-        const localX = horizontalDist * Math.sin(headingRad);
-        const localY = horizontalDist * Math.cos(headingRad);
-
-        const localPoint = new Cesium.Cartesian3(localX, localY, localZ);
+        const angle = isLeft ? 
+            this.directionDeg - (this.beamWidthDeg / 2) : 
+            this.directionDeg + (this.beamWidthDeg / 2);
         
-        const globalPoint = Cesium.Matrix4.multiplyByPoint(modelMatrix, localPoint, new Cesium.Cartesian3());
-        positions.push(globalPoint);
+        const headingRad = Cesium.Math.toRadians(angle);
+
+        const positions: Cesium.Cartesian3[] = [];
+        
+        positions.push(centerCartesian);
+
+        const samples = 50; 
+        for (let i = 0; i <= samples; i++) {
+            const phi = (Math.PI / 2) - (i / samples) * Math.PI;
+            
+            const localZ = radius * Math.sin(phi);
+            const horizontalDist = radius * Math.cos(phi);
+
+            const localX = horizontalDist * Math.sin(headingRad);
+            const localY = horizontalDist * Math.cos(headingRad);
+
+            const localPoint = new Cesium.Cartesian3(localX, localY, localZ);
+            
+            const globalPoint = Cesium.Matrix4.multiplyByPoint(modelMatrix, localPoint, new Cesium.Cartesian3());
+            positions.push(globalPoint);
+        }
+
+        return new Cesium.PolygonHierarchy(positions);
     }
-
-    return new Cesium.PolygonHierarchy(positions);
-}
 }

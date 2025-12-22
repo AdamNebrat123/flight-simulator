@@ -17,13 +17,12 @@ public static class JammerCoverageBuilder
                 foreach (DroneCoverageContext droneCtx in drones)
                 {
                     DroneStatus drone = droneCtx.Drone;
-
-                    if (!jammer.HasJamFrequency(drone.frequency))
+                    if (!jammer.HasJamFrequency(drone.frequency)){
                         continue;
-
+                    }
                     if (!jammer.IsInJammerRange(drone.trajectoryPoints.First().position))
                         continue;
-
+                    
                     map.Add(jammer.id, droneCtx);
                 }
             }

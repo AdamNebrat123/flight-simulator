@@ -17,55 +17,75 @@ public class JammerAssignmentManager
     {
         List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(snapshot);
         JammersSnapshot previous = _jammerManager.CreateSnapshot();
-        UpdateJammers(jamZoneContexts);
 
-        List<Jammer> changedJammers = GetChangedJammers(previous, _jammerManager.CreateSnapshot());
-        if (changedJammers == null || changedJammers.Count == 0)
-            return;
+        foreach(var jammer in _jammerManager.GetAllJammers())
+        {
+            jammer.jamMode = JamMode.None;
+        }
+        UpdateJammers(jamZoneContexts.ToList());
 
+        //List<Jammer> changedJammers = GetChangedJammers(previous, _jammerManager.CreateSnapshot());
+        //if (changedJammers == null || changedJammers.Count == 0)
+        //    return;
+        
+        
+        JammersUpdate jammersUpdate= new JammersUpdate
+        {
+            jammers = _jammerManager.GetAllJammers(),
+        };
         string msg = WebSocketServer.prepareMessageToClient(
             S2CMessageType.JammersUpdate,
-            changedJammers,
+            jammersUpdate,
             ModeEnum.ScenarioSimulator
         );
 
         // send only changed jammers
+        System.Console.WriteLine(msg);
         WebSocketServer.SendMsgToClients(msg, ModeEnum.ScenarioSimulator);
     }
 
-    public void UpdateJammers(IEnumerable<JamZoneContext> zones)
+    public void UpdateJammers(List<JamZoneContext> zones)
     {
+        List<JammerCoverageMap> jammerCoverageMaps= new List<JammerCoverageMap>();
         foreach (JamZoneContext zone in zones)
-        {
-            HandleAssignmentForZone(zone);
-        }
-    }
-
-
-    private void HandleAssignmentForZone(JamZoneContext zone)
-    {
-        try
         {
             List<Jammer> jammers = zone.Jammers;
             List<DroneCoverageContext> drones = zone.Drones;
-
-            // reset state
-            foreach (Jammer jammer in jammers)
-                jammer.StopJamming();
-
-            foreach (var drone in drones)
-                drone.CoveredBy = CoveredBy.None;
-
+            if(jammers == null || drones == null || jammers.Count == 0 || drones.Count == 0)
+                return;
+            
+            
             // build coverage map. JammerId -> List of drones in its range
             JammerCoverageMap coverageMap = JammerCoverageBuilder.Build(jammers, drones);
+            coverageMap.SetDroneCovergeToNone();
+            jammerCoverageMaps.Add(coverageMap);
+        }
+        if(jammerCoverageMaps.Count == 0)
+            return;
+
+        for(int i = 0; i < jammerCoverageMaps.Count; i++)
+        {
+            HandleAssignmentForZone(jammerCoverageMaps[i], zones[i].Jammers, zones[i].Drones);
+        }
+
+
+    }
+
+
+    private void HandleAssignmentForZone(JammerCoverageMap coverageMap, List<Jammer> jammers,  List<DroneCoverageContext> drones)
+    {
+        try
+        {
+
 
             // omni phase
-            // OmniCandidate - a jammer with its potential drones to cover
+            // OmniCandidate - a jammer with its potenstial drones to cover
             // sorted by most drones covered!
             List<OmniCandidate> omniCandidates = OmniCandidateBuilder.BuildCandidates(jammers, coverageMap);
 
             // assign omni jammers. 
-            OmniAssignmentProcessor.AssignOmniJammers(omniCandidates);
+            if (omniCandidates != null || omniCandidates.Count > 0)
+                OmniAssignmentProcessor.AssignOmniJammers(omniCandidates);
 
             // directional phase
             DirectionalAssignmentProcessor.AssignDirectionalJammers(drones, jammers);
@@ -152,24 +172,28 @@ public class JammerAssignmentManager
         {
             string id = kvp.Key;
             JammerStateSnapshot curr = kvp.Value;
+            JammerStateSnapshot prev;
+            previous.States.TryGetValue(id, out prev);
 
-            if (!previous.States.TryGetValue(id, out var prev))
+            if(prev == null)
             {
                 Jammer? jammer = _jammerManager.GetJammerById(id);
-                if (jammer == null)
-                    changed.Add(jammer);
+                changed.Add(jammer);
                 continue;
             }
 
             if (curr.JamMode != prev.JamMode)
             {
                 Jammer? jammer = _jammerManager.GetJammerById(id);
-                if (jammer == null)
+                if (jammer != null){
                     changed.Add(jammer);
+                    System.Console.WriteLine("ADDED JAMMERRRRRRRRRRRRRRRRRR");
+                    System.Console.WriteLine(prev.JamMode + " --> " + curr.JamMode);
+                }
                 continue;
             }
 
-            if (curr.JamMode == JamMode.Directional &&
+            if (curr.JamMode == JamMode.Directional && prev.JamMode == JamMode.Directional &&
                 curr.DirectionDegrees != prev.DirectionDegrees)
             {
                 Jammer? jammer = _jammerManager.GetJammerById(id);
@@ -181,5 +205,7 @@ public class JammerAssignmentManager
 
         return changed;
     }
+
+
 
 }

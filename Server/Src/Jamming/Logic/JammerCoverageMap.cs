@@ -7,7 +7,6 @@ public class JammerCoverageMap
     {
         
     }
-    
     public void Add(string jammerId, DroneCoverageContext drone)
     {
         if (!Map.TryGetValue(jammerId, out var list))
@@ -17,5 +16,15 @@ public class JammerCoverageMap
         }
 
         list.Add(drone);
+    }
+    public void SetDroneCovergeToNone()
+    {
+        foreach (var drones in Map.Values)
+        {
+            foreach(var drone in drones)
+            {
+                drone.CoveredBy = CoveredBy.None;
+            }
+        }
     }
 }
