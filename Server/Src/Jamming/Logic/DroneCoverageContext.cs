@@ -12,7 +12,7 @@ public class DroneCoverageContext
 
     public DroneCoverageContext(DroneStatus drone)
     {
-        Drone = drone;
+        this.Drone = drone;
         CoveredBy = CoveredBy.None;
     }
 }

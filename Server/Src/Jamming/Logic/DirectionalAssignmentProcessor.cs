@@ -14,7 +14,6 @@ public static class DirectionalAssignmentProcessor
                 continue;
 
             // Now assign jammer to directional mode
-            System.Console.WriteLine("Start Directional Jamming: " + jammer.id);
             jammer.StartDirectionalJamming(CalculateDirection(jammer, droneCtx.Drone));
 
             droneCtx.CoveredBy = CoveredBy.Directional;

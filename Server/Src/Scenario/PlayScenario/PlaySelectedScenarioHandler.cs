@@ -4,7 +4,7 @@ public class PlaySelectedScenarioHandler
 {
     private const double JammerAssignmentIntervalSeconds = 1.0; // interval to re-evaluate jammer assignments
     private double _timeSinceLastJammerAssignment = 0.0;
-    private const double timeStepSeconds = 0.1;
+    public const double timeStepSeconds = 0.1;
     private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
     private readonly ZoneChecker zoneChecker = new();
     private readonly JammerAssignmentManager jammerAssignmentManager = JammerAssignmentManager.GetInstance();
@@ -37,20 +37,18 @@ public class PlaySelectedScenarioHandler
     ScenarioResults originalScenario,
     ModeEnum clientMode)
     {
-        // Deep copy to runtime
-        var runtimeAircrafts = originalScenario.Aircrafts.ToDictionary(
-            kvp => kvp.Key,
-            kvp => new AircraftRuntimeData
-            {
-                AircraftId = kvp.Value.AircraftId,
-                Aircraft = kvp.Value.Aircraft,
-                Trajectory = new Queue<TrajectoryPoint>(kvp.Value.Trajectory)
-            });
+
 
         var history = new Dictionary<string, Queue<TrajectoryPoint>>();
 
         originalScenario.Resume();
         originalScenario.SetPlaySpeed(1.0);
+
+        // set current ScenarioResults
+        ScenarioResults scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
+        jammerAssignmentManager.SetScenarioResults(originalScenario, scenarioCopy);
+
+        Dictionary<string, AircraftRuntimeData>? runtimeAircrafts = scenarioCopy.Aircrafts;
 
         while (runtimeAircrafts.Values.Any(a => a.Trajectory.Count > 0))
         {

@@ -9,7 +9,7 @@ public static class OmniAssignmentProcessor
 
             if (jammer.status != Status.Online)
                 return;
-                
+
             // how many uncovered drones are in range
             var uncoveredDrones = drones
                 .Where(d => d.CoveredBy != CoveredBy.Omnidirectional)

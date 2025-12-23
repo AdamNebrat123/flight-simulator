@@ -15,7 +15,7 @@ export default function TopLeftButtons({onScenariosClick, onDangerZonesClick, on
         Jammers
       </button>
       <button className="top-button" onClick={onDangerZonesClick}>
-        Danger Zones
+        Zones
         </button>
       <button className="top-button" onClick={() => window.open("/Real-Planes-Mode", "_blank")}>
         REAL PLANES MODE

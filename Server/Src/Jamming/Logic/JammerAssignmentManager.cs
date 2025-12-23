@@ -3,6 +3,9 @@ public class JammerAssignmentManager
     private static JammerAssignmentManager _instance = new JammerAssignmentManager();
     private readonly JammerManager _jammerManager = JammerManager.GetInstance();
     private readonly ZoneManager _zoneManager = ZoneManager.GetInstance();
+    private ScenarioResults? _scenarioResults = null;
+    private ScenarioResults? _scenarioResultsCopy = null;
+    private DroneFallManager _droneFallManager = null;
     private JammerAssignmentManager()
     {
         
@@ -12,11 +15,21 @@ public class JammerAssignmentManager
     {
         return _instance;
     }
+    public void SetScenarioResults(ScenarioResults scenarioResults, ScenarioResults scenarioResultsCopy)
+    {
+        _scenarioResults = scenarioResults;
+        _scenarioResultsCopy = scenarioResultsCopy;
+        _droneFallManager = new DroneFallManager(_scenarioResults, _scenarioResultsCopy);
+    }
+    public ScenarioResults GetScenarioResults()
+    {
+        return _scenarioResults;
+    }
     
     public async Task AssignJammers(ScenarioAirCraftsSnapshot snapshot)
     {
         List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(snapshot);
-        JammersSnapshot previous = _jammerManager.CreateSnapshot();
+        //JammersSnapshot previous = _jammerManager.CreateSnapshot();
 
         foreach(var jammer in _jammerManager.GetAllJammers())
         {
@@ -39,8 +52,6 @@ public class JammerAssignmentManager
             ModeEnum.ScenarioSimulator
         );
 
-        // send only changed jammers
-        System.Console.WriteLine(msg);
         WebSocketServer.SendMsgToClients(msg, ModeEnum.ScenarioSimulator);
     }
 
@@ -68,7 +79,6 @@ public class JammerAssignmentManager
             HandleAssignmentForZone(jammerCoverageMaps[i], zones[i].Jammers, zones[i].Drones);
         }
 
-
     }
 
 
@@ -89,6 +99,14 @@ public class JammerAssignmentManager
 
             // directional phase
             DirectionalAssignmentProcessor.AssignDirectionalJammers(drones, jammers);
+
+            // UpdateDroneCoverage
+            // To check if drone needs to fall.
+            foreach(DroneCoverageContext drone in drones)
+            {
+                bool isCovered = drone.CoveredBy != CoveredBy.None;
+                _droneFallManager.UpdateDroneCoverage(drone.Drone.aircraftId, isCovered);
+            }
         }
         catch (Exception ex)
         {

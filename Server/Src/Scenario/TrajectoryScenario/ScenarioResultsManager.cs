@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 
 public class ScenarioResultsManager
 {
@@ -45,6 +46,15 @@ public class ScenarioResultsManager
         if (_scenarios.TryGetValue(scenarioId, out var scenario))
         {
             return scenario;
+        }
+        return null;
+    }
+    public ScenarioResults? GetCopyOfScenarioResult(string scenarioId)
+    {
+        if (_scenarios.TryGetValue(scenarioId, out var scenario))
+        {
+            var serialized = JsonSerializer.Serialize(scenario);
+            return JsonSerializer.Deserialize<ScenarioResults>(serialized);
         }
         return null;
     }
