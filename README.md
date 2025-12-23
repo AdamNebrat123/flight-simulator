@@ -17,6 +17,20 @@ It includes several interactive modes:
 **Note:** Installation instructions are at the bottom of the README.
 
 ---
+# JAMMERS
+
+**JAMMERS**  
+SO COOLLL!!!!!
+
+
+## Example visualization:
+
+https://github.com/user-attachments/assets/8cfaa464-137d-4f60-8ac8-e2fda84bf8ba
+
+
+---
+
+
 # Drone Battle Arena
 
 **A multiplayer drone battle game.**  
