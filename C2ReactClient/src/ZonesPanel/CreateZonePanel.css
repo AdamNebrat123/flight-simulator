@@ -1,0 +1,149 @@
+.zone-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 9999;
+  background: rgba(40,40,40,0.9);
+  color: #fff;
+  padding: 12px;
+  border-radius: 5px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4);
+  width: 300px;
+  max-width: 360px;
+  font-family: sans-serif;
+  font-size: 13px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.zone-name-input {
+  all: unset;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid #888;
+  font-size: 13px;
+  margin-bottom: 8px;
+  width: 90%;
+}
+
+.zone-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.zone-fields label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #fff;
+}
+
+
+
+
+.zone-select {
+  font-size: 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 2px 6px;
+  width: 120px;
+  cursor: pointer;
+  text-align: center;
+  
+}
+.zone-select option {
+  background: #222; 
+  color: #fff;
+}
+
+
+.zone-select:focus {
+  outline: 1px solid #28a745;
+}
+
+
+
+
+
+.zone-fields input[type="number"] {
+  all: unset;
+  width: 60px;
+  text-align: center;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 2px 4px;
+  box-sizing: border-box;
+  cursor: text;
+}
+
+.zone-fields input[type="number"]:focus {
+  outline: 1px solid #28a745;
+}
+
+.points-section {
+  margin-top: 6px;
+  border: 1px solid #555;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.points-section table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.points-section th,
+.points-section td {
+  border: 1px solid #888;
+  padding: 4px;
+  text-align: center;
+}
+
+.startAddingPoints-button {
+  width: 100%;
+  display: block;
+  margin-bottom: 12px;
+  margin-top: 8px;
+  background-color: #2d6115;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.startAddingPoints-button:hover {
+  background-color: #1c4b10;
+}
+
+.save-button {
+  background: #28a745;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: none;
+}
+
+.cancel-button {
+  background: #dc3545;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: none;
+}
+
+.zone-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}

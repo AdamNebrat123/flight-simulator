@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/AllTypes.schema.json",
+  "title": "AllTypes",
+  "type": "object",
+  "properties": {
+    "geoPoint": { "$ref": "#/definitions/GeoPoint" },
+    "trajectoryPoint": { "$ref": "#/definitions/TrajectoryPoint" },
+    "planeCalculatedTrajectoryPoints": { "$ref": "#/definitions/PlaneCalculatedTrajectoryPoints" },
+    "planeTrajectoryPoints": { "$ref": "#/definitions/PlaneTrajectoryPoints" },
+    "planesTrajectoryPointsEvent": { "$ref": "#/definitions/PlanesTrajectoryPointsEvent" },
+    "multiPlaneTrajectoryResult": { "$ref": "#/definitions/MultiPlaneTrajectoryResult" },
+    "messageWrapper": { "$ref": "#/definitions/MessageWrapper" }
+  },
+  "required": [
+    "geoPoint",
+    "trajectoryPoint",
+    "planeCalculatedTrajectoryPoints",
+    "planeTrajectoryPoints",
+    "planesTrajectoryPointsEvent",
+    "multiPlaneTrajectoryResult",
+    "messageWrapper"
+  ],
+  "definitions": {
+    "GeoPoint": {
+      "type": "object",
+      "properties": {
+        "longitude": { "type": "number" },
+        "latitude": { "type": "number" },
+        "altitude": { "type": "number" }
+      },
+      "required": ["longitude", "latitude", "altitude"]
+    },
+    "TrajectoryPoint": {
+      "type": "object",
+      "properties": {
+        "position": { "$ref": "#/definitions/GeoPoint" },
+        "heading": { "type": "number" },
+        "pitch": { "type": "number" }
+      },
+      "required": ["position", "heading", "pitch"]
+    },
+    "PlaneCalculatedTrajectoryPoints": {
+      "type": "object",
+      "properties": {
+        "planeName": { "type": "string" },
+        "trajectoryPoints": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TrajectoryPoint" }
+        }
+      },
+      "required": ["planeName", "trajectoryPoints"]
+    },
+    "PlaneTrajectoryPoints": {
+      "type": "object",
+      "properties": {
+        "planeName": { "type": "string" },
+        "velocity": { "type": "number" },
+        "geoPoints": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/GeoPoint" }
+        }
+      },
+      "required": ["planeName", "velocity", "geoPoints"]
+    },
+    "PlanesTrajectoryPointsEvent": {
+      "type": "object",
+      "properties": {
+        "planes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PlaneTrajectoryPoints" }
+        }
+      },
+      "required": ["planes"]
+    },
+    "MultiPlaneTrajectoryResult": {
+      "type": "object",
+      "properties": {
+        "planes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PlaneCalculatedTrajectoryPoints" }
+        }
+      },
+      "required": ["planes"]
+    },
+    "MessageWrapper": {
+      "type": "object",
+      "description": "Intermediate wrapper containing a type string and raw data to be deserialized based on the type",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of the inner message (used for dynamic deserialization)"
+        },
+        "data": {
+          "type": "object",
+          "description": "The inner object, to be deserialized according to the 'Type'. No schema enforced here."
+        }
+      },
+      "required": ["type", "data"]
+    }
+  }
+}

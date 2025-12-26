@@ -1,0 +1,59 @@
+{
+  "dataType": "JammersData",
+  "data": [
+    {
+      "id": "0d993b29-9beb-428d-82be-11b78f07baed",
+      "position": {
+        "altitude": 40.534588190710075,
+        "latitude": 32.03644584731649,
+        "longitude": 34.78278713219179
+      },
+      "status": "Online",
+      "jamMode": "None",
+      "supportedFrequencies": [
+        "Rc_24GHz",
+        "Rc_58GHz",
+        "GNSS_L1",
+        "GNSS_L2"
+      ],
+      "radius": 400,
+      "directionDegrees": null
+    },
+    {
+      "id": "70ee1e13-bbe4-48ee-90df-b031095aa1d1",
+      "position": {
+        "altitude": 43.9155719989818,
+        "latitude": 32.03212610830705,
+        "longitude": 34.78599440721986
+      },
+      "status": "Online",
+      "jamMode": "Directional",
+      "supportedFrequencies": [
+        "GNSS_L2",
+        "GNSS_L1",
+        "Rc_58GHz",
+        "Rc_24GHz"
+      ],
+      "radius": 450,
+      "directionDegrees": 90
+    },
+    {
+      "id": "328d67f1-5ffa-4682-a54e-dc0edaaed202",
+      "position": {
+        "altitude": 41.732868987071676,
+        "latitude": 32.033365319657705,
+        "longitude": 34.78039932832487
+      },
+      "status": "Online",
+      "jamMode": "None",
+      "supportedFrequencies": [
+        "Rc_24GHz",
+        "Rc_58GHz",
+        "GNSS_L1",
+        "GNSS_L2"
+      ],
+      "radius": 300,
+      "directionDegrees": null
+    }
+  ]
+}

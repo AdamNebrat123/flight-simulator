@@ -1,0 +1,24 @@
+public enum S2CMessageType
+{
+    ScenarioPlanesSnapshot,
+    AddZone,
+    RemoveZone,
+    EditZone,
+    ZoneError,
+    InitData,
+    AddScenario,
+    RemoveScenario,
+    EditScenario,
+    ScenarioError,
+    RemoveDrone,
+    UpdateDrone,
+    DroneError,
+    DroneInitData,
+    BulletsMsg,
+    DroneKilled,
+    JammersUpdate,
+    AddJammer,
+    RemoveJammer,
+    EditJammer,
+    JammerError
+}

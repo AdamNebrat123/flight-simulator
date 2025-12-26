@@ -1,0 +1,175 @@
+using System.Text.Json;
+
+public class ScenarioHandler
+{
+    private static ScenarioHandler instance;
+    private readonly ScenarioManager scenarioManager = ScenarioManager.GetInstance();
+    private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
+    private readonly ScenarioResultsManager scenarioResultsManager = ScenarioResultsManager.GetInstance();
+    private readonly ScenarioResultsCalculator scenarioResultsCalculator = ScenarioResultsCalculator.GetInstance();
+
+    private ScenarioHandler()
+    {
+    }
+
+    public static ScenarioHandler GetInstance()
+    {
+        if (instance == null)
+        {
+            instance = new ScenarioHandler();
+        }
+        return instance;
+    }
+
+    public void HandleAddScenario(JsonElement data, ModeEnum clientMode)
+    {
+        try
+        {
+            Scenario scenario = data.Deserialize<Scenario>();
+
+            // create a new unique ID for the scenario
+            Guid uuid = Guid.NewGuid();
+            string uuidString = uuid.ToString();
+            scenario.scenarioId = uuidString;
+
+            // create a new unique ID for every plane
+            foreach (AircraftTrajectory aircraft in scenario.aircrafts)
+            {
+                Guid aircraftId = Guid.NewGuid();
+                string aircraftIdString = aircraftId.ToString();
+                aircraft.aircraftId = aircraftIdString;
+            }
+
+            // add in file
+            scenariosDataManager.AddAndSaveScenario(scenario);
+
+            // add in a map 
+            bool isAdded = scenarioManager.TryAddScenario(scenario);
+            if (isAdded)
+            {
+                System.Console.WriteLine("{0} ({1}) - Added scenario successfully.", scenario.scenarioId, scenario.scenarioName);
+                SendAddScenario(scenario, clientMode);
+
+                // calculate scenario results
+                ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
+                if (scenarioResults != null)
+                {
+                    // save the calculated scenario
+                    scenarioResultsManager.TryAddScenario(scenario.scenarioId, scenarioResults);
+                }
+            }
+            else
+            {
+                System.Console.WriteLine("{0} ({1}) - Failed to add scenario.", scenario.scenarioId, scenario.scenarioName);
+                SendScenarioError($"{scenario.scenarioId} ({scenario.scenarioName}) - Failed to add scenario.", clientMode);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Error in HandleAddScenario: " + ex.Message);
+        }
+    }
+
+    public void HandleRemoveScenario(JsonElement data, ModeEnum clientMode)
+    {
+        try
+        {
+            Scenario scenario = data.Deserialize<Scenario>();
+            string scenarioId = scenario.scenarioId;
+
+            bool isRemoved = scenariosDataManager.RemoveAndSaveScenario(scenarioId);
+            if (isRemoved)
+            {
+                System.Console.WriteLine("{0} ({1}) - Removed scenario from file successfully.", scenarioId, scenario.scenarioName);
+                isRemoved = scenarioManager.TryRemoveScenario(scenarioId);
+                if (isRemoved)
+                {
+                    System.Console.WriteLine("{0} ({1}) - Removed scenario successfully.", scenarioId, scenario.scenarioName);
+                    SendRemoveScenario(scenario, clientMode);
+                }
+                else
+                {
+                    System.Console.WriteLine("{0} ({1}) - Failed to remove scenario.", scenarioId, scenario.scenarioName);
+                    SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to remove scenario.", clientMode);
+                }
+            }
+            else
+            {
+                System.Console.WriteLine("{0} ({1}) - Failed to remove scenario.", scenarioId, scenario.scenarioName);
+                SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to remove scenario.", clientMode);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Error in HandleRemoveScenario: " + ex.Message);
+        }
+    }
+
+    public void HandleEditScenario(JsonElement data, ModeEnum clientMode)
+    {
+        try
+        {
+            Scenario scenario = data.Deserialize<Scenario>();
+            string scenarioId = scenario.scenarioId;
+
+            System.Console.WriteLine("{0} ({1}) - edited scenario in file successfully.", scenarioId, scenario.scenarioName);
+            bool isEdited = scenariosDataManager.EditAndSaveScenario(scenarioId, scenario);
+            if (isEdited)
+            {
+                isEdited = scenarioManager.TryEditScenario(scenarioId, scenario);
+
+                if (isEdited)
+                {
+                    System.Console.WriteLine("{0} ({1}) - Edited scenario successfully.", scenarioId, scenario.scenarioName);
+                    // calculate scenario results
+                    ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
+                    if (scenarioResults != null)
+                    {
+                        // save the calculated scenario
+                        scenarioResultsManager.TryEditScenario(scenario.scenarioId, scenarioResults);
+                        SendEditScenario(scenario, clientMode);
+                    }
+                }
+                else
+                {
+                    System.Console.WriteLine("{0} ({1}) - Failed to edit scenario.", scenarioId, scenario.scenarioName);
+                    SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to edit scenario.", clientMode);
+                }
+            }
+            else
+            {
+                System.Console.WriteLine("{0} ({1}) - Failed to edit scenario.", scenarioId, scenario.scenarioName);
+                SendScenarioError($"{scenarioId} ({scenario.scenarioName}) - Failed to edit scenario.", clientMode);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Error in HandleEditScenario: " + ex.Message);
+        }
+    }
+
+    public void SendAddScenario(Scenario scenario, ModeEnum clientMode)
+    {
+        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.AddScenario, scenario, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
+    }
+    public void SendRemoveScenario(Scenario scenario, ModeEnum clientMode)
+    {
+        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveScenario, scenario, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
+    }
+    public void SendEditScenario(Scenario scenario, ModeEnum clientMode)
+    {
+        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.EditScenario, scenario, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
+    }
+    public void SendScenarioError(string errorMsg, ModeEnum clientMode)
+    {
+        var scenarioError = new ScenarioError()
+        {
+            errorMsg = errorMsg
+        };
+        string scenarioErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.ScenarioError, scenarioError, clientMode);
+        WebSocketServer.SendMsgToClients(scenarioErrorData, clientMode);
+    }
+}
