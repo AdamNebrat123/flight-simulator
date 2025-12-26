@@ -2,24 +2,6 @@ import type { Jammer } from "../Jamming/Jammer/Jammer";
 import type { Frequency } from "../Jamming/Jammer/JammerRelatedEnums";
 import type { ZoneTypeEnum } from "./ZoneTypeEnum";
 
-export interface AllTypes {
-    geoPoint:                        GeoPoint;
-    messageWrapper:                  MessageWrapper;
-    multiPlaneTrajectoryResult:      ScenarioAirCraftsSnapshot;
-    planeCalculatedTrajectoryPoints: AircraftStatus;
-    planesTrajectoryPointsEvent:     Scenario;
-    planeTrajectoryPoints:           AircraftTrajectory;
-    trajectoryPoint:                 TrajectoryPoint;
-    //[property: string]: any;
-}
-
-export interface GeoPoint {
-    altitude:  number;
-    latitude:  number;
-    longitude: number;
-    //[property: string]: any;
-}
-
 /**
  * Intermediate wrapper containing a type string and raw data to be deserialized based on
  * the type
@@ -30,16 +12,14 @@ export interface MessageWrapper {
    //The type of the inner message (used for dynamic deserialization)
   type: string;
    //The mode of the message (used for routing)
-  clientMode: string;
 }
 
-export interface ScenarioAirCraftsSnapshot {
-    scenarioId: string;
-    aircrafts: AircraftStatus[];
+export interface GeoPoint {
+    altitude:  number;
+    latitude:  number;
+    longitude: number;
     //[property: string]: any;
 }
-
-
 
 export interface TrajectoryPoint {
     heading:  number;
@@ -49,40 +29,10 @@ export interface TrajectoryPoint {
     //[property: string]: any;
 }
 
-
-
-export interface Scenario {
+export interface ScenarioAirCraftsSnapshot {
     scenarioId: string;
-    aircrafts: AircraftTrajectory[];
-    scenarioName: string;
+    aircrafts: AircraftStatus[];
     //[property: string]: any;
-}
-
-
-export interface ScenariosReadyToPlay {
-  scenariosIds: string[];
-  //[property: string]: any;
-}
-
-export interface GetReadyScenariosRequestCmd {
-  // no properties needed
-}
-
-export interface PlaySelectedScenario {
-    scenarioId: string;
-}
-
-export interface PauseScenarioCmd {
-  scenarioId: string;
-}
-
-export interface ResumeScenarioCmd {
-  scenarioId: string;
-}
-
-export interface ChangeScenarioPlaySpeedCmd {
-  scenarioId: string;
-  playSpeed: number;
 }
 
 export interface Zone {
@@ -103,61 +53,9 @@ export interface JamZone extends Zone {
   zoneType: ZoneTypeEnum.Jam;
 }
 
-export interface ZoneError {
-    errorMsg: string;
+export interface JammersUpdate {
+  jammers: Jammer[];
 }
-
-
-export interface InitData {
-    scenarios: Scenario[];
-    zones: DangerZone[];
-    jammers: Jammer[];
-}
-
-export interface ScenarioError {
-    errorMsg: string;
-}
-
-export interface Drone {
-    id: string;
-    trajectoryPoint: TrajectoryPoint;
-}
-
-export type DronesInitData = {
-  yourDroneId: string;   // The UUID of the current user's drone
-};
-
-export interface CreateBullet {
-  droneId: string;
-  bulletId: string;
-  startPosition: GeoPoint;
-  endPosition: GeoPoint;
-}
-
-export interface BulletData {
-  droneId: string;
-  bulletId: string;
-  position: GeoPoint;
-  isLast: boolean;
-}
-
-export interface BulletsMsg {
-    bullets: BulletData[];
-}
-
-export class DroneKilled {
-  killerDroneId: string;
-  killedDroneId: string;
-  bulletId: string;
-
-  constructor(killerDroneId: string, killedDroneId: string, bulletId: string) {
-    this.killerDroneId = killerDroneId;
-    this.killedDroneId = killedDroneId;
-    this.bulletId = bulletId;
-  }
-}
-
-
 
 // Base trajectory
 export interface AircraftTrajectory {
@@ -245,10 +143,6 @@ export interface UavStatus extends AircraftStatus {
   // UAV-specific properties (none for now)
 }
 
-export interface JammersUpdate {
-  jammers: Jammer[];
-}
 
-export interface JammerError {
-  errorMsg: string;
-}
+
+

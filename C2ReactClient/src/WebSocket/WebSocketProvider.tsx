@@ -9,13 +9,12 @@ interface WebSocketContextValue {
 
 interface WebSocketProviderProps {
   children: ReactNode;
-  clientMode: string;
 }
 
 const WebSocketContext = createContext<WebSocketContextValue | undefined>(undefined);
 
-export const WebSocketProvider = ({ children, clientMode }: WebSocketProviderProps) => {
-  const ws = useWebSocketEvents({ clientMode });
+export const WebSocketProvider = ({ children}: WebSocketProviderProps) => {
+  const ws = useWebSocketEvents();
 
   return (
     <WebSocketContext.Provider value={ws}>

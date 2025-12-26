@@ -1,7 +1,6 @@
 import { ZoneEntityManager } from "./ZoneEntityManager";
 import * as Cesium from "cesium";
-import type { DangerZone, ZoneError as ZoneError, Zone } from "../Messages/AllTypes";
-import { toast } from "react-toastify";
+import type { Zone } from "../Messages/AllTypes";
 import { ZoneManager } from "./ZoneManager";
 
 export class ZoneHandler{
@@ -21,10 +20,14 @@ export class ZoneHandler{
     }
     
     
-    HandleAddZone(data: any){
+    HandleUpdatedZones(data: any){
         try {
-            const zone = data as Zone;
-            this.AddZone(zone)
+            // parse to zones object
+            //then
+            /*
+            foreach(zone in zones)
+                this.AddZone(zone)
+            */
         } catch (err) {
             console.log("data could not be parsed toZone");
         }
@@ -39,13 +42,14 @@ export class ZoneHandler{
             console.log("error in HandleAddZone.  zone adding failed")
     }
 
-    HandleRemoveZone(data: any){
-        try {
-            const zone = data as Zone;
-            this.RemoveZone(zone)
-        } catch (err) {
-            console.log("data could not be parsed to Zone");
+    RemoveAllZones() {
+        const zones = this.zoneManager.getAllZones();
+
+        for (const zone of zones) {
+            this.RemoveZone(zone);
         }
+
+        this.zoneManager.clearAll()
     }
 
     RemoveZone(zone: Zone){
@@ -56,36 +60,5 @@ export class ZoneHandler{
         }
         else
             console.log("error in HandleRemoveZone. zone removing failed")
-    }
-
-    HandleEditZone(data: any){
-        try {
-            const zone = data as Zone;
-            this.EditZone(zone);
-            
-        } catch (err) {
-            console.log("data could not be parsed to Zone");
-        }
-    }
-
-    EditZone(zone: Zone){
-        const isEdited = this.zoneManager.tryEditZone(zone);
-        if(isEdited){
-            this.zoneEntityManager.editZone(zone);
-            console.log(`danger zone ${zone.zoneId} edited successfully.`);
-        }
-        else
-            console.log("error in HandleEditDangerZone. danger zone editing failed")
-    }
-
-    HandleZoneError(data: any){
-        try {
-            const zoneError = data as ZoneError;
-            const errorMsg = zoneError.errorMsg;
-            console.log("zone error from server: " + errorMsg);
-            toast.error(errorMsg);
-        } catch (err) {
-            console.log("data could not be parsed to ZoneError");
-        }
     }
 }

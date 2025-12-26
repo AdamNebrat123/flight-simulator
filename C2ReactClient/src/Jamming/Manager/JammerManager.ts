@@ -3,24 +3,11 @@ import type { Jammer } from "../Jammer/Jammer";
 export class JammersManager {
     private static instance: JammersManager | null = null;
     private jammerIdToJammer: Map<string, Jammer>;
-    private listeners: ((jammers: Jammer[]) => void)[] = [];
 
     private constructor() {
         this.jammerIdToJammer = new Map<string, Jammer>();
     }
-    public subscribe(cb: (jammers: Jammer[]) => void): () => void {
-            this.listeners.push(cb);
-            // unsubscribe function
-            return () => {
-                this.listeners = this.listeners.filter(l => l !== cb);
-            };
-        }
-
-        private notify() {
-            const snapshot = this.getAllJammers();
-            this.listeners.forEach(cb => cb(snapshot));
-        }
-
+    
     public static getInstance(): JammersManager {
         if (this.instance === null) {
             this.instance = new JammersManager();
@@ -47,14 +34,12 @@ export class JammersManager {
         }
 
         this.jammerIdToJammer.set(jammer.id, jammer);
-        this.notify();
         return true;
     }
 
     tryRemoveJammer(jammerId: string): boolean {
         if (!jammerId) return false;
         const removed = this.jammerIdToJammer.delete(jammerId);
-        if (removed) this.notify();
         return removed;
     }
 
@@ -70,7 +55,6 @@ export class JammersManager {
         }
 
         this.jammerIdToJammer.set(jammer.id, jammer);
-        this.notify();
         return true;
     }
 

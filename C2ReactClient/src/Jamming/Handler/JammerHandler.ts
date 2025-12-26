@@ -10,26 +10,18 @@ export class JammerHandler {
   private jammerManager: JammersManager;
   private jammerEntityManager: JammerEntityManager;
 
-  private constructor() {
+  private constructor(viewer: Cesium.Viewer) {
     this.jammerManager = JammersManager.getInstance();
-    this.jammerEntityManager = JammerEntityManager.GetInstance();
+    this.jammerEntityManager = JammerEntityManager.GetInstance(viewer);
   }
 
-  public static getInstance(): JammerHandler {
+  public static getInstance(viewer: Cesium.Viewer): JammerHandler {
     if (this.instance === null) {
-      this.instance = new JammerHandler();
+      this.instance = new JammerHandler(viewer);
     }
     return this.instance;
   }
 
-  HandleAddJammer(data: any) {
-    try {
-      const jammer = data as Jammer;
-      this.AddJammer(jammer);
-    } catch (err) {
-      console.log("data could not be parsed to Jammer");
-    }
-  }
 
   AddJammer(jammer: Jammer) {
     const isAdded = this.jammerManager.tryAddJammer(jammer);
@@ -41,14 +33,6 @@ export class JammerHandler {
     }
   }
 
-  HandleRemoveJammer(data: any) {
-    try {
-      const jammer = data as Jammer;
-      this.RemoveJammer(jammer);
-    } catch (err) {
-      console.log("data could not be parsed to Jammer");
-    }
-  }
 
   RemoveJammer(jammer: Jammer) {
     const isRemoved = this.jammerManager.tryRemoveJammer(jammer.id);
@@ -60,33 +44,11 @@ export class JammerHandler {
     }
   }
 
-  HandleEditJammer(data: any) {
-    try {
-      const jammer = data as Jammer;
-      this.EditJammer(jammer);
-    } catch (err) {
-      console.log("data could not be parsed to Jammer");
-    }
-  }
+  RemoveAllJammers(){
+    const jammers = this.jammerManager.getAllJammers();
 
-  EditJammer(jammer: Jammer) {
-    const isEdited = this.jammerManager.tryEditJammer(jammer);
-    if (isEdited) {
-      this.jammerEntityManager.editJammer(jammer);
-      console.log(`Jammer ${jammer.id} edited successfully.`);
-    } else {
-      console.log("error in HandleEditJammer. Jammer editing failed");
-    }
-  }
-
-  HandleJammerError(data: any) {
-    try {
-      const jammerError = data as JammerError;
-      const errorMsg = jammerError.errorMsg;
-      console.log("Jammer error from server: " + errorMsg);
-      toast.error(errorMsg);
-    } catch (err) {
-      console.log("data could not be parsed to JammerError");
+    for (const jammer of jammers) {
+        this.RemoveJammer(jammer);
     }
   }
 }

@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import type {Zone,JamZone, DangerZone, GeoPoint } from "../Messages/AllTypes";
+import type {Zone, GeoPoint } from "../Messages/AllTypes";
 import { ZoneOptionsManager } from "./ZoneOptions";
 
 export class ZonePolyline {

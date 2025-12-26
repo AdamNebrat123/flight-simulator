@@ -6,12 +6,9 @@ import { ToastContainer } from 'react-toastify';
 //handler imports
 import { ZoneHandler } from './Zones/ZoneHandler';
 import { S2CMessageType } from './Messages/S2CMessageType';
-import { handleInitData } from './InitData/InitDataHandler';
-import PanelsAndButtons from './PanelsAndButtons/PanelsAndButtons';
 import { PlaneEntityManager } from './Scenarios/AirCrafts/PlaneEntityManager';
 import { PlaneTailManager } from './Scenarios/AirCrafts/PlaneTailManager';
 import { ScenarioPlanesSnapshotHandler } from './Scenarios/Handlers/ScenarioPlanesSnapshotHandler';
-import { ScenarioHandler } from './Scenarios/ScenarioHandler';
 import { ZoneEntityManager } from './Zones/ZoneEntityManager';
 import { ZoneManager } from './Zones/ZoneManager';
 import { JammerHandler } from './Jamming/Handler/JammerHandler';
@@ -31,7 +28,6 @@ export default function App() {
   const zoneHandlerRef =  useRef<ZoneHandler | null>(null);
   const zoneManagerRef = useRef<ZoneManager | null>(null);
   const jammerHandlerRef = useRef<JammerHandler | null>(null);
-  const scenarioHandlerRef = useRef<ScenarioHandler | null>(null);
   const jammersUpdateHandlerRef = useRef<JammersUpdateHandler | null>(null);
 
 
@@ -53,7 +49,6 @@ export default function App() {
       jammersUpdateHandlerRef.current = JammersUpdateHandler.GetInstance(viewerRef.current);
       zoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);
       jammerHandlerRef.current = JammerHandler.getInstance(viewerRef.current);
-      scenarioHandlerRef.current = ScenarioHandler.getInstance();
 
       // register to all of the events
       registerHandlers();
@@ -64,55 +59,10 @@ export default function App() {
   // =================================================================
   // =================================================================
   const registerHandlers = () => {
-    // type : InitData
-    const unsubInitData = on(S2CMessageType.InitData,(data) => {
-      console.log("handleInitData");
-      handleInitData(data, viewerRef.current!);
-    });
 
     // type : ScenarioPlanesSnapshot
     const unsubScenarioPlanesSnapshot = on(S2CMessageType.ScenarioPlanesSnapshot , (data) => {
       ScenarioPlanesSnapshotHandlerRef.current?.HandleScenarioPlanesSnapshot(data);
-    });
-
-    // type : AddZone
-    const unsubAddZone = on(S2CMessageType.AddZone , (data) => {
-      zoneHandlerRef.current?.HandleAddZone(data);
-    });
-
-    // type : RemoveZone
-    const unsubRemoveZone = on(S2CMessageType.RemoveZone , (data) => {
-      zoneHandlerRef.current?.HandleRemoveZone(data);
-    });
-
-    // type : EditZone
-    const unsubEditZone = on(S2CMessageType.EditZone , (data) => {
-      zoneHandlerRef.current?.HandleEditZone(data);
-    });
-
-    // type : ZoneError
-    const unsubZoneError = on(S2CMessageType.ZoneError , (data) => {
-      zoneHandlerRef.current?.HandleZoneError(data);
-    });
-
-    // type : AddJammer
-    const unsubAddJammer = on(S2CMessageType.AddJammer, (data) => {
-      jammerHandlerRef.current?.HandleAddJammer(data);
-    });
-
-    // type : RemoveJammer
-    const unsubRemoveJammer = on(S2CMessageType.RemoveJammer, (data) => {
-      jammerHandlerRef.current?.HandleRemoveJammer(data);
-    });
-
-    // type : EditJammer
-    const unsubEditJammer = on(S2CMessageType.EditJammer, (data) => {
-      jammerHandlerRef.current?.HandleEditJammer(data);
-    });
-
-    // type : JammerError
-    const unsubJammerError = on(S2CMessageType.JammerError , (data) => {
-      jammerHandlerRef.current?.HandleJammerError(data);
     });
 
     // type : JammersUpdate
@@ -120,43 +70,10 @@ export default function App() {
       jammersUpdateHandlerRef.current?.HandleJammersUpdate(data);
     });
 
-    // type : AddScenario
-    const unsubAddScenario = on(S2CMessageType.AddScenario, (data) => {
-      scenarioHandlerRef.current?.HandleAddScenario(data);
-    });
-
-    // type : RemoveScenario
-    const unsubRemoveScenario = on(S2CMessageType.RemoveScenario, (data) => {
-      scenarioHandlerRef.current?.HandleRemoveScenario(data);
-    });
-
-    // type : EditScenario
-    const unsubEditScenario = on(S2CMessageType.EditScenario, (data) => {
-      scenarioHandlerRef.current?.HandleEditScenario(data);
-    });
-
-    // type : ScenarioError
-    const unsubScenarioError = on(S2CMessageType.ScenarioError , (data) => {
-      scenarioHandlerRef.current?.HandleScenarioError(data);
-    });
-
     //clean up
     return () => {
-      unsubInitData();
       unsubScenarioPlanesSnapshot();
-      unsubAddZone();
-      unsubRemoveZone();
-      unsubEditZone();
-      unsubZoneError();
-      unsubAddJammer();
-      unsubRemoveJammer();
-      unsubEditJammer();
-      unsubJammerError();
       unsubJammersUpdate();
-      unsubAddScenario();
-      unsubRemoveScenario();
-      unsubEditScenario();
-      unsubScenarioError();
     };
   }
   // =================================================================
@@ -165,8 +82,6 @@ export default function App() {
   return (
     <>
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
-      <PanelsAndButtons viewerRef={viewerRef} />
-
       <ToastContainer
         position="top-right"
         autoClose={3000}

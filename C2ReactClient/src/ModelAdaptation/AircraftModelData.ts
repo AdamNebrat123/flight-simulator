@@ -2,7 +2,6 @@ import { AircraftTypeEnum } from "../Messages/AircraftTypeEnum";
 import type { ModelAdaptationData } from "./ModelAdaptationData";
 
 export class AircraftModelData {
-  // Dictionary שממפה כל סוג של מטוס לפונקציה שמחזירה ModelAdaptationData
   public static readonly dataMap: Record<
     AircraftTypeEnum,
     () => ModelAdaptationData
