@@ -34,7 +34,8 @@ public class RadarHandler
         Dictionary<string, Sensor> radarDict = new();
         foreach(Sensor radar in radars)
         {
-            HandleAddRadar((Radar)radar);
+            if(radar.id == "")
+               HandleAddRadar((Radar)radar);
             radarDict.TryAdd(radar.id, radar);
         }
         return radarDict;

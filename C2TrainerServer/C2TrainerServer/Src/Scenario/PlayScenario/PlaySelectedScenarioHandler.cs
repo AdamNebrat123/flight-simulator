@@ -76,12 +76,12 @@ public class PlaySelectedScenarioHandler
                 if (history[aircraft.AircraftId].Count > 30)
                     history[aircraft.AircraftId].Dequeue();
 
-                List<string>? zones = zoneChecker.GetZonesContainingPoint(point.position);
+                //////////////List<string>? zones = zoneChecker.GetZonesContainingPoint(point.position);
 
                 AircraftStatus aircraftStatus = aircraft.Aircraft.CreateStatus(point);
 
-                aircraftStatus.dangerZonesIn = zones;
-                aircraftStatus.isInDangerZone = zones.Count > 0;
+                ///////////////////aircraftStatus.dangerZonesIn = zones;
+                ///////////////////aircraftStatus.isInDangerZone = zones.Count > 0;
                 aircraftStatus.tailPoints = history[aircraft.AircraftId].ToList();
 
                 snapshot.aircrafts.Add(aircraftStatus);

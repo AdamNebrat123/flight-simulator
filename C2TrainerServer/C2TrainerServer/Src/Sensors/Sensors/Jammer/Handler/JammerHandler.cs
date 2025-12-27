@@ -34,7 +34,9 @@ public class JammerHandler
         Dictionary<string, Sensor> jammerDict = new();
         foreach(Sensor jammer in jammers)
         {
-            HandleAddJammer((Jammer)jammer);
+            if(jammer.id == "")
+                HandleAddJammer((Jammer)jammer);
+                
             jammerDict.TryAdd(jammer.id, jammer);
         }
         return jammerDict;

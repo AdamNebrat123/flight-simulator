@@ -4,8 +4,6 @@ public class InitDataHandler
 {
     private static InitDataHandler _instance;
     private readonly ScenariosDataManager scenariosDataManager = ScenariosDataManager.GetInstance();
-    private readonly ZonesDataManager zonesDataManager = ZonesDataManager.GetInstance();
-    private readonly JammersDataManager jammersDataManager = JammersDataManager.GetInstance();
 
     private InitDataHandler()
     {

@@ -1,17 +1,16 @@
 public class ZoneChecker
 {
-    private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
 
     public ZoneChecker()
     {
     }
 
     // Returns the names of all danger zones containing the point
-    public List<string> GetZonesContainingPoint(GeoPoint point)
+    public List<string> GetZonesContainingPoint(GeoPoint point, List<Zone> zones)
     {
         var zonesContainingPoint = new List<string>();
 
-        foreach (var zone in zoneManager.GetAllZones())
+        foreach (var zone in zones)
         {
             if (IsPointInZone(point, zone))
             {

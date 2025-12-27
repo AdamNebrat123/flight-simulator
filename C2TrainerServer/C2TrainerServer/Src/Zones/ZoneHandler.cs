@@ -35,7 +35,8 @@ public class ZoneHandler
         Dictionary<string, Zone> zonesDict = new();
         foreach(Zone zone in zones)
         {
-            HandleAddZone(zone);
+            if(zone.zoneId == "")
+                HandleAddZone(zone);
             zonesDict.TryAdd(zone.zoneId, zone);
         }
         return zonesDict;
