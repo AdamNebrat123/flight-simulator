@@ -1,10 +1,6 @@
 public enum S2CMessageType
 {
     ScenarioPlanesSnapshot,
-    AddZone,
-    RemoveZone,
-    EditZone,
-    ZoneError,
     InitData,
     AddScenario,
     RemoveScenario,
@@ -17,8 +13,4 @@ public enum S2CMessageType
     BulletsMsg,
     DroneKilled,
     JammersUpdate,
-    AddJammer,
-    RemoveJammer,
-    EditJammer,
-    JammerError
 }

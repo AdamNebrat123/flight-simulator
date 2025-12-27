@@ -5,6 +5,9 @@ public class ScenarioResultsCalculator
     private const double timeStepSeconds = 0.1;
 
     private static ScenarioResultsCalculator _instance;
+    private readonly ZoneHandler zoneHandler = ZoneHandler.GetInstance();
+    private readonly JammerHandler jammerHandler = JammerHandler.GetInstance();
+    private readonly RadarHandler radarHandler = RadarHandler.GetInstance();
 
     private ScenarioResultsCalculator()
     {
@@ -36,11 +39,18 @@ public class ScenarioResultsCalculator
             };
         }
 
+        Dictionary<string, Sensor> jammersDict = jammerHandler.CreateJammersDict(scenario.jammers);
+        Dictionary<string, Zone> zonesDict = zoneHandler.CreateZonesDict(scenario.zones);
+        Dictionary<string, Sensor> radarsDict = radarHandler.CreateRadarsDict(scenario.radars);
+
         return new ScenarioResults
         {
             scenarioId = scenario.scenarioId,
             scenarioName = scenario.scenarioName,
             Aircrafts = aircraftsDict,
+            zones = zonesDict,
+            jammers = jammersDict,
+            radars = radarsDict,
             isPaused = false,
             playSpeed = 1.0
         };

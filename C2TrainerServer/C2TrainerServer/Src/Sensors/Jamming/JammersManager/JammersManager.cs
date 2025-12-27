@@ -63,8 +63,4 @@ public class JammerManager
 
         return result;
     }
-    public JammersSnapshot CreateSnapshot()
-    {
-        return new JammersSnapshot(_jammers);
-    }
 }

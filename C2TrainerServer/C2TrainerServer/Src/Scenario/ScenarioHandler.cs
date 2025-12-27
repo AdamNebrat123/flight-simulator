@@ -8,6 +8,8 @@ public class ScenarioHandler
     private readonly ScenarioResultsManager scenarioResultsManager = ScenarioResultsManager.GetInstance();
     private readonly ScenarioResultsCalculator scenarioResultsCalculator = ScenarioResultsCalculator.GetInstance();
 
+    private readonly ZoneChecker zoneChecker = new();
+
     private ScenarioHandler()
     {
     }
@@ -40,8 +42,13 @@ public class ScenarioHandler
                 aircraft.aircraftId = aircraftIdString;
             }
 
+            
+            ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
+            AddJammersIdsToJamZones(scenario.jammers, scenario.zones);
+
             // add in file
             scenariosDataManager.AddAndSaveScenario(scenario);
+
 
             // add in a map 
             bool isAdded = scenarioManager.TryAddScenario(scenario);
@@ -50,8 +57,8 @@ public class ScenarioHandler
                 System.Console.WriteLine("{0} ({1}) - Added scenario successfully.", scenario.scenarioId, scenario.scenarioName);
                 SendAddScenario(scenario, clientMode);
 
+
                 // calculate scenario results
-                ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
                 if (scenarioResults != null)
                 {
                     // save the calculated scenario
@@ -112,8 +119,12 @@ public class ScenarioHandler
             Scenario scenario = data.Deserialize<Scenario>();
             string scenarioId = scenario.scenarioId;
 
-            System.Console.WriteLine("{0} ({1}) - edited scenario in file successfully.", scenarioId, scenario.scenarioName);
+            ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
+            AddJammersIdsToJamZones(scenario.jammers, scenario.zones);
+
             bool isEdited = scenariosDataManager.EditAndSaveScenario(scenarioId, scenario);
+            System.Console.WriteLine("{0} ({1}) - edited scenario in file successfully.", scenarioId, scenario.scenarioName);
+
             if (isEdited)
             {
                 isEdited = scenarioManager.TryEditScenario(scenarioId, scenario);
@@ -122,7 +133,6 @@ public class ScenarioHandler
                 {
                     System.Console.WriteLine("{0} ({1}) - Edited scenario successfully.", scenarioId, scenario.scenarioName);
                     // calculate scenario results
-                    ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
                     if (scenarioResults != null)
                     {
                         // save the calculated scenario
@@ -171,5 +181,26 @@ public class ScenarioHandler
         };
         string scenarioErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.ScenarioError, scenarioError, clientMode);
         WebSocketServer.SendMsgToClients(scenarioErrorData, clientMode);
+    }
+
+    private void AddIdToJamZoneJammersIds(Jammer jammer, List<Zone> zones)
+    {
+        List<JamZone> jamZones = zoneChecker.GetJamZonesContainingPoint(jammer.position, zones);
+        if (jamZones.Count == 0)
+            return;
+        foreach (JamZone jamZone in jamZones)
+        {
+            System.Console.WriteLine(jamZone.zoneId);
+            jamZone.jammersIds.Add(jammer.id);
+        }
+    }
+
+    private void AddJammersIdsToJamZones(List<Sensor> jammers, List<Zone> zones)
+    {
+        foreach(Sensor jammer in jammers)
+        {
+            if(jammer is Jammer)
+                AddIdToJamZoneJammersIds((Jammer)jammer, zones);
+        }
     }
 }

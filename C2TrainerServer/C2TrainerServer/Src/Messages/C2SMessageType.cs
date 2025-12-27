@@ -4,9 +4,6 @@ public enum C2SMessageType
     PauseScenarioCmd,
     ResumeScenarioCmd,
     ChangeScenarioPlaySpeedCmd,
-    AddZone,
-    RemoveZone,
-    EditZone,
     AddScenario,
     RemoveScenario,
     EditScenario,
@@ -15,7 +12,4 @@ public enum C2SMessageType
     RequestDroneInitData,
     CreateBullet,
     ClientMode,
-    AddJammer,
-    RemoveJammer,
-    EditJammer,
 }

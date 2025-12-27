@@ -8,9 +8,7 @@ public class UIMsgHandler
     private readonly WebSocketModeHandler webSocketModeHandler = WebSocketModeHandler.GetInstance();
     private readonly PlaySelectedScenarioHandler playSelecedScenarioHandler = PlaySelectedScenarioHandler.GetInstance();
     private readonly ScenarioPlayControlHandler scenarioPlayControlHandler = ScenarioPlayControlHandler.GetInstance();
-    private readonly ZoneHandler dangerZoneHandler = ZoneHandler.GetInstance();
     private readonly ScenarioHandler scenarioHandler = ScenarioHandler.GetInstance();
-    private readonly JammerHandler jammerHandler = JammerHandler.GetInstance();
     private readonly DroneGameHandler droneHandler = DroneGameHandler.GetInstance();
     private readonly FreeFlightHandler freeFlightHandler = FreeFlightHandler.GetInstance();
     private readonly CreateBulletHandler createBulletHandler = CreateBulletHandler.GetInstance();
@@ -68,30 +66,6 @@ public class UIMsgHandler
 
                 case C2SMessageType.EditScenario:
                     scenarioHandler.HandleEditScenario(wrapper.data, clientMode);
-                    break;
-
-                case C2SMessageType.AddZone:
-                    dangerZoneHandler.HandleAddZone(wrapper.data, clientMode);
-                    break;
-
-                case C2SMessageType.RemoveZone:
-                    dangerZoneHandler.HandleRemoveZone(wrapper.data, clientMode);
-                    break;
-
-                case C2SMessageType.EditZone:
-                    dangerZoneHandler.HandleEditZone(wrapper.data, clientMode);
-                    break;
-
-                case C2SMessageType.AddJammer:
-                    jammerHandler.HandleAddJammer(wrapper.data, clientMode);
-                    break;
-
-                case C2SMessageType.RemoveJammer:
-                    jammerHandler.HandleRemoveJammer(wrapper.data, clientMode);
-                    break;
-
-                case C2SMessageType.EditJammer:
-                    jammerHandler.HandleEditJammer(wrapper.data, clientMode);
                     break;
 
                 case C2SMessageType.PlaySelectedScenarioCmd:

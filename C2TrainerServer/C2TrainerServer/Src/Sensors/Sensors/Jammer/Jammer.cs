@@ -1,17 +1,9 @@
 
 using System.Text.Json.Serialization;
 
-public class Jammer : ISetJammingMode
+public class Jammer : Sensor, ISetJammingMode
 {
-    [JsonPropertyName("id")]
 
-    public string id { get; set; }
-    [JsonPropertyName("position")]
-
-    public GeoPoint position { get;  set;}
-    [JsonPropertyName("status")]
-
-    public Status status { get;  set; }
     [JsonPropertyName("jamMode")]
     public JamMode jamMode { get;  set; }
     [JsonPropertyName("supportedFrequencies")]
@@ -23,7 +15,7 @@ public class Jammer : ISetJammingMode
 
     public Jammer()
     {
-        
+        sensorType = SensorType.Jammer;
     }
     public Jammer(string id, GeoPoint position,double radius, List<Frequency> supportedFrequencies)
     {

@@ -7,7 +7,9 @@ public class PlaySelectedScenarioHandler
     public const double timeStepSeconds = 0.1;
     private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
     private readonly ZoneChecker zoneChecker = new();
-    private readonly JammerAssignmentManager jammerAssignmentManager = JammerAssignmentManager.GetInstance();
+    /// <summary>
+    /// ///////////////////////////////////////////////private readonly JammerAssignmentManager jammerAssignmentManager = JammerAssignmentManager.GetInstance();
+    /// </summary>
 
     private static PlaySelectedScenarioHandler _instance;
 
@@ -46,7 +48,7 @@ public class PlaySelectedScenarioHandler
 
         // set current ScenarioResults
         ScenarioResults scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
-        jammerAssignmentManager.SetScenarioResults(originalScenario, scenarioCopy);
+        //////////////////////////////////////////////////////////jammerAssignmentManager.SetScenarioResults(originalScenario, scenarioCopy);
 
         Dictionary<string, AircraftRuntimeData>? runtimeAircrafts = scenarioCopy.Aircrafts;
 
@@ -91,7 +93,7 @@ public class PlaySelectedScenarioHandler
             if (_timeSinceLastJammerAssignment >= JammerAssignmentIntervalSeconds)
             {
                 _timeSinceLastJammerAssignment = 0.0;
-                jammerAssignmentManager.AssignJammers(snapshot);
+                ////////////////////////////////////////////////////////////////jammerAssignmentManager.AssignJammers(snapshot);
             }
 
             string msg = WebSocketServer.prepareMessageToClient(

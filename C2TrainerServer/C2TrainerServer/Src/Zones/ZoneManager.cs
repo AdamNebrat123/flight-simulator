@@ -12,9 +12,9 @@ public class ZoneManager
         return instance;
     }
 
-    public IEnumerable<Zone> GetAllZones()
+    public List<Zone> GetAllZones()
     {
-        return _zones.Values;
+        return _zones.Values.ToList();
     }
 
     public bool TryAddZone(Zone zone)

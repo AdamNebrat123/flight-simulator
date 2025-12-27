@@ -27,19 +27,10 @@ public class InitDataHandler
         scenariosDataManager.ReadData();
         List<Scenario> scenarios = scenariosDataManager.GetScenarios();
 
-        // get Zones
-        zonesDataManager.ReadData();
-        List<Zone> zones = zonesDataManager.GetZones();
-
-        // get Jammers
-        jammersDataManager.ReadData();
-        List<Jammer> jammers = jammersDataManager.GetJammers();
 
         InitData initData = new InitData()
         {
             scenarios = scenarios,
-            zones = zones,
-            jammers = jammers
         };
 
         string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData, ModeEnum.ScenarioSimulator);

@@ -21,11 +21,11 @@ public class ZoneChecker
 
         return zonesContainingPoint; // empty list if point is not in any danger zone
     }
-    public List<JamZone> GetJamZonesContainingPoint(GeoPoint point)
+    public List<JamZone> GetJamZonesContainingPoint(GeoPoint point, List<Zone> zones)
     {
         var zonesContainingPoint = new List<JamZone>();
 
-        foreach (var zone in zoneManager.GetAllZones())
+        foreach (var zone in zones)
         {
             if (IsPointInZone(point, zone) && zone.zoneType == ZoneType.Jam.ToString())
             {

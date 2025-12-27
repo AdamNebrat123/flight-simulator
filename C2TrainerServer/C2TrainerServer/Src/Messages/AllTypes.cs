@@ -128,16 +128,15 @@ public partial class Scenario
     [JsonPropertyName("scenarioName")]
     public string scenarioName { get; set; }
 
+    [JsonPropertyName("zones")]
+    public List<Zone> zones;
+    [JsonPropertyName("jammers")]
+    public List<Sensor> jammers;
+    [JsonPropertyName("radars")]
+    public List<Sensor> radars;
+
 }
-public partial class ScenariosReadyToPlay
-{
-    [JsonPropertyName("scenariosIds")]
-    public List<string> scenariosIds { get; set; }
-}
-public partial class GetReadyScenariosRequestCmd
-{
-    // no properties needed
-}
+
 public partial class PlaySelectedScenarioCmd
 {
     [JsonPropertyName("scenarioId")]
@@ -202,20 +201,10 @@ public class JamZone : Zone
 }
 
 
-public class ZoneError
-{
-    [JsonPropertyName("errorMsg")]
-    public string errorMsg { get; set; }
-}
-
 public partial class InitData
 {
     [JsonPropertyName("scenarios")]
     public List<Scenario> scenarios { get; set; }
-    [JsonPropertyName("zones")]
-    public List<Zone> zones{ get; set; }
-    [JsonPropertyName("jammers")]
-    public List<Jammer> jammers { get; set; }
 
 }
 
@@ -557,8 +546,3 @@ public partial class JammersUpdate
     public List<Jammer> jammers { get; set; }
 }
 
-public partial class JammerError
-{
-    [JsonPropertyName("errorMsg")]
-    public string errorMsg { get; set; }
-}
