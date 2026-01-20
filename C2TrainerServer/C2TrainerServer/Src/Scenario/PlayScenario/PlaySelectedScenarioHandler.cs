@@ -44,15 +44,7 @@ public class PlaySelectedScenarioHandler
         originalScenario.SetPlaySpeed(1.0);
 
         // set current ScenarioResults
-        // ================================================================
-        // ================================================================
-        // ================================================================
-        // ================================================================
-        _scenarioCopy = originalScenario; // DONT FORGET TO CHANGE IT BACK
-        //_scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
-        // ================================================================
-        // ================================================================
-        // ================================================================
+        _scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
 
         // allocate websockets for this scenario
         _allocation = scenarioWebsocketsManager.AllocateForScenario(_scenarioCopy);
@@ -114,7 +106,7 @@ public class PlaySelectedScenarioHandler
         await StopJammersStatusSender();
 
         // release websockets
-        scenarioWebsocketsManager.CloseWebsocketsByAllocation(_allocation);
+        await scenarioWebsocketsManager.StopWebsocketsByAllocation(_allocation);
         // reset scenario defaults
         originalScenario.Resume();
         originalScenario.SetPlaySpeed(1.0);

@@ -7,29 +7,38 @@ public class JammerWebSocketServer : WebSocketServer<Sensor>
 
     protected override async Task RunAsync(CancellationToken token)
     {
-        System.Console.WriteLine("open");
-        OpenWebSocket();
-        System.Console.WriteLine("after open");
         try
         {
-            // i have the queue from the base class, when there is data in the Q, send it.
-            foreach (Sensor jammer in _queue.GetConsumingEnumerable(token))
+            await Task.Run(async () => 
             {
-                string msgType = JammerToC2ServerMsgType.JammerStatus.ToString();
-                string json = prepareMessageToClient(msgType, jammer);
-                await SendAsync(json);
-                System.Console.WriteLine("Sent jammer status");
-            }
+                foreach (Sensor jammer in _queue.GetConsumingEnumerable(token))
+                {
+                    // בדיקת תקינות הסוקט לפני שליחה
+                    if (_socket == null || _socket.State != WebSocketState.Open)
+                        break;
+
+                    string msgType = JammerToC2ServerMsgType.JammerStatus.ToString();
+                    string json = prepareMessageToClient(msgType, jammer);
+                    
+                    await SendAsync(json);
+                    System.Console.WriteLine($"[Port {_port}] Sent jammer status");
+                }
+            }, token);
         }
         catch (OperationCanceledException)
         {
             // expected on shutdown
         }
-
-        CloseWebSocket();
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Port {_port}] Error in RunAsync: {ex.Message}");
+        }
+        
     }
+
     protected override async Task OnClientConnectedAsync()
     {
-
+        System.Console.WriteLine($"[Port {_port}] Jammer websocket ready.");
+        await Task.CompletedTask;
     }
 }

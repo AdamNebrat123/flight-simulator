@@ -101,28 +101,50 @@ public class ScenarioWebsocketsManager
         return allocation;
     }
 
-    public void CloseWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
+public async Task StopWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
+{
+    Console.WriteLine("Stopping all websocket servers...");
+
+    // סגירת ה-Zones
+    allocation.ZonesWS.Stop();
+
+    // סגירת כל ה-Jammers
+    foreach (var ws in allocation.JammerMap.Values)
+        ws.Stop();
+
+    // סגירת כל ה-Radars
+    foreach (var ws in allocation.RadarMap.Values)
+        ws.Stop();
+
+
+    // small delay to ensure OS has released the ports completely
+    await Task.Delay(500); 
+    
+    Console.WriteLine("All ports should be free now.");
+}
+
+public async Task StartWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
+{
+    Console.WriteLine("Starting websocket servers by allocation...");
+
+    // task.run used to not block the main server loop
+    // because task.run takes a new thread from the thread pool and runs the start there
+    
+    _ = Task.Run(() => allocation.ZonesWS.StartAsync());
+
+    foreach (var ws in allocation.JammerMap.Values)
     {
-        allocation.ZonesWS.Stop();
-
-        foreach (var ws in allocation.JammerMap.Values)
-            ws.Stop();
-
-        foreach (var ws in allocation.RadarMap.Values)
-            ws.Stop();
+        _ = Task.Run(() => ws.StartAsync());
     }
-    public void StartWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
+
+    foreach (var ws in allocation.RadarMap.Values)
     {
-        allocation.ZonesWS.Start();
-
-        foreach (var ws in allocation.JammerMap.Values){
-            ws.Start();
-        }
-
-        foreach (var ws in allocation.RadarMap.Values){
-            ws.Start();
-        }
+        _ = Task.Run(() => ws.StartAsync());
     }
+
+    Console.WriteLine("All websocket servers are now listening.");
+    await Task.CompletedTask;
+}
     public List<JammerWebSocketServer> GetJammersWS()
     {
         return _jammersWS;

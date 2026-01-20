@@ -7,28 +7,37 @@ public class RadarWebSocketServer : WebSocketServer<RadarUpdate>
 
     protected override async Task RunAsync(CancellationToken token)
     {
-        OpenWebSocket();
-
+        
         try
         {
-            foreach (RadarUpdate radarUpdate in _queue.GetConsumingEnumerable(token))
+            await Task.Run(async () =>
             {
-                string msgType = RadarToC2ServerMsgType.RadarAircraftSnapthot.ToString();
-                string json = prepareMessageToClient(msgType, radarUpdate);
-                await SendAsync(json);
-                System.Console.WriteLine("Sent radar update");
+                foreach (RadarUpdate radarUpdate in _queue.GetConsumingEnumerable(token))
+                {
+                    if (_socket == null || _socket.State != WebSocketState.Open)
+                        break;
 
-            }
+                    string msgType = RadarToC2ServerMsgType.RadarAircraftSnapthot.ToString();
+                    string json = prepareMessageToClient(msgType, radarUpdate);
+                    
+                    await SendAsync(json);
+                    System.Console.WriteLine($"[Radar Port {_port}] Sent update to client");
+                }
+            }, token);
         }
         catch (OperationCanceledException)
         {
-            // expected on shutdown
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Radar Port {_port}] Error: {ex.Message}");
         }
 
-        CloseWebSocket();
     }
+
     protected override async Task OnClientConnectedAsync()
     {
-
+        System.Console.WriteLine($"[Radar Port {_port}] Client connected and synchronized.");
+        await Task.CompletedTask;
     }
 }
