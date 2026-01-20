@@ -1,0 +1,23 @@
+using System.Text.Json;
+
+public class ZonesWebSocketClient : WebSocketClient
+{
+    private readonly ZonesMsgHandler _zonesMsgHandler = ZonesMsgHandler.GetInstance();
+    public ZonesWebSocketClient(string url) : base(url) { }
+    
+    protected override async Task ProcessIncomingMessagesAsync(CancellationToken ct)
+    {
+        try
+        {
+            foreach (string json in _receiveQueue.GetConsumingEnumerable(ct))
+            {
+                _zonesMsgHandler.HandleIncomingMessage(_socket, json);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // expected on shutdown
+        }
+    }
+
+}

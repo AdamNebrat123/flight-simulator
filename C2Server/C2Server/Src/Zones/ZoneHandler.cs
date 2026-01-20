@@ -21,7 +21,7 @@ public class ZoneHandler
         return instance;
     }
 
-    public void HandleAddZone(JsonElement data, ModeEnum clientMode)
+    public void HandleAddZone(JsonElement data)
     {
         try
         {
@@ -44,7 +44,7 @@ public class ZoneHandler
         }
     }
 
-    public void HandleRemoveZone(JsonElement data, ModeEnum clientMode)
+    public void HandleRemoveZone(JsonElement data)
     {
         try
         {
@@ -67,7 +67,7 @@ public class ZoneHandler
         }
     }
 
-    public void HandleEditZone(JsonElement data, ModeEnum clientMode)
+    public void HandleEditZone(JsonElement data)
     {
         try
         {

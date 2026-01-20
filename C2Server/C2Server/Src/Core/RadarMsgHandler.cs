@@ -1,18 +1,17 @@
 using System.Net.WebSockets;
-using System.Reflection.Metadata;
 using System.Text.Json;
 
-public class UIMsgHandler
+public class RadarMsgHandler
 {
-    // Handlers
-    private readonly WebSocketHandler webSocketModeHandler = WebSocketHandler.GetInstance();
-    private readonly ZoneHandler dangerZoneHandler = ZoneHandler.GetInstance();
-    private readonly JammerHandler jammerHandler = JammerHandler.GetInstance();
-
-    public UIMsgHandler()
+    private static readonly RadarMsgHandler _instance = new RadarMsgHandler();
+    private RadarMsgHandler()
     {
     }
 
+    public static RadarMsgHandler GetInstance()
+    {
+        return _instance;
+    }
     public async Task HandleIncomingMessage(WebSocket connection ,string json)
     {
         try
@@ -27,16 +26,17 @@ public class UIMsgHandler
                 return;
             }
 
-            // Parse enums
-            C2SMessageType messageType;
+            // Parse enum
+            RadarToC2ServerMsgType messageType;
 
             // try parse the wrapper.type. if fails, return
-            if (!Enum.TryParse<C2SMessageType>(wrapper.type.Trim(), ignoreCase: true, out messageType))
+            if (!Enum.TryParse<RadarToC2ServerMsgType>(wrapper.type.Trim(), ignoreCase: true, out messageType))
             {
                 Console.WriteLine($"Invalid message type: {wrapper.type}");
                 return;
             }
 
+            System.Console.WriteLine("received: " + wrapper.data);
 
             switch (messageType)
             {

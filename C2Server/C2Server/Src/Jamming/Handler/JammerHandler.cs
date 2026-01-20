@@ -18,7 +18,7 @@ public class JammerHandler
         return instance;
     }
 
-    public void HandleAddJammer(JsonElement data, ModeEnum clientMode)
+    public void HandleAddJammer(JsonElement data)
     {
         try
         {
@@ -45,7 +45,7 @@ public class JammerHandler
         }
     }
 
-    public void HandleRemoveJammer(JsonElement data, ModeEnum clientMode)
+    public void HandleRemoveJammer(JsonElement data)
     {
         try
         {
@@ -70,7 +70,7 @@ public class JammerHandler
         }
     }
 
-    public void HandleEditJammer(JsonElement data, ModeEnum clientMode)
+    public void HandleEditJammer(JsonElement data)
     {
         try
         {

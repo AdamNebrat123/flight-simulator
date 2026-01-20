@@ -3,8 +3,6 @@ public class JammerAssignmentManager
     private static JammerAssignmentManager _instance = new JammerAssignmentManager();
     private readonly JammerManager _jammerManager = JammerManager.GetInstance();
     private readonly ZoneManager _zoneManager = ZoneManager.GetInstance();
-    private ScenarioResults? _scenarioResults = null;
-    private ScenarioResults? _scenarioResultsCopy = null;
     private DroneFallManager _droneFallManager = null;
     private JammerAssignmentManager()
     {
@@ -15,6 +13,7 @@ public class JammerAssignmentManager
     {
         return _instance;
     }
+    /*
     public void SetScenarioResults(ScenarioResults scenarioResults, ScenarioResults scenarioResultsCopy)
     {
         _scenarioResults = scenarioResults;
@@ -25,6 +24,7 @@ public class JammerAssignmentManager
     {
         return _scenarioResults;
     }
+    */
     
     public async Task AssignJammers(ScenarioAirCraftsSnapshot snapshot)
     {
@@ -46,13 +46,12 @@ public class JammerAssignmentManager
         {
             jammers = _jammerManager.GetAllJammers(),
         };
-        string msg = WebSocketServer.prepareMessageToClient(
+        string msg = UIWebSocketServer.PrepareMessageToClient(
             S2CMessageType.JammersUpdate,
-            jammersUpdate,
-            ModeEnum.ScenarioSimulator
+            jammersUpdate
         );
 
-        WebSocketServer.SendMsgToClients(msg, ModeEnum.ScenarioSimulator);
+        UIWebSocketServer.SendMsgToClients(msg);
     }
 
     public void UpdateJammers(List<JamZoneContext> zones)
@@ -105,7 +104,7 @@ public class JammerAssignmentManager
             foreach(DroneCoverageContext drone in drones)
             {
                 bool isCovered = drone.CoveredBy != CoveredBy.None;
-                _droneFallManager.UpdateDroneCoverage(drone.Drone.aircraftId, isCovered);
+                /////////////////////////////////////////_droneFallManager.UpdateDroneCoverage(drone.Drone.aircraftId, isCovered);
             }
         }
         catch (Exception ex)

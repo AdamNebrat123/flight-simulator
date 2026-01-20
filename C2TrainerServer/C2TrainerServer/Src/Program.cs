@@ -9,7 +9,6 @@ public class Program
     {
         System.Console.WriteLine("--------------------------------------------------------------");
         ScenarioWebsocketsManager.GetInstance().InitWebsocketsByConfig();
-
         ScenarioResults scenario = new ScenarioResults
         {
             scenarioId = "scenario_001",
@@ -47,10 +46,10 @@ public class Program
         PlaySelectedScenarioHandler playHandler = PlaySelectedScenarioHandler.GetInstance();
         await playHandler.PlayScenarioAsync(scenario);
         // load existing data (if existing)
-        //LoadDataFromFiles();
+        LoadDataFromFiles();
 
         // start the UI 
-        //UIWebSocketServer.Start();
+        UIWebSocketServer.Start();
     }
 
 

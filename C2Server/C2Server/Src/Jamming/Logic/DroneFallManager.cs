@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 public class DroneFallManager
 {
+    /*
     private readonly ScenarioResults scenario;
     private readonly ScenarioResults? scenarioCopy = null;
     private readonly double timeStepSeconds;
@@ -170,5 +171,5 @@ public class DroneFallManager
 
         return queue;
     }
-
+ */
 }
