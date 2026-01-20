@@ -11,10 +11,10 @@ public class JammerWebSocketServer : WebSocketServer<Sensor>
         try
         {
             // i have the queue from the base class, when there is data in the Q, send it.
-            foreach (var jammer in _queue.GetConsumingEnumerable(token))
+            foreach (Sensor jammer in _queue.GetConsumingEnumerable(token))
             {
                 string msgType = JammerToC2ServerMsgType.JammerUpdate.ToString();
-                string json = prepareMessageToClient("asdasd", jammer);
+                string json = prepareMessageToClient(msgType, jammer);
                 await SendAsync(json);
             }
         }

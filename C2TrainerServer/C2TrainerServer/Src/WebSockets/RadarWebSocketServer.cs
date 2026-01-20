@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-public class RadarWebSocketServer : WebSocketServer<ScenarioAirCraftsSnapshot>
+public class RadarWebSocketServer : WebSocketServer<RadarUpdate>
 {
     public RadarWebSocketServer(int port) : base(port) {}
 
@@ -10,10 +10,10 @@ public class RadarWebSocketServer : WebSocketServer<ScenarioAirCraftsSnapshot>
 
         try
         {
-            foreach (var snapshot in _queue.GetConsumingEnumerable(token))
+            foreach (RadarUpdate radarUpdate in _queue.GetConsumingEnumerable(token))
             {
                 string msgType = RadarToC2ServerMsgType.RadarAircraftSnapthot.ToString();
-                string json = prepareMessageToClient(msgType, snapshot);
+                string json = prepareMessageToClient(msgType, radarUpdate);
                 await SendAsync(json);
             }
         }

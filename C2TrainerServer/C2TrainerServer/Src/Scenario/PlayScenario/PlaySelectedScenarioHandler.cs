@@ -2,14 +2,9 @@ using System.Text.Json;
 
 public class PlaySelectedScenarioHandler
 {
-    private const double JammerAssignmentIntervalSeconds = 1.0; // interval to re-evaluate jammer assignments
-    private double _timeSinceLastJammerAssignment = 0.0;
     public const double timeStepSeconds = 0.1;
     private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
-    private readonly ZoneChecker zoneChecker = new();
-    /// <summary>
-    /// ///////////////////////////////////////////////private readonly JammerAssignmentManager jammerAssignmentManager = JammerAssignmentManager.GetInstance();
-    /// </summary>
+    private readonly ScenarioWebsocketsManager scenarioWebsocketsManager = ScenarioWebsocketsManager.GetInstance();
 
     private static PlaySelectedScenarioHandler _instance;
 
@@ -76,33 +71,24 @@ public class PlaySelectedScenarioHandler
                 if (history[aircraft.AircraftId].Count > 30)
                     history[aircraft.AircraftId].Dequeue();
 
-                //////////////List<string>? zones = zoneChecker.GetZonesContainingPoint(point.position);
 
                 AircraftStatus aircraftStatus = aircraft.Aircraft.CreateStatus(point);
 
-                ///////////////////aircraftStatus.dangerZonesIn = zones;
-                ///////////////////aircraftStatus.isInDangerZone = zones.Count > 0;
+
                 aircraftStatus.tailPoints = history[aircraft.AircraftId].ToList();
 
                 snapshot.aircrafts.Add(aircraftStatus);
             }
 
 
-            // Handle jammer assignments if needed
-            _timeSinceLastJammerAssignment += timeStepSeconds / originalScenario.playSpeed;
-            if (_timeSinceLastJammerAssignment >= JammerAssignmentIntervalSeconds)
+            RadarUpdate radarUpdate = new RadarUpdate(snapshot);
+            List<RadarWebSocketServer> radarsWS = scenarioWebsocketsManager.GetRadarsWS();
+            // i assume one radar per scenario for now
+            RadarWebSocketServer radarWS = radarsWS.FirstOrDefault();;
+            if (radarWS != null)
             {
-                _timeSinceLastJammerAssignment = 0.0;
-                ////////////////////////////////////////////////////////////////jammerAssignmentManager.AssignJammers(snapshot);
+                radarWS.Enqueue(radarUpdate);
             }
-
-            string msg = WebSocketServer.prepareMessageToClient(
-                S2CMessageType.ScenarioPlanesSnapshot,
-                snapshot,
-                clientMode
-            );
-
-            WebSocketServer.SendMsgToClients(msg, clientMode);
 
             int delay = (int)(timeStepSeconds * 1000 / originalScenario.playSpeed);
             await Task.Delay(delay);
@@ -111,4 +97,6 @@ public class PlaySelectedScenarioHandler
         originalScenario.Resume();
         originalScenario.SetPlaySpeed(1.0);
     }
+
+
 }

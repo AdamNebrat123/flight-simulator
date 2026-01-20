@@ -91,6 +91,16 @@ public partial class ScenarioAirCraftsSnapshot
     }
 }
 
+public partial class RadarUpdate
+{
+     [JsonPropertyName("aircrafts")]
+    public List<AircraftStatus> aircrafts { get; set; }
+    public RadarUpdate(ScenarioAirCraftsSnapshot snapshot)
+    {
+        this.aircrafts = snapshot.aircrafts;
+    }
+}
+
 
 
 public partial class TrajectoryPoint
