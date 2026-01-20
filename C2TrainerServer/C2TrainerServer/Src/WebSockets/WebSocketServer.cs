@@ -35,11 +35,13 @@ public abstract class WebSocketServer<T>
     public void Enqueue(T data) => _queue.Add(data);
 
     protected abstract Task RunAsync(CancellationToken token);
+    protected abstract Task OnClientConnectedAsync();
 
     protected void OpenWebSocket()
     {
+        System.Console.WriteLine("OpenWebSocket");
         _listener = new HttpListener();
-        _listener.Prefixes.Add($"http://0.0.0.0:{_port}/ws/");
+        _listener.Prefixes.Add($"http://0.0.0.0:{_port}/");
         _listener.Start();
 
         Console.WriteLine($"[WS] Listening on port {_port}");
@@ -52,6 +54,8 @@ public abstract class WebSocketServer<T>
         _socket = wsContext.WebSocket;
 
         Console.WriteLine($"[WS] Client connected on port {_port}");
+
+        OnClientConnectedAsync().GetAwaiter().GetResult();
     }
 
     protected void CloseWebSocket()

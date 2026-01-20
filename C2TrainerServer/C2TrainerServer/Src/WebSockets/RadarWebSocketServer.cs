@@ -1,3 +1,4 @@
+using System.Net.WebSockets;
 using System.Text.Json;
 
 public class RadarWebSocketServer : WebSocketServer<RadarUpdate>
@@ -15,6 +16,8 @@ public class RadarWebSocketServer : WebSocketServer<RadarUpdate>
                 string msgType = RadarToC2ServerMsgType.RadarAircraftSnapthot.ToString();
                 string json = prepareMessageToClient(msgType, radarUpdate);
                 await SendAsync(json);
+                System.Console.WriteLine("Sent radar update");
+
             }
         }
         catch (OperationCanceledException)
@@ -23,5 +26,9 @@ public class RadarWebSocketServer : WebSocketServer<RadarUpdate>
         }
 
         CloseWebSocket();
+    }
+    protected override async Task OnClientConnectedAsync()
+    {
+
     }
 }

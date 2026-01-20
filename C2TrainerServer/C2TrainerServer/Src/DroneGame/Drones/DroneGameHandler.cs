@@ -57,8 +57,8 @@ public class DroneGameHandler
             {
                 yourDroneId = uuidString
             };
-            string json = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneInitData, initData, clientMode);
-            WebSocketServer.SendMsgToClient(connection, json);
+            string json = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.DroneInitData, initData, clientMode);
+            UIWebSocketServer.SendMsgToClient(connection, json);
         }
         catch (Exception ex)
         {
@@ -157,20 +157,20 @@ public class DroneGameHandler
 
     public void SendRemoveDrone(Drone drone, ModeEnum clientMode)
     {
-        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveDrone, drone, clientMode);
-        WebSocketServer.SendMsgToClients(data, clientMode);
+        string data = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RemoveDrone, drone, clientMode);
+        UIWebSocketServer.SendMsgToClients(data, clientMode);
     }
 
     public void SendUpdateDrone(Drone drone, ModeEnum clientMode)
     {
-        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.UpdateDrone, drone, clientMode);
-        WebSocketServer.SendMsgToClients(data, clientMode);
+        string data = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.UpdateDrone, drone, clientMode);
+        UIWebSocketServer.SendMsgToClients(data, clientMode);
     }
 
     public void SendDroneError(string errorMsg, ModeEnum clientMode)
     {
         var err = new { errorMsg };
-        string data = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneError, err, clientMode);
-        WebSocketServer.SendMsgToClients(data, clientMode);
+        string data = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.DroneError, err, clientMode);
+        UIWebSocketServer.SendMsgToClients(data, clientMode);
     }
 }

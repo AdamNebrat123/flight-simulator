@@ -5,6 +5,9 @@ public class PlaySelectedScenarioHandler
     public const double timeStepSeconds = 0.1;
     private readonly ScenarioResultsManager trajectoryScenarioResultsManager = ScenarioResultsManager.GetInstance();
     private readonly ScenarioWebsocketsManager scenarioWebsocketsManager = ScenarioWebsocketsManager.GetInstance();
+    private ScenarioResults _scenarioCopy;
+    private ScenarioWebSocketAllocation _allocation;
+    private JammersStatusSender _jammersStatusSender;
 
     private static PlaySelectedScenarioHandler _instance;
 
@@ -25,14 +28,13 @@ public class PlaySelectedScenarioHandler
         string scenarioId = playSelecedScenario.scenarioId;
         ScenarioResults scenarioResults = trajectoryScenarioResultsManager.GetScenarioResult(scenarioId);
         if (scenarioResults != null)
-            SendCalculatedTrajectoryPointsAsync(scenarioResults, clientMode);
+            PlayScenarioAsync(scenarioResults);
         else
             System.Console.WriteLine(scenarioId + " doesnt exist.....");
     }
 
-    public async Task SendCalculatedTrajectoryPointsAsync(
-    ScenarioResults originalScenario,
-    ModeEnum clientMode)
+    public async Task PlayScenarioAsync(
+        ScenarioResults originalScenario)
     {
 
 
@@ -42,10 +44,28 @@ public class PlaySelectedScenarioHandler
         originalScenario.SetPlaySpeed(1.0);
 
         // set current ScenarioResults
-        ScenarioResults scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
-        //////////////////////////////////////////////////////////jammerAssignmentManager.SetScenarioResults(originalScenario, scenarioCopy);
+        // ================================================================
+        // ================================================================
+        // ================================================================
+        // ================================================================
+        _scenarioCopy = originalScenario; // DONT FORGET TO CHANGE IT BACK
+        //_scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
+        // ================================================================
+        // ================================================================
+        // ================================================================
 
-        Dictionary<string, AircraftRuntimeData>? runtimeAircrafts = scenarioCopy.Aircrafts;
+        // allocate websockets for this scenario
+        _allocation = scenarioWebsocketsManager.AllocateForScenario(_scenarioCopy);
+
+        // start websockets
+        scenarioWebsocketsManager.StartWebsocketsByAllocation(_allocation);
+
+        // start jammers status sender
+        StartJammersStatusSender();
+
+
+        // prepare radar updates
+        Dictionary<string, AircraftRuntimeData>? runtimeAircrafts = _scenarioCopy.Aircrafts;
 
         while (runtimeAircrafts.Values.Any(a => a.Trajectory.Count > 0))
         {
@@ -82,21 +102,41 @@ public class PlaySelectedScenarioHandler
 
 
             RadarUpdate radarUpdate = new RadarUpdate(snapshot);
-            List<RadarWebSocketServer> radarsWS = scenarioWebsocketsManager.GetRadarsWS();
-            // i assume one radar per scenario for now
-            RadarWebSocketServer radarWS = radarsWS.FirstOrDefault();;
-            if (radarWS != null)
-            {
-                radarWS.Enqueue(radarUpdate);
-            }
+            
+            // send radar update
+            SendRadarUpdate(radarUpdate, _allocation, _scenarioCopy);
 
             int delay = (int)(timeStepSeconds * 1000 / originalScenario.playSpeed);
             await Task.Delay(delay);
         }
+
+        // stop jammers status sender
+        await StopJammersStatusSender();
+
+        // release websockets
+        scenarioWebsocketsManager.CloseWebsocketsByAllocation(_allocation);
         // reset scenario defaults
         originalScenario.Resume();
         originalScenario.SetPlaySpeed(1.0);
     }
 
+    private void SendRadarUpdate(RadarUpdate radarUpdate, ScenarioWebSocketAllocation allocation, ScenarioResults scenarioResults)
+    {
+        // send to all in the first radar
+        Sensor radar = scenarioResults.radars.Values.First();
+        RadarWebSocketServer radarWS = allocation.RadarMap[radar.id];
+        if(radarWS != null)
+            radarWS.Enqueue(radarUpdate);
+    }
 
+    private void StartJammersStatusSender()
+    {
+        _jammersStatusSender = new JammersStatusSender(_allocation, _scenarioCopy, 1000);
+        _jammersStatusSender.Start();
+    }
+    private async Task StopJammersStatusSender()
+    {
+        if(_jammersStatusSender != null)
+            await _jammersStatusSender.StopAsync();
+    }
 }

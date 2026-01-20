@@ -31,7 +31,7 @@ public class InitDataHandler
             scenarios = scenarios,
         };
 
-        string initDataMsg = WebSocketServer.prepareMessageToClient(S2CMessageType.InitData, initData, ModeEnum.ScenarioSimulator);
-        WebSocketServer.SendMsgToClient(webSocket, initDataMsg);
+        string initDataMsg = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.InitData, initData, ModeEnum.ScenarioSimulator);
+        UIWebSocketServer.SendMsgToClient(webSocket, initDataMsg);
     }
 }

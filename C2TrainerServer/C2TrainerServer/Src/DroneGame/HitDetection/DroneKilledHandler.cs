@@ -63,8 +63,8 @@ namespace DroneGame.HitDetection
 
         private void SendDroneKilledMessage(DroneKilled killInfo, ModeEnum clientMode)
         {
-            string msg = WebSocketServer.prepareMessageToClient(S2CMessageType.DroneKilled, killInfo, clientMode);
-            WebSocketServer.SendMsgToClients(msg, clientMode);
+            string msg = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.DroneKilled, killInfo, clientMode);
+            UIWebSocketServer.SendMsgToClients(msg, clientMode);
         }
 
         public void HandleArenaKill(string droneId)

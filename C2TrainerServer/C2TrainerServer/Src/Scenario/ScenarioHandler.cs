@@ -160,18 +160,18 @@ public class ScenarioHandler
 
     public void SendAddScenario(Scenario scenario, ModeEnum clientMode)
     {
-        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.AddScenario, scenario, clientMode);
-        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
+        string scenarioData = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.AddScenario, scenario, clientMode);
+        UIWebSocketServer.SendMsgToClients(scenarioData, clientMode);
     }
     public void SendRemoveScenario(Scenario scenario, ModeEnum clientMode)
     {
-        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.RemoveScenario, scenario, clientMode);
-        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
+        string scenarioData = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RemoveScenario, scenario, clientMode);
+        UIWebSocketServer.SendMsgToClients(scenarioData, clientMode);
     }
     public void SendEditScenario(Scenario scenario, ModeEnum clientMode)
     {
-        string scenarioData = WebSocketServer.prepareMessageToClient(S2CMessageType.EditScenario, scenario, clientMode);
-        WebSocketServer.SendMsgToClients(scenarioData, clientMode);
+        string scenarioData = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.EditScenario, scenario, clientMode);
+        UIWebSocketServer.SendMsgToClients(scenarioData, clientMode);
     }
     public void SendScenarioError(string errorMsg, ModeEnum clientMode)
     {
@@ -179,8 +179,8 @@ public class ScenarioHandler
         {
             errorMsg = errorMsg
         };
-        string scenarioErrorData = WebSocketServer.prepareMessageToClient(S2CMessageType.ScenarioError, scenarioError, clientMode);
-        WebSocketServer.SendMsgToClients(scenarioErrorData, clientMode);
+        string scenarioErrorData = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.ScenarioError, scenarioError, clientMode);
+        UIWebSocketServer.SendMsgToClients(scenarioErrorData, clientMode);
     }
 
     private void AddIdToJamZoneJammersIds(Jammer jammer, List<Zone> zones)
