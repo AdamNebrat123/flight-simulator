@@ -13,18 +13,7 @@ public class JammerAssignmentManager
     {
         return _instance;
     }
-    /*
-    public void SetScenarioResults(ScenarioResults scenarioResults, ScenarioResults scenarioResultsCopy)
-    {
-        _scenarioResults = scenarioResults;
-        _scenarioResultsCopy = scenarioResultsCopy;
-        _droneFallManager = new DroneFallManager(_scenarioResults, _scenarioResultsCopy);
-    }
-    public ScenarioResults GetScenarioResults()
-    {
-        return _scenarioResults;
-    }
-    */
+
     
     public async Task AssignJammers(RadarUpdate radarUpdate)
     {
@@ -35,6 +24,7 @@ public class JammerAssignmentManager
         {
             jammer.jamMode = JamMode.None;
         }
+
         UpdateJammers(jamZoneContexts.ToList());
 
         //List<Jammer> changedJammers = GetChangedJammers(previous, _jammerManager.CreateSnapshot());

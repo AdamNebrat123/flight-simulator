@@ -1,14 +1,6 @@
 using System.Text.Json.Serialization;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-
-public enum Status
-{
-    Offline,
-    Online,
-    Critical
-}
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum JamMode
 {
     None,
