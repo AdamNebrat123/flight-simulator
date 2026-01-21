@@ -18,15 +18,31 @@ public class JammerHandler
         return instance;
     }
 
-    public void HandleAddJammer(JsonElement data)
+    public void HandleAddOrUpdateJammer(JsonElement data)
+    {
+        Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
+
+        Jammer existingJammer = jammerManager.GetJammerById(jammer.id);
+        if(existingJammer == null)
+        {
+            // it means jammerManager does not contain him.
+            HandleAddJammer(jammer);
+            return;
+        }
+
+        // if he is not null, he already exists
+        // i will check if his status was updated
+        if(existingJammer.status != jammer.status)
+        {
+            HandleUpdateJammerStatus(jammer);
+        }
+
+    }
+    public void HandleAddJammer(Jammer jammer)
     {
         try
         {
-            Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
-
-            
             AddIdToJamZoneJammersIds(jammer);
-
             
             // add to manager map
             bool isAdded = jammerManager.TryAddJammer(jammer);
@@ -70,14 +86,30 @@ public class JammerHandler
         }
     }
 
-    public void HandleEditJammer(JsonElement data)
+    public void HandleUpdateJammerStatus(Jammer jammer)
     {
         try
         {
-            Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
-            string jammerId = jammer.id;
             
-            AddIdToJamZoneJammersIds(jammer);
+                var isEdited = jammerManager.TryEditJammer(jammerId, jammer);
+                if (isEdited)
+                {
+                    System.Console.WriteLine("{0} - Edited jammer successfully.", jammerId);
+                }
+                else
+                {
+                    System.Console.WriteLine("{0} - Failed to edit jammer in manager.", jammerId);
+                }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Error in HandleEditJammer: " + ex.Message);
+        }
+    }
+    public void HandleUpdateJammerJamMode(Jammer jammer)
+    {
+        try
+        {
             
                 var isEdited = jammerManager.TryEditJammer(jammerId, jammer);
                 if (isEdited)

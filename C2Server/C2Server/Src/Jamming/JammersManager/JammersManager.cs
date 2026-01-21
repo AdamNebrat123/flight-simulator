@@ -27,6 +27,24 @@ public class JammerManager
         return _jammers.Remove(id);
     }
 
+    public bool TryUpdateJammerStatus(Jammer updatedJammer)
+    {
+        if (!_jammers.ContainsKey(updatedJammer.id))
+            return false;
+        
+        Jammer jammer = _jammers[updatedJammer.id];
+        jammer.status = updatedJammer.status;
+        return true;
+    }
+    public bool TryUpdateJammerJamMode(Jammer updatedJammer)
+    {
+        if (!_jammers.ContainsKey(updatedJammer.id))
+            return false;
+            Jammer jammer = _jammers[updatedJammer.id];
+        jammer.jamMode = updatedJammer.jamMode;
+        return true;
+
+    }
     public bool TryEditJammer(string id, Jammer updatedJammer)
     {
         if (!_jammers.ContainsKey(id))
