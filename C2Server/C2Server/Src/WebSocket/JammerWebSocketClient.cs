@@ -11,7 +11,7 @@ public class JammerWebSocketClient : WebSocketClient
         {
             foreach (string json in _receiveQueue.GetConsumingEnumerable(ct))
             {
-                _jammerMsgHandler.HandleIncomingMessage(_socket, json);
+                _jammerMsgHandler.HandleIncomingMessage(this, json);
             }
         }
         catch (OperationCanceledException)

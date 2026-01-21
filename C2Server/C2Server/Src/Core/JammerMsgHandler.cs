@@ -4,6 +4,7 @@ using System.Text.Json;
 public class JammerMsgHandler
 {
     private static readonly JammerMsgHandler _instance = new JammerMsgHandler();
+    private readonly JammerHandler _jammerHandler = JammerHandler.GetInstance();
     private JammerMsgHandler()
     {
     }
@@ -13,7 +14,7 @@ public class JammerMsgHandler
         return _instance;
     }
 
-    public async Task HandleIncomingMessage(WebSocket connection ,string json)
+    public async Task HandleIncomingMessage(JammerWebSocketClient jammerWebSocket, string json)
     {
         try
         {
@@ -23,9 +24,7 @@ public class JammerMsgHandler
             });
 
             if (wrapper == null || string.IsNullOrWhiteSpace(wrapper.type))
-            {
                 return;
-            }
 
             // Parse enum
             JammerToC2ServerMsgType messageType;
@@ -41,7 +40,9 @@ public class JammerMsgHandler
 
             switch (messageType)
             {
-                
+                case JammerToC2ServerMsgType.JammerStatus:
+                    _jammerHandler.HandleAddOrUpdateJammer(wrapper.data, jammerWebSocket);
+                    break;
 
                 default:
                     Console.WriteLine("Unhandled message type.");

@@ -1,9 +1,11 @@
+using System.Net.WebSockets;
 using System.Text.Json;
 
 public class JammerHandler
 {
     private static JammerHandler instance;
     private readonly JammerManager jammerManager = JammerManager.GetInstance();
+    private readonly CurrentScenarioData currentScenarioData = CurrentScenarioData.GetInstance();
     private readonly ZoneChecker zoneChecker = new();
 
 
@@ -18,9 +20,15 @@ public class JammerHandler
         return instance;
     }
 
-    public void HandleAddOrUpdateJammer(JsonElement data)
+    public void HandleAddOrUpdateJammer(JsonElement data, JammerWebSocketClient jammerWebSocket)
     {
         Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
+
+        // first check if jammer id is already set in websocket manager
+        if (!currentScenarioData.IsJammerAlreadySet(jammer.id))
+        {
+            currentScenarioData.AddJammerClientMapping(jammer.id, jammerWebSocket);
+        }
 
         Jammer existingJammer = jammerManager.GetJammerById(jammer.id);
         if(existingJammer == null)
@@ -31,11 +39,18 @@ public class JammerHandler
         }
 
         // if he is not null, he already exists
+
         // i will check if his status was updated
         if(existingJammer.status != jammer.status)
         {
             HandleUpdateJammerStatus(jammer);
         }
+        // i will check if his jamMode was updated
+        if(existingJammer.jamMode != jammer.jamMode)
+        {
+            HandleUpdateJammerJamMode(jammer);
+        }
+
 
     }
     public void HandleAddJammer(Jammer jammer)
@@ -90,16 +105,16 @@ public class JammerHandler
     {
         try
         {
-            
-                var isEdited = jammerManager.TryEditJammer(jammerId, jammer);
-                if (isEdited)
-                {
-                    System.Console.WriteLine("{0} - Edited jammer successfully.", jammerId);
-                }
-                else
-                {
-                    System.Console.WriteLine("{0} - Failed to edit jammer in manager.", jammerId);
-                }
+            string jammerId = jammer.id;
+            var isEdited = jammerManager.TryUpdateJammerStatus(jammer);
+            if (isEdited)
+            {
+                System.Console.WriteLine("{0} - Edited jammer successfully.", jammerId);
+            }
+            else
+            {
+                System.Console.WriteLine("{0} - Failed to edit jammer in manager.", jammerId);
+            }
         }
         catch (Exception ex)
         {
@@ -110,16 +125,17 @@ public class JammerHandler
     {
         try
         {
-            
-                var isEdited = jammerManager.TryEditJammer(jammerId, jammer);
-                if (isEdited)
-                {
-                    System.Console.WriteLine("{0} - Edited jammer successfully.", jammerId);
-                }
-                else
-                {
-                    System.Console.WriteLine("{0} - Failed to edit jammer in manager.", jammerId);
-                }
+            string jammerId = jammer.id;
+        
+            var isEdited = jammerManager.TryUpdateJammerJamMode(jammer);
+            if (isEdited)
+            {
+                System.Console.WriteLine("{0} - Edited jammer successfully.", jammerId);
+            }
+            else
+            {
+                System.Console.WriteLine("{0} - Failed to edit jammer in manager.", jammerId);
+            }
         }
         catch (Exception ex)
         {

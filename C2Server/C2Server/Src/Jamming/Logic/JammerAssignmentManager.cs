@@ -26,9 +26,9 @@ public class JammerAssignmentManager
     }
     */
     
-    public async Task AssignJammers(ScenarioAirCraftsSnapshot snapshot)
+    public async Task AssignJammers(RadarUpdate radarUpdate)
     {
-        List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(snapshot);
+        List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(radarUpdate);
         //JammersSnapshot previous = _jammerManager.CreateSnapshot();
 
         foreach(var jammer in _jammerManager.GetAllJammers())
@@ -114,7 +114,7 @@ public class JammerAssignmentManager
     }
 
 
-    public List<JamZoneContext> BuildJamZoneContexts(ScenarioAirCraftsSnapshot snapshot)
+    public List<JamZoneContext> BuildJamZoneContexts(RadarUpdate radarUpdate)
     {
         try
         {
@@ -122,7 +122,7 @@ public class JammerAssignmentManager
             ZoneChecker zoneChecker = new();
 
             
-            foreach (AircraftStatus aircraftStatus in snapshot.aircrafts)
+            foreach (AircraftStatus aircraftStatus in radarUpdate.aircrafts)
             {
                 if(aircraftStatus.aircraftType != AircraftTypeEnum.Drone.ToString())
                     continue;

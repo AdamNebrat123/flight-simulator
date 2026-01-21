@@ -94,4 +94,9 @@ public abstract class WebSocketClient
     }
 
     protected abstract Task ProcessIncomingMessagesAsync(CancellationToken ct);
+
+    public WebSocket GetWebSocket()
+    {
+        return _socket;
+    }
 }

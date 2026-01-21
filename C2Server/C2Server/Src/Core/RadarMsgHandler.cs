@@ -40,7 +40,9 @@ public class RadarMsgHandler
 
             switch (messageType)
             {
-                
+                case RadarToC2ServerMsgType.RadarUpdate:
+                    // Handle radar message
+                    break;
 
                 default:
                     Console.WriteLine("Unhandled message type.");
