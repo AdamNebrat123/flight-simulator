@@ -1,7 +1,7 @@
 public class ZoneChecker
 {
-    private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
-
+    //private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
     public ZoneChecker()
     {
     }
@@ -11,7 +11,7 @@ public class ZoneChecker
     {
         var zonesContainingPoint = new List<string>();
 
-        foreach (var zone in zoneManager.GetAllZones())
+        foreach (var zone in playingScenarioData.GetZones())
         {
             if (IsPointInZone(point, zone))
             {
@@ -25,7 +25,7 @@ public class ZoneChecker
     {
         var zonesContainingPoint = new List<JamZone>();
 
-        foreach (var zone in zoneManager.GetAllZones())
+        foreach (var zone in playingScenarioData.GetZones())
         {
             if (IsPointInZone(point, zone) && zone.zoneType == ZoneType.Jam.ToString())
             {

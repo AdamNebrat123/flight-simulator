@@ -3,7 +3,8 @@ using System.Text.Json;
 public class ZoneHandler
 {
     private static ZoneHandler instance;
-    private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
+    //private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
     private ZoneHandler()
     {
     }
@@ -21,74 +22,17 @@ public class ZoneHandler
         InitialZones initialZones = JsonSerializer.Deserialize<InitialZones>(data);
         if (initialZones == null)
             return;
+
+        playingScenarioData.SetZones(initialZones.zones);
+
         foreach (var zone in initialZones.zones)
         {
-            AddZone(zone);
+            SendAddZone(zone);
         }
     }
-    private void AddZone(Zone zone)
+    public void SendAddZone(Zone zone)
     {
-        try
-        {
-            bool isAdded = zoneManager.TryAddZone(zone);
-            if (isAdded)
-            {
-                System.Console.WriteLine("{0} ({1}) - Added zone successfully.", zone.zoneId, zone.zoneName);
-            }
-            else
-            {
-                System.Console.WriteLine("{0} ({1}) - Failed to add zone.", zone.zoneId, zone.zoneName);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Console.WriteLine("Error in HandleAddZone: " + ex.Message);
-        }
-    }
-
-    public void HandleRemoveZone(JsonElement data)
-    {
-        try
-        {
-            Zone zone = data.Deserialize<Zone>();
-            string zoneId = zone.zoneId;
-
-            var isRemoved = zoneManager.TryRemoveZone(zoneId); 
-            if (isRemoved)
-            {
-                System.Console.WriteLine("{0} ({1}) - Removed zone successfully.", zoneId, zone.zoneName);
-            }
-            else
-            {
-                System.Console.WriteLine("{0} ({1}) - Failed to remove zone.", zoneId, zone.zoneName);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Console.WriteLine("Error in HandleRemoveDangerZone: " + ex.Message);
-        }
-    }
-
-    public void HandleEditZone(JsonElement data)
-    {
-        try
-        {
-            Zone zone = data.Deserialize<Zone>();
-            string zoneId = zone.zoneId;
-
-            var isEdited = zoneManager.TryEditZone(zoneId, zone); 
-            if (isEdited)
-            {
-                System.Console.WriteLine("{0} ({1}) - Edited zone successfully.", zoneId, zone.zoneName);
-            }
-            else
-            {
-                System.Console.WriteLine("{0} ({1}) - Failed to edit zone.", zoneId, zone.zoneName);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Console.WriteLine("Error in HandleEditDanger: " + ex.Message);
-        }
+        string zoneData =  UIWebSocketServer.PrepareMessageToClient(S2CMessageType.AddZone, zone);
+        UIWebSocketServer.SendMsgToClients(zoneData);
     }
 }

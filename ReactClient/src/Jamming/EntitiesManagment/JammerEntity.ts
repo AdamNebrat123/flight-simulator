@@ -1,6 +1,6 @@
 import * as Cesium from "cesium";
-import type { Jammer } from "../Jammer/Jammer";
-import type { Frequency } from "../Jammer/JammerRelatedEnums";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
+import type { Frequency } from "../../Sensors/Jammer/JammerRelatedEnums";
 import type { GeoPoint } from "../../Messages/AllTypes";
 import { JammerColorOptionsManager } from "./JammerColorOptions";
 

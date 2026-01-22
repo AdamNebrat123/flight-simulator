@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import { Status } from "../Jammer/JammerRelatedEnums";
+import { Status } from "../../Sensors/Jammer/JammerRelatedEnums";
 
 export interface JammerColorOptions{
     color: Cesium.Color

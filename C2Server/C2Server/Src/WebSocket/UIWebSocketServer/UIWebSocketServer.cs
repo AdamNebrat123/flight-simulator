@@ -11,7 +11,7 @@ public static class UIWebSocketServer
     {
         var builder = WebApplication.CreateBuilder();
 
-        builder.WebHost.UseUrls("http://0.0.0.0:5000");
+        builder.WebHost.UseUrls("http://0.0.0.0:5001");
 
         var app = builder.Build();
 

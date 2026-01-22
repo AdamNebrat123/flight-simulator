@@ -1,5 +1,6 @@
 import type { Jammer } from "../Jamming/Jammer/Jammer";
 import type { Frequency } from "../Jamming/Jammer/JammerRelatedEnums";
+import type { Sensor } from "../Sensors/Sensor";
 import type { ZoneTypeEnum } from "./ZoneTypeEnum";
 
 /**
@@ -33,6 +34,23 @@ export interface ScenarioAirCraftsSnapshot {
     scenarioId: string;
     aircrafts: AircraftStatus[];
     //[property: string]: any;
+}
+
+export interface Scenario {
+    scenarioId: string;
+    scenarioName: string;
+    aircrafts: AircraftTrajectory[];
+    zones: Zone[];
+    jammers: Sensor[];
+    radars: Sensor[];
+}
+
+export interface RadarUpdate {
+    skyPicture: SkyPicture;
+}
+
+export interface SkyPicture {
+    aircrafts: AircraftStatus[];
 }
 
 export interface Zone {

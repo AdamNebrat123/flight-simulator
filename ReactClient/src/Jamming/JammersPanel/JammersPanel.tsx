@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import "./JammersPanel.css";
 import { useWebSocket } from "../../WebSocket/WebSocketProvider";
-import type { Jammer } from "../Jammer/Jammer";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
 import { C2SMessageType } from "../../Messages/C2SMessageType";
-import { JamMode, Status } from "../Jammer/JammerRelatedEnums";
+import { JamMode, Status } from "../../Sensors/Jammer/JammerRelatedEnums";
 import CreateJammerPanel from "../CreateJammerPanel/CreateJammerPanel";
 import { JammersManager } from "../Manager/JammerManager";
 

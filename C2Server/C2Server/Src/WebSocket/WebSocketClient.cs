@@ -32,7 +32,6 @@ public abstract class WebSocketClient
             try
             {
                 _socket = new ClientWebSocket();
-                Console.WriteLine($"[Client] Attempting to connect to {_serverUri}");
                 
                 await _socket.ConnectAsync(_serverUri, ct);
                 Console.WriteLine($"[Client] Connected to {_serverUri}!");
@@ -41,7 +40,7 @@ public abstract class WebSocketClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Client] Connection error: {ex.Message}. Retrying in 1 seconds");
+                //Console.WriteLine($"[Client] Connection error: {ex.Message}. Retrying in 1 seconds");
             }
             finally
             {

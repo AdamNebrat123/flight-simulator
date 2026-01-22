@@ -3,7 +3,7 @@ using System.Text.Json;
 public class RadarHandler
 {
     private static RadarHandler instance;
-    private readonly CurrentScenarioData currentScenarioData = CurrentScenarioData.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
 
     private RadarHandler()
     {
@@ -19,9 +19,14 @@ public class RadarHandler
     public void HandleRadarUpdate(JsonElement data, RadarWebSocketClient radarWS)
     {
         RadarUpdate radarUpdate = JsonSerializer.Deserialize<RadarUpdate>(data);
-        
+        SkyPicture skyPicture = radarUpdate.skyPicture;
+
         // update the most recent radar update in current scenario data
-        currentScenarioData.SetMostRecentRadarUpdate(radarUpdate);
+        playingScenarioData.SetMostRecentSkyPicture(skyPicture);
+
+        // Send to C2 UI
+        string msg = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RadarUpdate, radarUpdate);
+        UIWebSocketServer.SendMsgToClients(msg);
     }
 
 

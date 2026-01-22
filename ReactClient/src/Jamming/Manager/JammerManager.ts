@@ -1,4 +1,4 @@
-import type { Jammer } from "../Jammer/Jammer";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
 
 export class JammersManager {
     private static instance: JammersManager | null = null;

@@ -32,7 +32,7 @@ export class ZoneHandler{
             console.log("data could not be parsed toZone");
         }
     }
-    AddZone(zone: Zone){
+    HandleAddZone(zone: Zone){
         const isAdded = this.zoneManager.tryAddZone(zone);
         if(isAdded){
             this.zoneEntityManager.tryAddZone(zone);

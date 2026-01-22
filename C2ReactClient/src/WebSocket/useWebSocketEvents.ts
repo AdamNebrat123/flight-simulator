@@ -30,7 +30,7 @@ export function useWebSocketEvents() {
   useEffect(() => {
     setOnMessage(rawMessage => {
       try {
-        //console.log("recieved: ", rawMessage)
+        console.log("recieved: ", rawMessage)
         const wrapper: MessageWrapper = JSON.parse(rawMessage);
         const handlers = eventHandlers.current[wrapper.type] || [];
         handlers.forEach(handler => handler(wrapper.data));

@@ -1,5 +1,7 @@
-import type { Jammer } from "../Jamming/Jammer/Jammer";
-import type { Frequency } from "../Jamming/Jammer/JammerRelatedEnums";
+
+import type { Jammer } from "../Sensors/Jammer/Jammer";
+import type { Frequency } from "../Sensors/Jammer/JammerRelatedEnums";
+import type { Sensor } from "../Sensors/Sensor";
 import type { ZoneTypeEnum } from "./ZoneTypeEnum";
 
 export interface AllTypes {
@@ -53,9 +55,11 @@ export interface TrajectoryPoint {
 
 export interface Scenario {
     scenarioId: string;
-    aircrafts: AircraftTrajectory[];
     scenarioName: string;
-    //[property: string]: any;
+    aircrafts: AircraftTrajectory[];
+    zones: Zone[];
+    jammers: Sensor[];
+    radars: Sensor[];
 }
 
 
@@ -110,8 +114,6 @@ export interface ZoneError {
 
 export interface InitData {
     scenarios: Scenario[];
-    zones: DangerZone[];
-    jammers: Jammer[];
 }
 
 export interface ScenarioError {

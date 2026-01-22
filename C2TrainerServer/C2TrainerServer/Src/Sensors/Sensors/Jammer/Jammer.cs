@@ -10,7 +10,7 @@ public class Jammer : Sensor, ISetJammingMode
     public List<Frequency> supportedFrequencies { get; set;}
     [JsonPropertyName("radius")]
     public double radius { get; set;}
-
+    [JsonPropertyName("directionDegrees")]
     public double? directionDegrees { get; set; } // for directional jamming
 
     public Jammer()

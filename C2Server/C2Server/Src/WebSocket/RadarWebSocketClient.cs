@@ -12,7 +12,7 @@ public class RadarWebSocketClient : WebSocketClient
         {
             foreach (string json in _receiveQueue.GetConsumingEnumerable(ct))
             {
-                _radarMsgHandler.HandleIncomingMessage(_socket, json);
+                _radarMsgHandler.HandleIncomingMessage(this, json);
             }
         }
         catch (OperationCanceledException)

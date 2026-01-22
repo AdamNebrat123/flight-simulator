@@ -17,6 +17,5 @@ public class Sensor
 
     public Status status { get;  set; }
 
-    [JsonIgnore]
     public SensorType sensorType { get; set; }
 }

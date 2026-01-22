@@ -37,18 +37,37 @@ public class PlaySelectedScenarioHandler
         ScenarioResults originalScenario)
     {
 
-
+        System.Console.WriteLine("Playing scenario: " + originalScenario.scenarioId);
         var history = new Dictionary<string, Queue<TrajectoryPoint>>();
 
         originalScenario.Resume();
         originalScenario.SetPlaySpeed(1.0);
 
         // set current ScenarioResults
-        _scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
+        //====================================================================================================
+        //====================================================================================================
+        //====================================================================================================
+        //====================================================================================================
+        // THERE IS A BUG HERE WITH DEEP COPY - NEEDS TO BE FIXED 
+        // BEACUSE OF A JSON IGNORE ANNOTATIONS IN SENSOR AND ZONE CLASSES
+        // WHEN I COPY IT IT SERIALIZES WITHOUT THOSE FIELDS AND WHEN DESERIALIZING
+        // THOSE FIELDS GET DEFAULT VALUES 
+        // FOR NOW I WILL JUST USE THE ORIGINAL OBJECT
+        // WILL FIX ASAP
+        _scenarioCopy = originalScenario;
+        //_scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
+        //====================================================================================================
+        //====================================================================================================
+        //====================================================================================================
+        //====================================================================================================
+        //====================================================================================================
+        //====================================================================================================
 
+
+        System.Console.WriteLine("Scenario copy created");
         // allocate websockets for this scenario
         _allocation = scenarioWebsocketsManager.AllocateForScenario(_scenarioCopy);
-
+        System.Console.WriteLine("Websockets allocated for scenario");
         // start websockets
         scenarioWebsocketsManager.StartWebsocketsByAllocation(_allocation);
 
@@ -92,8 +111,11 @@ public class PlaySelectedScenarioHandler
                 snapshot.aircrafts.Add(aircraftStatus);
             }
 
-
-            RadarUpdate radarUpdate = new RadarUpdate(snapshot);
+            SkyPicture skyPicture = new SkyPicture(snapshot);
+            RadarUpdate radarUpdate = new RadarUpdate
+            {
+                skyPicture = skyPicture
+            };
             
             // send radar update
             SendRadarUpdate(radarUpdate, _allocation, _scenarioCopy);

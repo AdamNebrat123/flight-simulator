@@ -58,11 +58,43 @@ export default function App() {
   // register to all of the events (give a handler for each type of msg.)
   // =================================================================
   // =================================================================
-  const registerHandlers = () => {
+const registerHandlers = () => {
+    // type : InitData
 
-    // type : ScenarioPlanesSnapshot
-    const unsubScenarioPlanesSnapshot = on(S2CMessageType.ScenarioPlanesSnapshot , (data) => {
-      ScenarioPlanesSnapshotHandlerRef.current?.HandleScenarioPlanesSnapshot(data);
+
+    // type : RadarUpdate
+    const unsubRadarUpdate = on(S2CMessageType.RadarUpdate , (data) => {
+      ScenarioPlanesSnapshotHandlerRef.current?.HandleRadarUpdate(data);
+    });
+
+    // type : AddZone
+    const unsubAddZone = on(S2CMessageType.AddZone , (data) => {
+      zoneHandlerRef.current?.HandleAddZone(data);
+    });
+
+    // type : RemoveZone
+    const unsubRemoveZone = on(S2CMessageType.RemoveZone , (data) => {
+      zoneHandlerRef.current?.HandleRemoveZone(data);
+    });
+
+    // type : EditZone
+    const unsubEditZone = on(S2CMessageType.EditZone , (data) => {
+      zoneHandlerRef.current?.HandleEditZone(data);
+    });
+
+    // type : AddJammer
+    const unsubAddJammer = on(S2CMessageType.AddJammer, (data) => {
+      jammerHandlerRef.current?.HandleAddJammer(data);
+    });
+
+    // type : RemoveJammer
+    const unsubRemoveJammer = on(S2CMessageType.RemoveJammer, (data) => {
+      jammerHandlerRef.current?.HandleRemoveJammer(data);
+    });
+
+    // type : EditJammer
+    const unsubEditJammer = on(S2CMessageType.EditJammer, (data) => {
+      jammerHandlerRef.current?.HandleEditJammer(data);
     });
 
     // type : JammersUpdate
@@ -70,9 +102,16 @@ export default function App() {
       jammersUpdateHandlerRef.current?.HandleJammersUpdate(data);
     });
 
+
     //clean up
     return () => {
-      unsubScenarioPlanesSnapshot();
+      unsubRadarUpdate();
+      unsubAddZone();
+      unsubRemoveZone();
+      unsubEditZone();
+      unsubAddJammer();
+      unsubRemoveJammer();
+      unsubEditJammer();
       unsubJammersUpdate();
     };
   }

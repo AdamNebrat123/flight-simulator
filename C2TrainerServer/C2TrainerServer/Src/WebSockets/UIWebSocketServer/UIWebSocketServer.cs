@@ -55,6 +55,7 @@ public static class UIWebSocketServer
                         var jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
 
                         // ALL of the msg handling
+                        System.Console.WriteLine("received: " + jsonString);
                         await _uiMsgHandler.HandleIncomingMessage(webSocket, jsonString);
                     }
                 }

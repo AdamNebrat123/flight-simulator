@@ -1,18 +1,18 @@
 using System.Collections.Concurrent;
 
-public class CurrentScenarioData
+public class PlayingScenarioData
 {
-    private static CurrentScenarioData _instance = new CurrentScenarioData();
+    private static PlayingScenarioData _instance = new PlayingScenarioData();
     private ConcurrentDictionary<string, JammerWebSocketClient> _jammerIdToClientMap { get; } = new();
     private RadarWebSocketClient? _radarWS { get; set; }
     private ZonesWebSocketClient? _zonesWS { get; set; }
     private List<Zone> _zones = new();
-    private RadarUpdate _mostRecentRadarUpdate;
+    private SkyPicture _mostRecentSkyPicture;
 
-    private CurrentScenarioData()
+    private PlayingScenarioData()
     {
     }
-    public static CurrentScenarioData GetInstance()
+    public static PlayingScenarioData GetInstance()
     {
         return _instance;
     }
@@ -31,17 +31,22 @@ public class CurrentScenarioData
     }
     public void ClearMostRecentRadarUpdate()
     {
-        _mostRecentRadarUpdate = null;
+        _mostRecentSkyPicture = null;
     }
     public bool IsJammerAlreadySet(string jammerId)
     {
         return _jammerIdToClientMap.ContainsKey(jammerId);
     }
-    public void AddJammerClientMapping(string jammerId, JammerWebSocketClient client)
+    public void TryAddJammerClientMapping(string jammerId, JammerWebSocketClient client)
     {
-        _jammerIdToClientMap[jammerId] = client;
+        if(!IsJammerAlreadySet(jammerId))
+            _jammerIdToClientMap[jammerId] = client;
     }
-    public void RemoveJammerClientMapping(string jammerId)
+    public bool IsJammerIdToClientMapEmpty()
+    {
+        return _jammerIdToClientMap.IsEmpty;
+    }
+    public void TryRemoveJammerClientMapping(string jammerId)
     {
         _jammerIdToClientMap.TryRemove(jammerId, out _);
     }
@@ -65,14 +70,14 @@ public class CurrentScenarioData
         _zonesWS = zonesWS;
     }
 
-    public RadarUpdate GetMostRecentRadarUpdate()
+    public SkyPicture GetMostRecentSkyPicture()
     {
-        return _mostRecentRadarUpdate;
+        return _mostRecentSkyPicture;
     }
 
-    public void SetMostRecentRadarUpdate(RadarUpdate update)
+    public void SetMostRecentSkyPicture(SkyPicture skyPicture)
     {
-        _mostRecentRadarUpdate = update;
+        _mostRecentSkyPicture = skyPicture;
     }
 
     // Zones

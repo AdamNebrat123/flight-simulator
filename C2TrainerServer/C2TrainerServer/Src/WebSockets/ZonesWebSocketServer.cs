@@ -35,7 +35,7 @@ public class ZonesWebSocketServer : WebSocketServer<Zone>
                     if (_socket == null || _socket.State != WebSocketState.Open)
                         break;
 
-                    string msgType = ZonesToC2ServerMsgType.Zone.ToString();
+                    string msgType = ZonesToC2ServerMsgType.InitialZones.ToString();
                     string json = prepareMessageToClient(msgType, zone);
                     
                     await SendAsync(json);

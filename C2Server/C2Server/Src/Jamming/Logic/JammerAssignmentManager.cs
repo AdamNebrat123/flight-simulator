@@ -2,7 +2,8 @@ public class JammerAssignmentManager
 {
     private static JammerAssignmentManager _instance = new JammerAssignmentManager();
     private readonly JammerManager _jammerManager = JammerManager.GetInstance();
-    private readonly ZoneManager _zoneManager = ZoneManager.GetInstance();
+    private readonly PlayingScenarioData _scenarioData = PlayingScenarioData.GetInstance();
+    //private readonly ZoneManager _zoneManager = ZoneManager.GetInstance();
     private DroneFallManager _droneFallManager = null;
     private JammerAssignmentManager()
     {
@@ -14,10 +15,10 @@ public class JammerAssignmentManager
         return _instance;
     }
 
-    
-    public async Task AssignJammers(RadarUpdate radarUpdate)
+
+    public async Task AssignJammers(SkyPicture skyPicture)
     {
-        List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(radarUpdate);
+        List<JamZoneContext> jamZoneContexts = BuildJamZoneContexts(skyPicture);
         //JammersSnapshot previous = _jammerManager.CreateSnapshot();
 
         foreach(var jammer in _jammerManager.GetAllJammers())
@@ -104,7 +105,7 @@ public class JammerAssignmentManager
     }
 
 
-    public List<JamZoneContext> BuildJamZoneContexts(RadarUpdate radarUpdate)
+    public List<JamZoneContext> BuildJamZoneContexts(SkyPicture skyPicture)
     {
         try
         {
@@ -112,7 +113,7 @@ public class JammerAssignmentManager
             ZoneChecker zoneChecker = new();
 
             
-            foreach (AircraftStatus aircraftStatus in radarUpdate.aircrafts)
+            foreach (AircraftStatus aircraftStatus in skyPicture.aircrafts)
             {
                 if(aircraftStatus.aircraftType != AircraftTypeEnum.Drone.ToString())
                     continue;
@@ -143,13 +144,15 @@ public class JammerAssignmentManager
             // Now build JamZoneContexts
 
             List<JamZoneContext> jamZoneContexts = new List<JamZoneContext>();
-
+            List<Zone> allZones = _scenarioData.GetZones();
             foreach (var kvp in zonesDict)
             {
                 string zoneId = kvp.Key;
                 List<DroneCoverageContext> drones = kvp.Value;
 
-                Zone zone = _zoneManager.TryGetZone(zoneId);
+                Zone zone = allZones.FirstOrDefault(z => z.zoneId == zoneId);
+                // i know its should be a dict but i really dont have power now....
+                
                 if(zone == null || zone.zoneType != ZoneType.Jam.ToString())
                     continue;
                 

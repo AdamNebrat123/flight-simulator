@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import type { Jammer } from "../Jammer/Jammer";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
 import { JammerEntityManager } from "../EntitiesManagment/JammerEntityManager";
 import type { JammersUpdate } from "../../Messages/AllTypes";
 import { JammersManager } from "../Manager/JammerManager";

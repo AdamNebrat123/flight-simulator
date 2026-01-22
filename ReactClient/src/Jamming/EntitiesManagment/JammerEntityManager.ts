@@ -1,6 +1,6 @@
 import * as Cesium from "cesium";
 import { JammerEntity } from "./JammerEntity";
-import type { Jammer } from "../Jammer/Jammer";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
 
 export class JammerEntityManager {
   private static instance: JammerEntityManager | null = null;

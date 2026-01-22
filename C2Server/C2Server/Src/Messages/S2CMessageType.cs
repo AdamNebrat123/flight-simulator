@@ -1,6 +1,6 @@
 public enum S2CMessageType
 {
-    ScenarioPlanesSnapshot,
+    RadarUpdate,
     AddZone,
     RemoveZone,
     EditZone,

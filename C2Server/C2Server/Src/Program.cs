@@ -20,9 +20,11 @@ public class Program
         webSocketClientManager.InitializeClients(serverIp, zonesPort, radarPort, jammerPorts);
         webSocketClientManager.StartAll();
 
+        // start jammer assignment service
+        JammerAssignmentService jammerAssignmentService = JammerAssignmentService.GetInstance();
+        jammerAssignmentService.Start();
 
-        Console.ReadKey();
-        //UIWebSocketServer.Start();
+        UIWebSocketServer.Start();
     }
     
 }

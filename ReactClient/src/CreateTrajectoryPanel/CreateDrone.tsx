@@ -1,4 +1,4 @@
-import { Frequency } from "../Jamming/Jammer/JammerRelatedEnums";
+import { Frequency } from "../Sensors/Jammer/JammerRelatedEnums";
 import type { AircraftTrajectory, DroneTrajectory, Scenario } from "../Messages/AllTypes";
 
 interface DronelProps {

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
 import "./CreateJammerPanel.css";
-import type { Jammer } from "../Jammer/Jammer";
 import type { GeoPoint } from "../../Messages/AllTypes";
-import { Frequency } from "../Jammer/JammerRelatedEnums";
 import { JammerEntity } from "../EntitiesManagment/JammerEntity";
 import { ZoneManager } from "../../Zones/ZoneManager";
 import { toast } from "react-toastify";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
+import { Frequency } from "../../Sensors/Jammer/JammerRelatedEnums";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;

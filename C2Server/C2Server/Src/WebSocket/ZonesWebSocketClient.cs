@@ -11,7 +11,7 @@ public class ZonesWebSocketClient : WebSocketClient
         {
             foreach (string json in _receiveQueue.GetConsumingEnumerable(ct))
             {
-                _zonesMsgHandler.HandleIncomingMessage(_socket, json);
+                _zonesMsgHandler.HandleIncomingMessage(this, json);
             }
         }
         catch (OperationCanceledException)

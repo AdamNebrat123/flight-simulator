@@ -93,9 +93,15 @@ public partial class ScenarioAirCraftsSnapshot
 
 public partial class RadarUpdate
 {
-     [JsonPropertyName("aircrafts")]
+    [JsonPropertyName("skyPicture")]
+    public SkyPicture skyPicture { get; set; }
+
+}
+public partial class SkyPicture
+{
+    [JsonPropertyName("aircrafts")]
     public List<AircraftStatus> aircrafts { get; set; }
-    public RadarUpdate(ScenarioAirCraftsSnapshot snapshot)
+    public SkyPicture(ScenarioAirCraftsSnapshot snapshot)
     {
         this.aircrafts = snapshot.aircrafts;
     }
@@ -194,7 +200,6 @@ public abstract class Zone
 
     [JsonPropertyName("bottomHeight")]
     public double bottomHeight { get; set; }
-    [JsonIgnore]
     public string zoneType { get; set; }
 }
 public class DangerZone : Zone

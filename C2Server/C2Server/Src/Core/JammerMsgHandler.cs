@@ -36,7 +36,6 @@ public class JammerMsgHandler
                 return;
             }
 
-            System.Console.WriteLine("received: " + wrapper.data);
 
             switch (messageType)
             {

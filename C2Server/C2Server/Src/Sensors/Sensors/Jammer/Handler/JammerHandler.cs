@@ -5,7 +5,7 @@ public class JammerHandler
 {
     private static JammerHandler instance;
     private readonly JammerManager jammerManager = JammerManager.GetInstance();
-    private readonly CurrentScenarioData currentScenarioData = CurrentScenarioData.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
     private readonly ZoneChecker zoneChecker = new();
 
 
@@ -23,11 +23,10 @@ public class JammerHandler
     public void HandleAddOrUpdateJammer(JsonElement data, JammerWebSocketClient jammerWebSocket)
     {
         Jammer jammer = JsonSerializer.Deserialize<Jammer>(data);
-
         // first check if jammer id is already set in websocket manager
-        if (!currentScenarioData.IsJammerAlreadySet(jammer.id))
+        if (!playingScenarioData.IsJammerAlreadySet(jammer.id))
         {
-            currentScenarioData.AddJammerClientMapping(jammer.id, jammerWebSocket);
+            playingScenarioData.TryAddJammerClientMapping(jammer.id, jammerWebSocket);
         }
 
         Jammer existingJammer = jammerManager.GetJammerById(jammer.id);
@@ -35,22 +34,31 @@ public class JammerHandler
         {
             // it means jammerManager does not contain him.
             HandleAddJammer(jammer);
+            SendAddJammer(jammer);
+            System.Console.WriteLine("sent jammer add");
             return;
         }
 
         // if he is not null, he already exists
 
         // i will check if his status was updated
+        bool isUpdated = false;
         if(existingJammer.status != jammer.status)
         {
             HandleUpdateJammerStatus(jammer);
+            isUpdated = true;
         }
         // i will check if his jamMode was updated
         if(existingJammer.jamMode != jammer.jamMode)
         {
             HandleUpdateJammerJamMode(jammer);
+            isUpdated = true;
         }
 
+        if(isUpdated)
+        {
+            SendEditJammer(jammer);
+        }
 
     }
     public void HandleAddJammer(Jammer jammer)
@@ -61,14 +69,6 @@ public class JammerHandler
             
             // add to manager map
             bool isAdded = jammerManager.TryAddJammer(jammer);
-            if (isAdded)
-            {
-                System.Console.WriteLine("{0} ({1}) - Added jammer successfully.", jammer.id, jammer.id);
-            }
-            else
-            {
-                System.Console.WriteLine("{0} - Failed to add jammer.", jammer.id);
-            }
         }
         catch (Exception ex)
         {
@@ -142,7 +142,23 @@ public class JammerHandler
             System.Console.WriteLine("Error in HandleEditJammer: " + ex.Message);
         }
     }
+    public void SendAddJammer(Jammer jammer)
+    {
+        string data = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.AddJammer, jammer);
+        UIWebSocketServer.SendMsgToClients(data);
+    }
 
+    public void SendRemoveJammer(Jammer jammer)
+    {
+        string data = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RemoveJammer, jammer);
+        UIWebSocketServer.SendMsgToClients(data);
+    }
+
+    public void SendEditJammer(Jammer jammer)
+    {
+        string data = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.EditJammer, jammer);
+        UIWebSocketServer.SendMsgToClients(data);
+    }
 
     private void AddIdToJamZoneJammersIds(Jammer jammer)
     {
