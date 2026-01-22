@@ -79,10 +79,12 @@ public class JammersStatusSender
             JammerWebSocketServer? jammerWS = null;
             if (allocation.JammerMap.TryGetValue(jammer.id, out jammerWS))
             {
-                if (jammerWS != null)
-                    jammerWS.Enqueue(jammer);
+                if (jammerWS != null){
+                    string msgType = JammerToC2ServerMsgType.JammerStatus.ToString();
+                    string json = WebSocketServer.prepareMessageToClient(msgType, jammer);
+                    jammerWS.Enqueue(json);
+                }
             }
         }
     }
-    
 }

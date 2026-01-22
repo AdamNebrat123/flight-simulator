@@ -3,9 +3,9 @@ using System.Text;
 using System.Text.Json;
 using System.Collections.Concurrent;
 
-public abstract class WebSocketServer<T>
+public abstract class WebSocketServer
 {
-    protected readonly BlockingCollection<T> _queue = new();
+    protected readonly BlockingCollection<string> _queue = new();
     protected readonly int _port;
     protected WebApplication? _app; 
     protected WebSocket? _socket; 
@@ -54,7 +54,7 @@ public abstract class WebSocketServer<T>
         _app?.StopAsync().Wait();
     }
 
-    public void Enqueue(T data) => _queue.Add(data);
+    public void Enqueue(string data) => _queue.Add(data);
     protected abstract Task RunAsync(CancellationToken token);
     protected abstract Task OnClientConnectedAsync();
 
@@ -72,7 +72,7 @@ public abstract class WebSocketServer<T>
         );
     }
 
-    public virtual string prepareMessageToClient<TMsg>(string msgType, TMsg msg)
+    public static string prepareMessageToClient<TMsg>(string msgType, TMsg msg)
     {
         var message = new
         {

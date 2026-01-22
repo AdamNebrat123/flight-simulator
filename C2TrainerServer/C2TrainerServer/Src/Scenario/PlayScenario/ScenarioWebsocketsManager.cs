@@ -78,23 +78,17 @@ public class ScenarioWebsocketsManager
 
         var freeJammers = new Queue<JammerWebSocketServer>(_jammersWS);
         var freeRadars  = new Queue<RadarWebSocketServer>(_radarsWS);
-        System.Console.WriteLine("sadasdad");
+
         // set jammer websockets
-        if (scenarioResults.jammers == null)
-        {
-            System.Console.WriteLine("NULLLLLLLLLL");
-            
-        }
+
         foreach (var jammer in scenarioResults.jammers.Values)
         {
-            System.Console.WriteLine("Allocating jammer websocket for jammer id: " + jammer.id);
             if (freeJammers.Count == 0)
                 break;
 
             var ws = freeJammers.Dequeue();
             allocation.JammerMap[jammer.id] = ws;
         }
-        System.Console.WriteLine("Jammer websockets allocated: " + allocation.JammerMap.Count);
         // set radar websockets
         foreach (var radar in scenarioResults.radars.Values)
         {
@@ -104,7 +98,10 @@ public class ScenarioWebsocketsManager
             var ws = freeRadars.Dequeue();
             allocation.RadarMap[radar.id] = ws;
         }
-        System.Console.WriteLine("Radar websockets allocated: " + allocation.RadarMap.Count);
+
+        // set zones in zones websocket
+        _zonesWS.SetZones(scenarioResults.zones.Values.ToList());
+        // set zones websocket
         allocation.ZonesWS = _zonesWS;
 
         return allocation;

@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 
-public class JammerWebSocketServer : WebSocketServer<Sensor>
+public class JammerWebSocketServer : WebSocketServer
 {
     public JammerWebSocketServer(int port) : base(port) {}
 
@@ -11,17 +11,13 @@ public class JammerWebSocketServer : WebSocketServer<Sensor>
         {
             await Task.Run(async () => 
             {
-                foreach (Sensor jammer in _queue.GetConsumingEnumerable(token))
+                foreach (string json in _queue.GetConsumingEnumerable(token))
                 {
                     // בדיקת תקינות הסוקט לפני שליחה
                     if (_socket == null || _socket.State != WebSocketState.Open)
                         break;
 
-                    string msgType = JammerToC2ServerMsgType.JammerStatus.ToString();
-                    string json = prepareMessageToClient(msgType, jammer);
-                    
                     await SendAsync(json);
-                    System.Console.WriteLine($"[Port {_port}] Sent jammer status");
                 }
             }, token);
         }

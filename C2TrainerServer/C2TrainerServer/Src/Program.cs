@@ -128,7 +128,15 @@ public class Program
     }
 };
 
-        List<Sensor> radars = new List<Sensor>();
+        List<Sensor> radars = new List<Sensor>(new Sensor[]
+        {
+            new Radar
+            {
+                id = "radar-1",
+                position = new GeoPoint(34.8000, 32.0500, 50),
+                status = Status.Online,
+            }
+        });
         Scenario scenario1 = allSceanrios.First();
         scenario1.zones = zones;
         scenario1.jammers = jammers;

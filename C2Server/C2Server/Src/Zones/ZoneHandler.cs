@@ -28,6 +28,7 @@ public class ZoneHandler
         foreach (var zone in initialZones.zones)
         {
             SendAddZone(zone);
+            System.Console.WriteLine("sent zone add");
         }
     }
     public void SendAddZone(Zone zone)

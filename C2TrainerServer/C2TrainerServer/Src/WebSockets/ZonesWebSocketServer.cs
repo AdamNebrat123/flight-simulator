@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 
-public class ZonesWebSocketServer : WebSocketServer<Zone>
+public class ZonesWebSocketServer : WebSocketServer
 {
     private List<Zone> _zones = new List<Zone>();
 
@@ -16,10 +16,15 @@ public class ZonesWebSocketServer : WebSocketServer<Zone>
     {
         if (_zones != null && _zones.Count > 0)
         {
-            foreach (Zone zone in _zones)
+            InitialZones initialZones = new InitialZones
             {
-                Enqueue(zone);
-            }
+                zones = _zones
+            };
+
+            string msgType = ZonesToC2ServerMsgType.InitialZones.ToString();
+            string json = prepareMessageToClient(msgType, initialZones);
+            
+            Enqueue(json);
         }
         await Task.CompletedTask;
     }
