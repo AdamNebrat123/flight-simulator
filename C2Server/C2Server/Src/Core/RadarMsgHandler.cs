@@ -4,6 +4,7 @@ using System.Text.Json;
 public class RadarMsgHandler
 {
     private static readonly RadarMsgHandler _instance = new RadarMsgHandler();
+    private readonly RadarHandler _radarHandler = RadarHandler.GetInstance();
     private RadarMsgHandler()
     {
     }
@@ -12,7 +13,7 @@ public class RadarMsgHandler
     {
         return _instance;
     }
-    public async Task HandleIncomingMessage(WebSocket connection ,string json)
+    public async Task HandleIncomingMessage(RadarWebSocketClient radarWebSocket ,string json)
     {
         try
         {
@@ -41,7 +42,7 @@ public class RadarMsgHandler
             switch (messageType)
             {
                 case RadarToC2ServerMsgType.RadarUpdate:
-                    // Handle radar message
+                    _radarHandler.HandleRadarUpdate(wrapper.data, radarWebSocket);
                     break;
 
                 default:

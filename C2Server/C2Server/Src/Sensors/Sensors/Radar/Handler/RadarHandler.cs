@@ -3,6 +3,7 @@ using System.Text.Json;
 public class RadarHandler
 {
     private static RadarHandler instance;
+    private readonly CurrentScenarioData currentScenarioData = CurrentScenarioData.GetInstance();
 
     private RadarHandler()
     {
@@ -15,29 +16,13 @@ public class RadarHandler
         return instance;
     }
 
-    private void HandleAddRadar(Radar radar)
+    public void HandleRadarUpdate(JsonElement data, RadarWebSocketClient radarWS)
     {
-        try
-        {
-            // unique ID
-            Guid uuid = Guid.NewGuid();
-            radar.id = uuid.ToString();
-        }
-        catch (Exception ex)
-        {
-            System.Console.WriteLine("Error in HandleAddRadar: " + ex.Message);
-        }
+        RadarUpdate radarUpdate = JsonSerializer.Deserialize<RadarUpdate>(data);
+        
+        // update the most recent radar update in current scenario data
+        currentScenarioData.SetMostRecentRadarUpdate(radarUpdate);
     }
 
-    public Dictionary<string, Sensor> CreateRadarsDict(List<Sensor> radars)
-    {
-        Dictionary<string, Sensor> radarDict = new();
-        foreach(Sensor radar in radars)
-        {
-            if(radar.id == "")
-               HandleAddRadar((Radar)radar);
-            radarDict.TryAdd(radar.id, radar);
-        }
-        return radarDict;
-    }
+
 }

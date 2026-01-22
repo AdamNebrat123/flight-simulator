@@ -4,11 +4,6 @@ public class ZoneHandler
 {
     private static ZoneHandler instance;
     private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-    
     private ZoneHandler()
     {
     }
@@ -21,13 +16,20 @@ public class ZoneHandler
         return instance;
     }
 
-    public void HandleAddZone(JsonElement data)
+    public void HandleInitialZones(JsonElement data, ZonesWebSocketClient zonesWS)
+    {
+        InitialZones initialZones = JsonSerializer.Deserialize<InitialZones>(data);
+        if (initialZones == null)
+            return;
+        foreach (var zone in initialZones.zones)
+        {
+            AddZone(zone);
+        }
+    }
+    private void AddZone(Zone zone)
     {
         try
         {
-            Zone zone = JsonSerializer.Deserialize<Zone>(data);
-
-            // add in a map 
             bool isAdded = zoneManager.TryAddZone(zone);
             if (isAdded)
             {

@@ -21,10 +21,16 @@ public class CurrentScenarioData
     {
         _jammerIdToClientMap[jammerId] = client;
     }
-    public void Reset()
+    public void ClearJammerIdToClientMap()
     {
         _jammerIdToClientMap.Clear();
+    }
+    public void ClearZones()
+    {
         _zones.Clear();
+    }
+    public void ClearMostRecentRadarUpdate()
+    {
         _mostRecentRadarUpdate = null;
     }
     public bool IsJammerAlreadySet(string jammerId)

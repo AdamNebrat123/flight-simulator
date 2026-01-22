@@ -4,6 +4,7 @@ using System.Text.Json;
 public class ZonesMsgHandler
 {
     private static readonly ZonesMsgHandler _instance = new ZonesMsgHandler();
+    private readonly ZoneHandler _zoneHandler = ZoneHandler.GetInstance();
     private ZonesMsgHandler()
     {
     }
@@ -12,7 +13,7 @@ public class ZonesMsgHandler
     {
         return _instance;
     }
-    public async Task HandleIncomingMessage(WebSocket connection ,string json)
+    public async Task HandleIncomingMessage(ZonesWebSocketClient zonesWS, string json)
     {
         try
         {
@@ -41,7 +42,10 @@ public class ZonesMsgHandler
             switch (messageType)
             {
                 
-
+                case ZonesToC2ServerMsgType.InitialZones:
+                    _zoneHandler.HandleInitialZones(wrapper.data, zonesWS);
+                    break;
+                    
                 default:
                     Console.WriteLine("Unhandled message type.");
                     break;

@@ -95,6 +95,11 @@ public partial class RadarUpdate
     }
 }
 
+public partial class InitialZones
+{
+    [JsonPropertyName("zones")]
+    public List<Zone> zones { get; set; }
+}
 public partial class TrajectoryPoint
 {
     [JsonPropertyName("heading")]
