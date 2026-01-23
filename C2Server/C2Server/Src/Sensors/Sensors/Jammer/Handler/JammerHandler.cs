@@ -168,8 +168,8 @@ public class JammerHandler
         foreach (JamZone jamZone in jamZones)
         {
             System.Console.WriteLine(jamZone.zoneId);
-            jamZone.jammersIds.Add(jammer.id);
-            System.Console.WriteLine(string.Join(",", jamZone.jammersIds));
+            if(!jamZone.jammersIds.Contains(jammer.id))
+                jamZone.jammersIds.Add(jammer.id);
         }
         
     }
