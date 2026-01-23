@@ -499,9 +499,18 @@ public partial class UavTrajectory : AircraftTrajectory
 }
 
 // Base status
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "aircraftType")]
+[JsonDerivedType(typeof(DroneStatus), "Drone")]
+[JsonDerivedType(typeof(PlaneStatus), "Plane")]
+[JsonDerivedType(typeof(BalloonStatus), "Balloon")]
+[JsonDerivedType(typeof(B2spiritStatus), "B2spirit")]
+[JsonDerivedType(typeof(F16Status), "F16")]
+[JsonDerivedType(typeof(F34Status), "F35")]
+[JsonDerivedType(typeof(IaiKfirStatus), "IaiKfir")]
+[JsonDerivedType(typeof(UavStatus), "Uav")]
 public partial class AircraftStatus
 {
-    [JsonPropertyName("aircraftType")]
+    [JsonIgnore]
     public string aircraftType { get; set; }
     [JsonPropertyName("aircraftId")]
     public string aircraftId { get; set; }

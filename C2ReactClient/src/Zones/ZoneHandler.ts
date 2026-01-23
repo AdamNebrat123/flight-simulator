@@ -1,6 +1,7 @@
 import { ZoneEntityManager } from "./ZoneEntityManager";
 import * as Cesium from "cesium";
-import type { Zone } from "../Messages/AllTypes";
+import type { DangerZone, Zone } from "../Messages/AllTypes";
+import { toast } from "react-toastify";
 import { ZoneManager } from "./ZoneManager";
 
 export class ZoneHandler{
@@ -20,19 +21,15 @@ export class ZoneHandler{
     }
     
     
-    HandleUpdatedZones(data: any){
+    HandleAddZone(data: any){
         try {
-            // parse to zones object
-            //then
-            /*
-            foreach(zone in zones)
-                this.AddZone(zone)
-            */
+            const zone = data as Zone;
+            this.AddZone(zone)
         } catch (err) {
             console.log("data could not be parsed toZone");
         }
     }
-    HandleAddZone(zone: Zone){
+    AddZone(zone: Zone){
         const isAdded = this.zoneManager.tryAddZone(zone);
         if(isAdded){
             this.zoneEntityManager.tryAddZone(zone);
@@ -42,14 +39,13 @@ export class ZoneHandler{
             console.log("error in HandleAddZone.  zone adding failed")
     }
 
-    RemoveAllZones() {
-        const zones = this.zoneManager.getAllZones();
-
-        for (const zone of zones) {
-            this.RemoveZone(zone);
+    HandleRemoveZone(data: any){
+        try {
+            const zone = data as Zone;
+            this.RemoveZone(zone)
+        } catch (err) {
+            console.log("data could not be parsed to Zone");
         }
-
-        this.zoneManager.clearAll()
     }
 
     RemoveZone(zone: Zone){
@@ -61,4 +57,26 @@ export class ZoneHandler{
         else
             console.log("error in HandleRemoveZone. zone removing failed")
     }
+
+    HandleEditZone(data: any){
+        try {
+            const zone = data as Zone;
+            this.EditZone(zone);
+            
+        } catch (err) {
+            console.log("data could not be parsed to Zone");
+        }
+    }
+
+    EditZone(zone: Zone){
+        const isEdited = this.zoneManager.tryEditZone(zone);
+        if(isEdited){
+            this.zoneEntityManager.editZone(zone);
+            console.log(`danger zone ${zone.zoneId} edited successfully.`);
+        }
+        else
+            console.log("error in HandleEditDangerZone. danger zone editing failed")
+    }
+
+    
 }

@@ -158,8 +158,9 @@ public class Program
             if (isAdded)
             {
                 System.Console.WriteLine("{0} ({1}) - Added scenario successfully.", scenario.scenarioId, scenario.scenarioName);
+                string json = JsonSerializer.Serialize(scenario);
                 ScenarioResults scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);
-                System.Console.WriteLine(scenarioResults.jammers.Count.ToString() + " jammers in scenario results");
+                string json2 = JsonSerializer.Serialize(scenarioResults);
                 // save the calculated scenario
                 scenarioResultsManager.TryAddScenario(scenario.scenarioId, scenarioResults);
             }

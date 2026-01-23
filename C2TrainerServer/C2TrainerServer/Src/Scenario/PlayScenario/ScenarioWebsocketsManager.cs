@@ -83,7 +83,7 @@ public class ScenarioWebsocketsManager
             allocation.JammerMap[jammer.id] = ws;
         }
         // set radar websocket
-        allocation.Radar = _radarWS;
+        allocation.RadarWS = _radarWS;
 
 
         // set zones in zones websocket
@@ -94,25 +94,33 @@ public class ScenarioWebsocketsManager
         return allocation;
     }
 
-public async Task StopWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
-{
-    Console.WriteLine("Stopping all websocket servers...");
+    public async Task StopWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
+    {
+        Console.WriteLine("Stopping all websocket servers...");
 
-    allocation.ZonesWS.Stop(); // stop zones
-    System.Console.WriteLine("stopped zones websocket.");
-    
-    foreach (var ws in allocation.JammerMap.Values)
-        ws.Stop();
+        var stopTasks = new List<Task>();
 
-    allocation.Radar.Stop();
+        if (allocation.ZonesWS != null)
+        {
+            stopTasks.Add(allocation.ZonesWS.StopAsync());
+        }
 
+        foreach (var ws in allocation.JammerMap.Values)
+        {
+            stopTasks.Add(ws.StopAsync());
+        }
 
+        if (allocation.RadarWS != null)
+        {
+            stopTasks.Add(allocation.RadarWS.StopAsync());
+        }
 
-    // small delay to ensure OS has released the ports completely
-    await Task.Delay(500); 
-    
-    Console.WriteLine("All ports should be free now.");
-}
+        await Task.WhenAll(stopTasks);
+
+        await Task.Delay(500); 
+        
+        Console.WriteLine("All ports should be free now.");
+    }
 
 public async Task StartWebsocketsByAllocation(ScenarioWebSocketAllocation allocation)
 {
@@ -123,7 +131,7 @@ public async Task StartWebsocketsByAllocation(ScenarioWebSocketAllocation alloca
     
     _ = Task.Run(() => allocation.ZonesWS.StartAsync());
 
-    _ = Task.Run(() => allocation.Radar.StartAsync());
+    _ = Task.Run(() => allocation.RadarWS.StartAsync());
 
     foreach (var ws in allocation.JammerMap.Values)
     {

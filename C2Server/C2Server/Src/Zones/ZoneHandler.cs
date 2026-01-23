@@ -24,6 +24,7 @@ public class ZoneHandler
             return;
 
         playingScenarioData.SetZones(initialZones.zones);
+        playingScenarioData.SetZonesWS(zonesWS);
 
         foreach (var zone in initialZones.zones)
         {

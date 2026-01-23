@@ -37,7 +37,7 @@ public class RadarMsgHandler
                 return;
             }
 
-
+            System.Console.WriteLine("" + wrapper.data);
             switch (messageType)
             {
                 case RadarToC2ServerMsgType.RadarUpdate:

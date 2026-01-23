@@ -18,6 +18,7 @@ public class RadarWebSocketServer : WebSocketServer
                         break;
 
                     await SendAsync(json);
+                    System.Console.WriteLine("sent :" + json);
                 }
             }, token);
         }

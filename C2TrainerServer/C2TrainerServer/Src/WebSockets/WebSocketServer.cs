@@ -48,13 +48,31 @@ public abstract class WebSocketServer
         await _app.RunAsync(token);
     }
 
-    public void Stop()
+    public async Task StopAsync()
     {
-        //_queue.CompleteAdding();
-        _socket?.CloseAsync(WebSocketCloseStatus.NormalClosure, "Stopped", CancellationToken.None).Wait();
-        _app?.StopAsync().Wait();
-    }
+        Console.WriteLine($"--- Starting Stop Sequence for port {_port} ---");
 
+        try 
+        {
+            if (_socket != null && _socket.State == WebSocketState.Open)
+            {
+                await _socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Server Stopping", CancellationToken.None);
+            }
+        }
+        catch {  }
+
+        try
+        {
+            if (_app != null)
+            {
+                await _app.StopAsync();
+                await _app.DisposeAsync();
+            }
+        }
+        catch (Exception ex) { Console.WriteLine($"App stop error on port {_port}: {ex.Message}"); }
+
+        Console.WriteLine($"--- Server on port {_port} Stopped Successfully ---");
+    }
     public void Enqueue(string data) => _queue.Add(data);
     protected abstract Task RunAsync(CancellationToken token);
     protected abstract Task OnClientConnectedAsync();

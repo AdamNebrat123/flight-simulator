@@ -20,5 +20,4 @@ export enum S2CMessageType {
     RemoveJammer = "RemoveJammer",
     JammerError = "JammerError",
     JammersUpdate = "JammersUpdate",
-    InitialZones = "InitialZones"
 }

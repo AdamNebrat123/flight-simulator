@@ -24,6 +24,11 @@ public class RadarHandler
         // update the most recent radar update in current scenario data
         playingScenarioData.SetMostRecentSkyPicture(skyPicture);
 
+        if(playingScenarioData.GetRadarWS() == null)
+        {
+            playingScenarioData.SetRadarWS(radarWS);
+        }
+
         // Send to C2 UI
         string msg = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RadarUpdate, radarUpdate);
         UIWebSocketServer.SendMsgToClients(msg);

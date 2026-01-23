@@ -347,6 +347,7 @@ public partial class AircraftTrajectory
 
     public virtual AircraftStatus CreateStatus(TrajectoryPoint point)
     {
+        System.Console.WriteLine("Creating DEAFULT CreateStatus");
         return new AircraftStatus
         {
             aircraftType = "NONE",
@@ -366,6 +367,7 @@ public partial class DroneTrajectory : AircraftTrajectory
     public string frequency { get; set; }
     public override AircraftStatus CreateStatus(TrajectoryPoint point)
     {
+        System.Console.WriteLine("Creating DroneStatus for aircraftId");
         return new DroneStatus
         {
             aircraftType = AircraftTypeEnum.Drone.ToString(),
@@ -500,9 +502,18 @@ public partial class UavTrajectory : AircraftTrajectory
 }
 
 // Base status
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "aircraftType")]
+[JsonDerivedType(typeof(DroneStatus), "Drone")]
+[JsonDerivedType(typeof(PlaneStatus), "Plane")]
+[JsonDerivedType(typeof(BalloonStatus), "Balloon")]
+[JsonDerivedType(typeof(B2spiritStatus), "B2spirit")]
+[JsonDerivedType(typeof(F16Status), "F16")]
+[JsonDerivedType(typeof(F34Status), "F35")]
+[JsonDerivedType(typeof(IaiKfirStatus), "IaiKfir")]
+[JsonDerivedType(typeof(UavStatus), "Uav")]
 public partial class AircraftStatus
 {
-    [JsonPropertyName("aircraftType")]
+    [JsonIgnore]
     public string aircraftType { get; set; }
     [JsonPropertyName("aircraftId")]
     public string aircraftId { get; set; }
@@ -522,6 +533,7 @@ public partial class AircraftStatus
 
 public partial class DroneStatus : AircraftStatus
 {
+    [JsonPropertyName("frequency")]
     public string frequency { get; set; }
     public DroneStatus() => aircraftType = AircraftTypeEnum.Drone.ToString();
 }

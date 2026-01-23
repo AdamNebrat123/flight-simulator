@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Threading.Channels;
 
 public class PlaySelectedScenarioHandler
 {
@@ -102,9 +103,11 @@ public class PlaySelectedScenarioHandler
                 if (history[aircraft.AircraftId].Count > 30)
                     history[aircraft.AircraftId].Dequeue();
 
-
+                string json1 = JsonSerializer.Serialize(aircraft.Aircraft);
+                System.Console.WriteLine("Aircraft AircraftRuntimeData: " + json1);
                 AircraftStatus aircraftStatus = aircraft.Aircraft.CreateStatus(point);
-
+                string json2 = JsonSerializer.Serialize(aircraftStatus);
+                System.Console.WriteLine("Aircraft status: " + json2);
 
                 aircraftStatus.tailPoints = history[aircraft.AircraftId].ToList();
 

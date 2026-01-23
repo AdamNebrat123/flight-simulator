@@ -1,6 +1,5 @@
 public class ZoneChecker
 {
-    //private readonly ZoneManager zoneManager = ZoneManager.GetInstance();
     private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
     public ZoneChecker()
     {
