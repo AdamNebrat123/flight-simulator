@@ -37,15 +37,15 @@ public class ZonesMsgHandler
                 return;
             }
 
-            System.Console.WriteLine("received: " + wrapper.data);
-
+            System.Console.WriteLine("received: " + json);
             switch (messageType)
             {
                 
                 case ZonesToC2ServerMsgType.InitialZones:
+                    System.Console.WriteLine("wrapper.data " + wrapper.data);
                     _zoneHandler.HandleInitialZones(wrapper.data, zonesWS);
                     break;
-                    
+
                 default:
                     Console.WriteLine("Unhandled message type.");
                     break;

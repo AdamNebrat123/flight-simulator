@@ -3,7 +3,7 @@ public class ScenarioWebsocketsManager
     private static readonly ScenarioWebsocketsManager _instance = new ScenarioWebsocketsManager();
     private ZonesWebSocketServer _zonesWS; // zones
     private List<JammerWebSocketServer> _jammersWS; // jammers
-    private List<RadarWebSocketServer> _radarsWS; // radars
+    private RadarWebSocketServer _radarWS; // radars
 
     private ScenarioWebsocketsManager()
     {
@@ -19,10 +19,8 @@ public class ScenarioWebsocketsManager
     {
         // init zones websocket
         _jammersWS = new List<JammerWebSocketServer>();
-        _radarsWS = new List<RadarWebSocketServer>();
 
         int maxJammers = 5; // get from config
-        int maxRadars = 1; // get from config
 
         // init jammers websockets
         /*for (int i = 0; i < maxJammers; i++)
@@ -38,12 +36,8 @@ public class ScenarioWebsocketsManager
         _jammersWS.Add(new JammerWebSocketServer(6004));
         _jammersWS.Add(new JammerWebSocketServer(6005));
         // init radars websockets
-        for (int i = 0; i < maxRadars; i++)
-        {
-            int port = GetPortForRadar();
-            var radarWS = new RadarWebSocketServer(9002);
-            _radarsWS.Add(radarWS);
-        }
+
+        _radarWS = new RadarWebSocketServer(9002);
 
         // init zones websocket
         int zonePort = GetPortForZones();
@@ -77,7 +71,6 @@ public class ScenarioWebsocketsManager
         var allocation = new ScenarioWebSocketAllocation(scenarioResults.scenarioId);
 
         var freeJammers = new Queue<JammerWebSocketServer>(_jammersWS);
-        var freeRadars  = new Queue<RadarWebSocketServer>(_radarsWS);
 
         // set jammer websockets
 
@@ -89,15 +82,9 @@ public class ScenarioWebsocketsManager
             var ws = freeJammers.Dequeue();
             allocation.JammerMap[jammer.id] = ws;
         }
-        // set radar websockets
-        foreach (var radar in scenarioResults.radars.Values)
-        {
-            if (freeRadars.Count == 0)
-                break;
+        // set radar websocket
+        allocation.Radar = _radarWS;
 
-            var ws = freeRadars.Dequeue();
-            allocation.RadarMap[radar.id] = ws;
-        }
 
         // set zones in zones websocket
         _zonesWS.SetZones(scenarioResults.zones.Values.ToList());
@@ -111,16 +98,14 @@ public async Task StopWebsocketsByAllocation(ScenarioWebSocketAllocation allocat
 {
     Console.WriteLine("Stopping all websocket servers...");
 
-    // סגירת ה-Zones
-    allocation.ZonesWS.Stop();
-
-    // סגירת כל ה-Jammers
+    allocation.ZonesWS.Stop(); // stop zones
+    System.Console.WriteLine("stopped zones websocket.");
+    
     foreach (var ws in allocation.JammerMap.Values)
         ws.Stop();
 
-    // סגירת כל ה-Radars
-    foreach (var ws in allocation.RadarMap.Values)
-        ws.Stop();
+    allocation.Radar.Stop();
+
 
 
     // small delay to ensure OS has released the ports completely
@@ -138,15 +123,13 @@ public async Task StartWebsocketsByAllocation(ScenarioWebSocketAllocation alloca
     
     _ = Task.Run(() => allocation.ZonesWS.StartAsync());
 
+    _ = Task.Run(() => allocation.Radar.StartAsync());
+
     foreach (var ws in allocation.JammerMap.Values)
     {
         _ = Task.Run(() => ws.StartAsync());
     }
 
-    foreach (var ws in allocation.RadarMap.Values)
-    {
-        _ = Task.Run(() => ws.StartAsync());
-    }
 
     Console.WriteLine("All websocket servers are now listening.");
     await Task.CompletedTask;
@@ -155,9 +138,9 @@ public async Task StartWebsocketsByAllocation(ScenarioWebSocketAllocation alloca
     {
         return _jammersWS;
     }
-    public List<RadarWebSocketServer> GetRadarsWS()
+    public RadarWebSocketServer GetRadarWS()
     {
-        return _radarsWS;
+        return _radarWS;
     }
     public ZonesWebSocketServer GetZonesWS()
     {

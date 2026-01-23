@@ -53,7 +53,7 @@ public abstract class WebSocketClient
 
     private async Task ReceiveLoopAsync(CancellationToken ct)
     {
-        var buffer = new byte[1024 * 4];
+        var buffer = new byte[1024 * 16];
         while (_socket?.State == WebSocketState.Open && !ct.IsCancellationRequested)
         {
             var result = await _socket.ReceiveAsync(new ArraySegment<byte>(buffer), ct);

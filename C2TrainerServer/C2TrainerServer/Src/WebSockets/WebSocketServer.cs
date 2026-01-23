@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 public abstract class WebSocketServer
 {
-    protected readonly BlockingCollection<string> _queue = new();
+    protected BlockingCollection<string> _queue = new();
     protected readonly int _port;
     protected WebApplication? _app; 
     protected WebSocket? _socket; 
@@ -18,6 +18,7 @@ public abstract class WebSocketServer
 
     public async Task StartAsync(CancellationToken token = default)
     {
+        _queue = new BlockingCollection<string>();
         var builder = WebApplication.CreateBuilder();
 
         builder.WebHost.ConfigureKestrel(options =>
@@ -49,7 +50,7 @@ public abstract class WebSocketServer
 
     public void Stop()
     {
-        _queue.CompleteAdding();
+        //_queue.CompleteAdding();
         _socket?.CloseAsync(WebSocketCloseStatus.NormalClosure, "Stopped", CancellationToken.None).Wait();
         _app?.StopAsync().Wait();
     }

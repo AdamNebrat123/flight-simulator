@@ -37,7 +37,6 @@ public class RadarMsgHandler
                 return;
             }
 
-            System.Console.WriteLine("received: " + wrapper.data);
 
             switch (messageType)
             {

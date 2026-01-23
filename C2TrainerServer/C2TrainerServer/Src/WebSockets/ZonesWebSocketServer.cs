@@ -35,14 +35,11 @@ public class ZonesWebSocketServer : WebSocketServer
         {
             await Task.Run(async () =>
             {
-                foreach (var zone in _queue.GetConsumingEnumerable(token))
+                foreach (var json in _queue.GetConsumingEnumerable(token))
                 {
                     if (_socket == null || _socket.State != WebSocketState.Open)
                         break;
 
-                    string msgType = ZonesToC2ServerMsgType.InitialZones.ToString();
-                    string json = prepareMessageToClient(msgType, zone);
-                    
                     await SendAsync(json);
                     System.Console.WriteLine($"[Zones Port {_port}] Sent zone update");
                 }

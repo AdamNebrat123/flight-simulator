@@ -3,7 +3,7 @@ public class ScenarioWebSocketAllocation
     public string ScenarioId { get; }
 
     public Dictionary<string, JammerWebSocketServer> JammerMap { get; } = new();
-    public Dictionary<string, RadarWebSocketServer> RadarMap { get; } = new();
+    public RadarWebSocketServer RadarWS { get; set; }
 
     public ZonesWebSocketServer ZonesWS { get; set; }
 

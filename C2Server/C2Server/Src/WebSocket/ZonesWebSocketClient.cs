@@ -11,6 +11,7 @@ public class ZonesWebSocketClient : WebSocketClient
         {
             foreach (string json in _receiveQueue.GetConsumingEnumerable(ct))
             {
+                System.Console.WriteLine("JSON:           " + json);
                 _zonesMsgHandler.HandleIncomingMessage(this, json);
             }
         }

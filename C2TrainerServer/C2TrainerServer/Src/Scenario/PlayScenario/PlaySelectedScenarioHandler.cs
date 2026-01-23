@@ -137,12 +137,10 @@ public class PlaySelectedScenarioHandler
     private void SendRadarUpdate(RadarUpdate radarUpdate, ScenarioWebSocketAllocation allocation, ScenarioResults scenarioResults)
     {
         // send to all in the first radar
-        Sensor radar = scenarioResults.radars.Values.First();
-        RadarWebSocketServer radarWS = allocation.RadarMap[radar.id];
+        RadarWebSocketServer radarWS = allocation.RadarWS;
         if(radarWS != null){
             string msgType = RadarToC2ServerMsgType.RadarUpdate.ToString();
             string json = WebSocketServer.prepareMessageToClient(msgType, radarUpdate);
-            System.Console.WriteLine("sent: " + json);
             radarWS.Enqueue(json);
         }
     }

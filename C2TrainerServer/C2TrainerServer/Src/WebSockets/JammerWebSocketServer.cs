@@ -13,7 +13,6 @@ public class JammerWebSocketServer : WebSocketServer
             {
                 foreach (string json in _queue.GetConsumingEnumerable(token))
                 {
-                    // בדיקת תקינות הסוקט לפני שליחה
                     if (_socket == null || _socket.State != WebSocketState.Open)
                         break;
 

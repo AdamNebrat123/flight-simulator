@@ -200,6 +200,8 @@ public abstract class Zone
 
     [JsonPropertyName("bottomHeight")]
     public double bottomHeight { get; set; }
+
+    [JsonIgnore]
     public string zoneType { get; set; }
 }
 public class DangerZone : Zone

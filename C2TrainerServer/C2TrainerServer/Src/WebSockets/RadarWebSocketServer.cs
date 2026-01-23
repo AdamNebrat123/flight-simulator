@@ -18,7 +18,6 @@ public class RadarWebSocketServer : WebSocketServer
                         break;
 
                     await SendAsync(json);
-                    System.Console.WriteLine($"[Radar Port {_port}] Sent update to client");
                 }
             }, token);
         }

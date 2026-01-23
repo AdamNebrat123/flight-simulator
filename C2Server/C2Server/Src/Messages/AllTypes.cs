@@ -95,10 +95,6 @@ public partial class SkyPicture
 {
     [JsonPropertyName("aircrafts")]
     public List<AircraftStatus> aircrafts { get; set; }
-    public SkyPicture(ScenarioAirCraftsSnapshot snapshot)
-    {
-        this.aircrafts = snapshot.aircrafts;
-    }
 }
 
 public partial class InitialZones
