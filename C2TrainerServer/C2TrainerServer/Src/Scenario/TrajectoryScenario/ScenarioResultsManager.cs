@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
+using Force.DeepCloner;
 
 public class ScenarioResultsManager
 {
@@ -51,20 +52,14 @@ public class ScenarioResultsManager
         return null;
     }
     public ScenarioResults? GetCopyOfScenarioResult(string scenarioId)
+{
+    if (_scenarios.TryGetValue(scenarioId, out var scenario) && scenario != null)
     {
-        if (_scenarios.TryGetValue(scenarioId, out var scenario))
-        {
-            if(scenario == null)
-            {
-                System.Console.WriteLine(scenarioId);
-                System.Console.WriteLine("NULL SCENARIO!!!!!!!!");
-                return null;
-            }
-            var serialized = JsonSerializer.Serialize(scenario);
-            return JsonSerializer.Deserialize<ScenarioResults>(serialized);
-        }
-        return null;
+        return scenario.DeepClone();
     }
+
+    return null;
+}
 
     public bool HasScenario(string scenarioId)
     {

@@ -5,6 +5,8 @@ public class JammerMsgHandler
 {
     private static readonly JammerMsgHandler _instance = new JammerMsgHandler();
     private readonly JammerHandler _jammerHandler = JammerHandler.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
+    private readonly JammerManager jammerManager = JammerManager.GetInstance();
     private JammerMsgHandler()
     {
     }
@@ -55,6 +57,19 @@ public class JammerMsgHandler
         catch (Exception ex)
         {
             Console.WriteLine("Error handling message: " + ex.Message);
+        }
+    }
+    public void HandleDisconnection(JammerWebSocketClient jammerWebSocket)
+    {
+        bool isRemoved = playingScenarioData.TryRemoveJammerByClient(jammerWebSocket, out string? jammerId);
+        if (jammerId != null && isRemoved)
+        {
+            Jammer jammer = jammerManager.GetJammerById(jammerId);
+            // send remove to ui
+            _jammerHandler.SendRemoveJammer(jammer);
+
+            // remove from manager
+            jammerManager.TryRemoveJammer(jammerId);
         }
     }
 }

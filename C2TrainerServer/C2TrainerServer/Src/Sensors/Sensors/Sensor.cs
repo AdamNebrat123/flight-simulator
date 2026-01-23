@@ -16,6 +16,7 @@ public class Sensor
     [JsonPropertyName("status")]
 
     public Status status { get;  set; }
+    [JsonIgnore]
 
     public SensorType sensorType { get; set; }
 }

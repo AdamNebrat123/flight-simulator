@@ -5,6 +5,7 @@ public class RadarMsgHandler
 {
     private static readonly RadarMsgHandler _instance = new RadarMsgHandler();
     private readonly RadarHandler _radarHandler = RadarHandler.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
     private RadarMsgHandler()
     {
     }
@@ -57,5 +58,9 @@ public class RadarMsgHandler
         {
             Console.WriteLine("Error handling message: " + ex.Message);
         }
+    }
+    public void HandleDisconnection(RadarWebSocketClient radarWebSocket)
+    {
+        // none for now
     }
 }

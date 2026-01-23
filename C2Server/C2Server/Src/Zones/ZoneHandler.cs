@@ -37,4 +37,10 @@ public class ZoneHandler
         string zoneData =  UIWebSocketServer.PrepareMessageToClient(S2CMessageType.AddZone, zone);
         UIWebSocketServer.SendMsgToClients(zoneData);
     }
+    public void SendRemoveZone(Zone zone)
+    {
+        string zoneData =  UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RemoveZone, zone);
+        UIWebSocketServer.SendMsgToClients(zoneData);
+    }
+    
 }

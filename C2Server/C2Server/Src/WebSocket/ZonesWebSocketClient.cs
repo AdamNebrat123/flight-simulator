@@ -21,4 +21,11 @@ public class ZonesWebSocketClient : WebSocketClient
         }
     }
 
+    protected override Task OnDisconnectedAsync()
+    {
+        _zonesMsgHandler.HandleDisconnection(this);
+        return Task.CompletedTask;
+    }
+    
+
 }

@@ -20,5 +20,10 @@ public class RadarWebSocketClient : WebSocketClient
             // expected on shutdown
         }
     }
+    protected override Task OnDisconnectedAsync()
+    {
+        _radarMsgHandler.HandleDisconnection(this);
+        return Task.CompletedTask;
+    }
 
 }

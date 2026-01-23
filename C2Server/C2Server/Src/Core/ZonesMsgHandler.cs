@@ -5,6 +5,8 @@ public class ZonesMsgHandler
 {
     private static readonly ZonesMsgHandler _instance = new ZonesMsgHandler();
     private readonly ZoneHandler _zoneHandler = ZoneHandler.GetInstance();
+    private readonly PlayingScenarioData playingScenarioData = PlayingScenarioData.GetInstance();
+
     private ZonesMsgHandler()
     {
     }
@@ -59,5 +61,15 @@ public class ZonesMsgHandler
         {
             Console.WriteLine("Error handling message: " + ex.Message);
         }
+    }
+    public void HandleDisconnection(ZonesWebSocketClient zonesWebSocketClient)
+    {
+        List<Zone> zones = playingScenarioData.GetZones();
+        foreach (Zone zone in zones)
+        {
+            _zoneHandler.SendRemoveZone(zone);
+        }
+        playingScenarioData.ClearZones();
+        playingScenarioData.SetZonesWS(null);
     }
 }

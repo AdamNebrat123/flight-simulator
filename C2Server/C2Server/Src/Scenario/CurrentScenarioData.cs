@@ -50,6 +50,20 @@ public class PlayingScenarioData
     {
         _jammerIdToClientMap.TryRemove(jammerId, out _);
     }
+    public bool TryRemoveJammerByClient(JammerWebSocketClient jammerWebSocket, out string? jammerId)
+    {
+        jammerId = null;
+        foreach (var kvp in _jammerIdToClientMap)
+        {
+            if (kvp.Value == jammerWebSocket)
+            {
+                jammerId = kvp.Key;
+                break;
+            }
+        }
+        return _jammerIdToClientMap.TryRemove(jammerId, out _);
+    }
+
     public RadarWebSocketClient? GetRadarWS()
     {
         return _radarWS;

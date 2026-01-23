@@ -29,22 +29,35 @@ public abstract class WebSocketClient
     {
         while (!ct.IsCancellationRequested)
         {
+            bool wasConnected = false; // דגל למעקב אחרי מצב החיבור
             try
             {
                 _socket = new ClientWebSocket();
                 
                 await _socket.ConnectAsync(_serverUri, ct);
+                
+                // אם הגענו לכאן - החיבור הצליח!
+                wasConnected = true; 
                 Console.WriteLine($"[Client] Connected to {_serverUri}!");
 
                 await ReceiveLoopAsync(ct);
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[Client] Connection error: {ex.Message}. Retrying in 1 seconds");
+                // כאן נתפסות שגיאות חיבור (Server Down וכו')
             }
             finally
             {
                 _socket?.Dispose();
+                _socket = null;
+
+                // קוראים לניתוק רק אם הדגל אומר שהיה חיבור פעיל לפני רגע
+                if (wasConnected)
+                {
+                    wasConnected = false;
+                    _ = OnDisconnectedAsync();
+                }
+
                 // reconnect delay
                 await Task.Delay(1000, ct);
             }
@@ -56,7 +69,15 @@ public abstract class WebSocketClient
         var buffer = new byte[1024 * 16];
         while (_socket?.State == WebSocketState.Open && !ct.IsCancellationRequested)
         {
-            var result = await _socket.ReceiveAsync(new ArraySegment<byte>(buffer), ct);
+            WebSocketReceiveResult result;
+            try
+            {
+                result = await _socket.ReceiveAsync(new ArraySegment<byte>(buffer), ct);
+            }
+            catch
+            {
+                break; 
+            }
             
             if (result.MessageType == WebSocketMessageType.Close) break;
 
@@ -69,9 +90,8 @@ public abstract class WebSocketClient
     {
         foreach (var msg in _sendQueue.GetConsumingEnumerable(ct))
         {
-            while (_socket?.State != WebSocketState.Open && !ct.IsCancellationRequested)
+            while ((_socket == null || _socket.State != WebSocketState.Open) && !ct.IsCancellationRequested)
             {
-                // wait for connection
                 await Task.Delay(100, ct);
             }
 
@@ -85,7 +105,7 @@ public abstract class WebSocketClient
     }
 
     public void EnqueueOutgoing(string json) => _sendQueue.Add(json);
-
+    protected abstract Task OnDisconnectedAsync();
     public virtual string prepareMessageToClient<T>(string msgType, T msg)
     {
         var message = new { type = msgType, data = msg };
@@ -94,8 +114,4 @@ public abstract class WebSocketClient
 
     protected abstract Task ProcessIncomingMessagesAsync(CancellationToken ct);
 
-    public WebSocket GetWebSocket()
-    {
-        return _socket;
-    }
 }

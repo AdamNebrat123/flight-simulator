@@ -19,5 +19,10 @@ public class JammerWebSocketClient : WebSocketClient
             // expected on shutdown
         }
     }
+    protected override Task OnDisconnectedAsync()
+    {
+        _jammerMsgHandler.HandleDisconnection(this);
+        return Task.CompletedTask;
+    }
 
 }

@@ -331,8 +331,8 @@ public partial class DroneKilled
 [JsonDerivedType(typeof(UavTrajectory), "Uav")]
 public partial class AircraftTrajectory
 {
-    //[JsonPropertyName("aircraftType")]
-    //public string aircraftType { get; set; }
+    [JsonIgnore]
+    public string aircraftType { get; set; }
     [JsonPropertyName("aircraftId")]
     public string aircraftId { get; set; }
 

@@ -55,8 +55,8 @@ public class PlaySelectedScenarioHandler
         // THOSE FIELDS GET DEFAULT VALUES 
         // FOR NOW I WILL JUST USE THE ORIGINAL OBJECT
         // WILL FIX ASAP
-        _scenarioCopy = originalScenario;
-        //_scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
+        //_scenarioCopy = originalScenario;
+        _scenarioCopy = trajectoryScenarioResultsManager.GetCopyOfScenarioResult(originalScenario.scenarioId);
         //====================================================================================================
         //====================================================================================================
         //====================================================================================================
