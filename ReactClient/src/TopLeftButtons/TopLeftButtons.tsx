@@ -1,22 +1,15 @@
 import "./TopLeftButtons.css"
 interface Props {
   onScenariosClick: () => void;
-  onDangerZonesClick: () => void;
-  onJammersClick: () => void;
+
 }
 
-export default function TopLeftButtons({onScenariosClick, onDangerZonesClick, onJammersClick}: Props) {
+export default function TopLeftButtons({onScenariosClick}: Props) {
   return (
     <div className="top-left-buttons">
       <button className="top-button" onClick={onScenariosClick}>
         Scenarios
       </button>
-      <button className="top-button" onClick={onJammersClick}>
-        Jammers
-      </button>
-      <button className="top-button" onClick={onDangerZonesClick}>
-        Zones
-        </button>
       <button className="top-button" onClick={() => window.open("/Real-Planes-Mode", "_blank")}>
         REAL PLANES MODE
       </button>

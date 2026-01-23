@@ -8,6 +8,7 @@ import { C2SMessageType } from "../Messages/C2SMessageType";
 import { useWebSocket } from "../WebSocket/WebSocketProvider";
 import { PlaneEntityManager } from "../Scenarios/AirCrafts/PlaneEntityManager";
 import { PlaneTailManager } from "../Scenarios/AirCrafts/PlaneTailManager";
+import CreateScenarioPanel from "../CreateScenarioPanel/CreateScenarioPanel";
 
 
 interface Props {
@@ -39,8 +40,8 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
     const [selectedScenarioObj, setSelectedScenarioObj] = useState<Scenario | null>(null);
 
     // create / edit scenario panel
-    const [showCreateTrajectoryPanel, setShowCreateTrajectoryPanel] = useState(false);
-    const openCreateTrajectoryPanel = () => setShowCreateTrajectoryPanel(true);
+    const [showCreateScenarioPanel, setShowCreateScenarioPanel] = useState(false);
+    const openCreateScenarioPanel = () => setShowCreateScenarioPanel(true);
 
 
 
@@ -58,20 +59,20 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
 
     // Add Scenario
     const handleAddScenarioClick = () => {
-        setSelectedScenarioObj({ aircrafts: [], scenarioName: "ScenarioName", scenarioId: "" });
+        setSelectedScenarioObj({ aircrafts: [], scenarioName: "ScenarioName", scenarioId: "" , zones:[], radars: [], jammers: []});
         setOnSaveSceanrio(() => SaveTrajectory); // set the onSave to Save function
         scenarioPlayer.selectScenario(null);
-        openCreateTrajectoryPanel();
+        openCreateScenarioPanel();
     };
     const SaveTrajectory = (data: Scenario) => {
         send(C2SMessageType.AddScenario, data);
-        setShowCreateTrajectoryPanel(false);
+        setShowCreateScenarioPanel(false);
     };
     const EditTrajectory = (data: Scenario) => {
         send(C2SMessageType.EditScenario, data);
-        setShowCreateTrajectoryPanel(false);
+        setShowCreateScenarioPanel(false);
     };
-    const closeCreateTrajectoryPanel = () => setShowCreateTrajectoryPanel(false);
+    const closeCreateTrajectoryPanel = () => setShowCreateScenarioPanel(false);
 
     // On Play
     const handlePlayScenarioClick = () => {
@@ -92,7 +93,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
         setSelectedScenarioObj(selectedScenarioObj);
         setOnSaveSceanrio(() => EditTrajectory); // set the onSave to Edit function
         scenarioPlayer.selectScenario(null);
-        openCreateTrajectoryPanel();
+        openCreateScenarioPanel();
     };
 
     // On Remove
@@ -112,7 +113,7 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
     return (
     <>
         {/* if not showing create trajectory panel, show the Scenarios default panel */}
-        {!showCreateTrajectoryPanel && (
+        {!showCreateScenarioPanel && (
             <div className="scenario-panel">
             <h1 className="scenariosTitle">Scenarios</h1>
 
@@ -165,11 +166,11 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
             </div>
         )}
 
-        {showCreateTrajectoryPanel && (
-            <CreateTrajectoryPanel 
-            initialScenario={selectedScenarioObj!}
-            onSave={onSaveSceanrio!}
-            onCancel={closeCreateTrajectoryPanel}
+        {showCreateScenarioPanel && (
+            <CreateScenarioPanel 
+            initialScenario={{ aircrafts: [], scenarioName: "ScenarioName" , zones:[], jammers: []}}
+            onSave={() => {}}
+            onClose={() => {setShowCreateScenarioPanel(false)}}
             viewerRef={viewerRef}
             />
         )}

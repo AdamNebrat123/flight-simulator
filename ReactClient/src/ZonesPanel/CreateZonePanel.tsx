@@ -325,7 +325,7 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
       };
     
       return (
-        <div className="zone-panel">
+        <div>
           <div className="zone-content">
             <input
               type="text"

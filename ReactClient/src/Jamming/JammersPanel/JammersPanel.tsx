@@ -8,11 +8,10 @@ import CreateJammerPanel from "../CreateJammerPanel/CreateJammerPanel";
 import { JammersManager } from "../Manager/JammerManager";
 
 interface Props {
-  onClose: () => void;
   viewerRef: React.RefObject<any>;
 }
 
-export default function JammersPanel({ onClose, viewerRef }: Props) {
+export default function JammersPanel({viewerRef }: Props) {
   const { send } = useWebSocket();
   const jammersManager = JammersManager.getInstance();
 
@@ -91,7 +90,7 @@ export default function JammersPanel({ onClose, viewerRef }: Props) {
     <>
         {/* if not showing create trajectory panel, show the Scenarios default panel */}
     { !showCreateJammerPanel && (
-    <div className="jammer-panel">
+    <div>
       <h1 className="jammersTitle">Jammers</h1>
 
       <button className="addJammer-button" onClick={handleAddJammerClick}>
@@ -132,9 +131,6 @@ export default function JammersPanel({ onClose, viewerRef }: Props) {
         ))}
       </ul>
 
-      <button onClick={onClose} className="close-button">
-        Close
-      </button>
     </div>
     )}
 

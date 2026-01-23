@@ -9,11 +9,10 @@ import CreateZonePanel from "./CreateZonePanel";
 
 
 interface Props {
-  onClose: () => void;
   viewerRef: React.RefObject<any>;
 }
 
-export default function ZonesPanel({ onClose, viewerRef }: Props){
+export default function ZonesPanel({viewerRef }: Props){
     const { isConnected, send, on } = useWebSocket();
     const [showCreateDangerZonePanel, setShowCreateDangerZonePanel] = useState(false);
     const [selectedZoneObj, setSelectedZoneObj] = useState<Zone | null>(null);
@@ -44,11 +43,6 @@ export default function ZonesPanel({ onClose, viewerRef }: Props){
         setSelectedZoneObj(zone);
     };
 
-
-    const handleClose = () => {
-        onClose();
-        setSelectedZoneObj(null);
-    }
 
 
     const handleAddZoneClick = () => {
@@ -84,7 +78,7 @@ export default function ZonesPanel({ onClose, viewerRef }: Props){
     <>
         {/* if not showing create trajectory panel, show the Scenarios default panel */}
         {!showCreateDangerZonePanel && (
-            <div className="dangerZone-panel">
+            <div>
                 <h1 className="dangerZonesTitle">Danger Zones</h1>
 
                 <button className="addDangerZone-button" onClick={handleAddZoneClick}>
@@ -121,10 +115,6 @@ export default function ZonesPanel({ onClose, viewerRef }: Props){
                 ))}
             </ul>
 
-
-            <button onClick={handleClose} className="close-button">
-                Close
-            </button>
             </div>
         )}
 

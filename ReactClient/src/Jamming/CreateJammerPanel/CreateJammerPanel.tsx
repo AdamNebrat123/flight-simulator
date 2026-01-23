@@ -116,7 +116,7 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
   };
 
   return (
-    <div className="jammer-panel">
+    <div>
       <div className="jammer-content">
         <h2 className="jammer-title">Jammer</h2>
 
@@ -187,9 +187,6 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
           Cancel
         </button>
       </div>
-      <label>RADIUS: {jammer.radius}</label>
-      <label>POSITION: {jammer.position?.longitude.toFixed(6)}, {jammer.position?.latitude.toFixed(6)}</label>
-      <label>FREQUENCIES: {jammer.supportedFrequencies.join(', ')}</label>
     </div>
   );
 }

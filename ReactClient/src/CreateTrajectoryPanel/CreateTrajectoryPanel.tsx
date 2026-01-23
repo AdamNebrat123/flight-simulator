@@ -14,11 +14,9 @@ import CreateDrone from "./CreateDrone";
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
   initialScenario: Scenario;
-  onSave: (data: Scenario) => void;
-  onCancel: (data: Scenario) => void;
 }
 
-export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSave, onCancel }: Props) {
+export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Props) {
     const [scenario, setScenario] = useState<Scenario>(
         JSON.parse(JSON.stringify(initialScenario)) // deep copy to avoid mutating the prop
     );
@@ -121,13 +119,13 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
     const handlePlaneNameChange = (index: number, newName: string) => {
         const updatedPlanes = [...scenario.aircrafts];
         updatedPlanes[index].aircraftName = newName;
-        setScenario({ aircrafts: updatedPlanes, scenarioName: scenario.scenarioName, scenarioId: scenario.scenarioId });
+        setScenario(scenario);
     };
 
     const handleVelocityChange = (index: number, newVelocity: number) => {
         const updatedPlanes = [...scenario.aircrafts];
         updatedPlanes[index].velocity = newVelocity;
-        setScenario({ aircrafts: updatedPlanes, scenarioName: scenario.scenarioName, scenarioId: scenario.scenarioId });
+        setScenario(scenario);
     };
 
     const handleGeoPointChange = (
@@ -139,7 +137,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
         const updatedPlanes = [...scenario.aircrafts];
         updatedPlanes[planeIndex].geoPoints[pointIndex][field] = value;
         const updatedPoint = updatedPlanes[planeIndex].geoPoints[pointIndex];
-        setScenario({ aircrafts: updatedPlanes, scenarioName: scenario.scenarioName, scenarioId: scenario.scenarioId });
+        setScenario(scenario);
         const planeName = updatedPlanes[planeIndex].aircraftName;
         polylineManagerRef.current?.updatePoint(planeName, pointIndex, updatedPoint)
     };
@@ -286,7 +284,6 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
     
 
     return (
-    <div className="trajectory-panel">
         <div className="trajectory-content">
         <input
         id="scenario-name"
@@ -424,24 +421,6 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario, onSa
                 </div>
             </div>
         )}
-        </div>
-        </div>
-
-        <div className="trajectory-actions" style={{ marginTop: 12 }}>
-        <button className="action-button save-button" onClick={
-            () => {
-            cleanTemporaryPolyline();
-            console.log("SAVED: " , scenario)
-            onSave(scenario);
-            }}>
-                Save
-        </button>
-        <button className="action-button cancel-button" onClick={() => {
-            cleanTemporaryPolyline();
-            onCancel(scenario);
-            }}>
-                Cancel
-        </button>
         </div>
     </div>
     );
