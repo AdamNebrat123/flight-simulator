@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { C2SMessageType } from "../Messages/C2SMessageType";
-import { useWebSocket } from "../WebSocket/WebSocketProvider";
+import { useEffect, useRef, useState } from "react";
 import type { DangerZone, Zone } from "../Messages/AllTypes";
-import { ZoneManager } from "../Zones/ZoneManager";
 import "./ZonesPanel.css";
 import { ZoneEntityManager } from "../Zones/ZoneEntityManager";
 import CreateZonePanel from "./CreateZonePanel";
+import type { ZoneHandler } from "../Zones/ZoneHandler";
+import { TemporaryZoneEntityManager } from "../Zones/TemporaryZoneEntityManager";
 
 
 interface Props {
@@ -14,29 +13,20 @@ interface Props {
   viewerRef: React.RefObject<any>;
 }
 
-export default function ZonesPanel({viewerRef }: Props){
-    const { isConnected, send, on } = useWebSocket();
+export default function ZonesPanel({zones, setZones, viewerRef }: Props){
     const [showCreateDangerZonePanel, setShowCreateDangerZonePanel] = useState(false);
     const [selectedZoneObj, setSelectedZoneObj] = useState<Zone | null>(null);
     // saving function for create / edit
     const [onSaveZone , setOnSaveZone] = useState<((data: Zone) => void) | null>(null);
+    const zoneHandlerRef =  useRef<ZoneHandler | null>(null);
 
-    const zoneManager = ZoneManager.getInstance();
-    const zoneEntityManager = ZoneEntityManager.GetInstance(viewerRef.current);
-    const [zones, setZones] = useState<Zone[]>(zoneManager.getAllZones());
-
-    useEffect(() => {
-        const unsubscribe = zoneManager.subscribe((newZones) => {
-            setZones(newZones);
-        });
-        return () => unsubscribe();
-    }, [zoneManager]);
+    const temporaryZoneEntityManager = TemporaryZoneEntityManager.GetInstance(viewerRef.current);
 
     // open / close 
     const openCreateDangerZonePanel = () => setShowCreateDangerZonePanel(true);
     const closeCreateDangerZonePanel = () => {
         setShowCreateDangerZonePanel(false);
-        zoneEntityManager.showEntityById(selectedZoneObj?.zoneId!);
+        temporaryZoneEntityManager.showEntityById(selectedZoneObj?.zoneName!);
         setSelectedZoneObj(null);
     }
 
@@ -48,18 +38,25 @@ export default function ZonesPanel({viewerRef }: Props){
 
 
     const handleAddZoneClick = () => {
-        setSelectedZoneObj({ zoneType: "Danger", zoneName: "ZoneName", points: [], topHeight: 100, bottomHeight: 0, zoneId: "" });
+        setSelectedZoneObj({ zoneType: "Danger", zoneName: "ZoneName", points: [], topHeight: 100, bottomHeight: 0});
         setOnSaveZone(() => SaveZone); // set the onSave to Save function
         openCreateDangerZonePanel();
     };
 
     // Save/Edit DangerZone functions
-    const SaveZone = (data: DangerZone) => {
-        send(C2SMessageType.AddZone, data);
+    const SaveZone = (zone: Zone) => {
+        setZones([...zones, zone])
+        zoneHandlerRef.current?.HandleAddZone(zone);
+        temporaryZoneEntityManager.tryAddZone(zone);
         setShowCreateDangerZonePanel(false);
     };
-    const EditZone = (data: DangerZone) => {
-        send(C2SMessageType.EditZone, data);
+    const EditZone = (updatedZone: Zone) => {
+        let zone : Zone = zones.filter(z => z.zoneName == zone.zoneName)?.[0]
+        if(zone != null)
+            zone = updatedZone;
+        setZones([...zones])
+        temporaryZoneEntityManager.editZone(zone);
+
         setShowCreateDangerZonePanel(false);
     };
 
@@ -67,13 +64,17 @@ export default function ZonesPanel({viewerRef }: Props){
     const handleEditZoneClick = () => {
         setSelectedZoneObj(selectedZoneObj);
         setOnSaveZone(() => EditZone); // set the onSave to Edit function
-        zoneEntityManager.hideEntityById(selectedZoneObj?.zoneId!);
+        temporaryZoneEntityManager.hideEntityById(selectedZoneObj?.zoneName!);
         openCreateDangerZonePanel();
     };
 
     // On Remove
     const handleRemoveZoneClick = () => {
-        send(C2SMessageType.RemoveZone, selectedZoneObj);
+        if(selectedZoneObj){
+            temporaryZoneEntityManager.removeZone(selectedZoneObj.zoneName);
+            const newZones = zones.filter(z => z.zoneName != selectedZoneObj.zoneName)
+            setZones([...newZones])
+        }
     };
     
     return (
@@ -108,8 +109,8 @@ export default function ZonesPanel({viewerRef }: Props){
             <ul className="dangerZone-list">
                 {zones.map((zone) => (
                 <li
-                    key={zone.zoneId}
-                    className={`dangerZone-item ${selectedZoneObj?.zoneId === zone.zoneId ? "selected" : ""}`}
+                    key={zone.zoneName}
+                    className={`dangerZone-item ${selectedZoneObj?.zoneName === zone.zoneName ? "selected" : ""}`}
                     onClick={() => handleSelect(zone)}
                 >
                     {zone.zoneName} 

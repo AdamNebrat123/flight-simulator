@@ -30,13 +30,9 @@ export class ZoneHandler{
         }
     }
     AddZone(zone: Zone){
-        const isAdded = this.zoneManager.tryAddZone(zone);
-        if(isAdded){
+        
             this.zoneEntityManager.tryAddZone(zone);
-            console.log(` zone ${zone.zoneId} added successfully.`);
-        }
-        else
-            console.log("error in HandleAddZone.  zone adding failed")
+            console.log(` zone ${zone.zoneName} added successfully.`);
     }
 
     HandleRemoveZone(data: any){
@@ -49,13 +45,9 @@ export class ZoneHandler{
     }
 
     RemoveZone(zone: Zone){
-        const isRemoved = this.zoneManager.tryRemoveZone(zone.zoneId);
-        if(isRemoved){
-            this.zoneEntityManager.removeZone(zone.zoneId);
-            console.log(`zone ${zone.zoneId} removed successfully.`);
-        }
-        else
-            console.log("error in HandleRemoveZone. zone removing failed")
+
+            this.zoneEntityManager.removeZone(zone.zoneName);
+        console.log(`zone ${zone.zoneName} removed successfully.`);
     }
 
     HandleEditZone(data: any){
@@ -69,13 +61,9 @@ export class ZoneHandler{
     }
 
     EditZone(zone: Zone){
-        const isEdited = this.zoneManager.tryEditZone(zone);
-        if(isEdited){
-            this.zoneEntityManager.editZone(zone);
-            console.log(`danger zone ${zone.zoneId} edited successfully.`);
-        }
-        else
-            console.log("error in HandleEditDangerZone. danger zone editing failed")
+
+        this.zoneEntityManager.editZone(zone);
+        console.log(`danger zone ${zone.zoneName} edited successfully.`);
     }
 
     HandleZoneError(data: any){

@@ -421,11 +421,16 @@ export default function CreateZonePanel({viewerRef,initialZone, onClose, onSave 
             <div className="zone-actions">
               <button className="save-button" onClick={() => 
                   {
+                    console.log(zone)
+                    const copy = JSON.parse(JSON.stringify(zone));
+                    onSave(copy)
                     zonePolylineRef.current?.remove()
                     zoneEntityRef.current?.RemoveEntity();
                     zoneEntityRef.current?.SetEntityNull();
-                    onSave(zone)
                     onClose()
+
+                    console.log(copy)
+
                   }
                 }>
                   Save

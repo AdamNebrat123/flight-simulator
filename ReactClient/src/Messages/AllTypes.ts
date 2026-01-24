@@ -91,7 +91,7 @@ export interface ChangeScenarioPlaySpeedCmd {
 
 export interface Zone {
   zoneType: string;
-  zoneId: string;
+  zoneName: string;
   zoneName: string;
   points: GeoPoint[];
   topHeight: number;

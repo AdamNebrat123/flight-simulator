@@ -6,6 +6,7 @@ import type { Jammer } from "../Sensors/Jammer/Jammer";
 import CreateTrajectoryPanel from "../CreateTrajectoryPanel/CreateTrajectoryPanel";
 import ZonesPanel from "../ZonesPanel/ZonesPanel";
 import JammersPanel from "../Jamming/JammersPanel/JammersPanel";
+import { TemporaryZoneEntityManager } from "../Zones/TemporaryZoneEntityManager";
 
 interface Props {
   onClose: () => void;
@@ -31,9 +32,15 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
   const [aircrafts, setAircrafts] = useState<AircraftTrajectory[]>(initialScenario?.aircrafts || []);
   const [zones, setZones] = useState<Zone[]>(initialScenario?.zones || []);
   const [jammers, setJammers] = useState<Jammer[]>(initialScenario?.jammers || []);
+  const temporaryZoneEntityManager = TemporaryZoneEntityManager.GetInstance(viewerRef.current);
 
   const handleSave = () => {
     onSave({ scenarioName, aircrafts, zones, jammers });
+    handleCancel();
+  };
+  const handleCancel = () => {
+    temporaryZoneEntityManager.clearAllZones()
+    onClose();
   };
 
   return (
@@ -49,7 +56,7 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
         />
         <div className="scenario-actions">
           <button className="save-button" onClick={handleSave}>Save</button>
-          <button className="cancel-button" onClick={onClose}>Cancel</button>
+          <button className="cancel-button" onClick={handleCancel}>Cancel</button>
         </div>
       </div>
 

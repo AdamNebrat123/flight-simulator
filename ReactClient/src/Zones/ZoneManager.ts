@@ -31,17 +31,17 @@ export class ZoneManager {
     }
 
     tryAddZone(zone: Zone): boolean {
-        if (!zone || !zone.zoneId) {
+        if (!zone || !zone.zoneName) {
             toast.error("Invalid Zone or missing zoneId");
             return false;
         }
 
-        if (this.zoneIdToZone.has(zone.zoneId)) {
-            toast.error(`Zone with id ${zone.zoneId} already exists`);
+        if (this.zoneIdToZone.has(zone.zoneName)) {
+            toast.error(`Zone with id ${zone.zoneName} already exists`);
             return false;
         }
 
-        this.zoneIdToZone.set(zone.zoneId, zone);
+        this.zoneIdToZone.set(zone.zoneName, zone);
         this.notify();
         return true;
     }
@@ -54,17 +54,17 @@ export class ZoneManager {
     }
 
     tryEditZone(zone: Zone): boolean {
-        if (!zone || !zone.zoneId) {
+        if (!zone || !zone.zoneName) {
             console.log("Invalid Zone or missing zoneId");
             return false;
         }
 
-        if (!this.zoneIdToZone.has(zone.zoneId)) {
-            console.log(`Zone with id ${zone.zoneId} does not exist`);
+        if (!this.zoneIdToZone.has(zone.zoneName)) {
+            console.log(`Zone with id ${zone.zoneName} does not exist`);
             return false;
         }
 
-        this.zoneIdToZone.set(zone.zoneId, zone);
+        this.zoneIdToZone.set(zone.zoneName, zone);
         this.notify();
         return true;
     }

@@ -3,27 +3,26 @@ import { toast } from "react-toastify";
 import type {Zone, JamZone, DangerZone } from "../Messages/AllTypes";
 import { ZoneOptionsManager } from "./ZoneOptions";
 
-export class ZoneEntityManager {
-  private static instance: ZoneEntityManager | null = null;
+export class TemporaryZoneEntityManager {
+  private static instance: TemporaryZoneEntityManager | null = null;
 
   private viewer: Cesium.Viewer;
-  private zoneIdToEntity: Map<string, Cesium.Entity>;
+  private zoneNameToEntity: Map<string, Cesium.Entity>;
   private blinkingZones = new Set<string>();
 
-  // Private constructor for singleton
   private constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
-    this.zoneIdToEntity = new Map<string, Cesium.Entity>();
+    this.zoneNameToEntity = new Map<string, Cesium.Entity>();
   }
 
-  public static GetInstance(viewer?: Cesium.Viewer): ZoneEntityManager {
-    if (!ZoneEntityManager.instance) {
+  public static GetInstance(viewer?: Cesium.Viewer): TemporaryZoneEntityManager {
+    if (!TemporaryZoneEntityManager.instance) {
       if (!viewer) {
         throw new Error("Viewer must be provided for the first GetInstance call");
       }
-      ZoneEntityManager.instance = new ZoneEntityManager(viewer);
+      TemporaryZoneEntityManager.instance = new TemporaryZoneEntityManager(viewer);
     }
-    return ZoneEntityManager.instance;
+    return TemporaryZoneEntityManager.instance;
   }
 
   tryAddZone(zone: Zone) {
@@ -32,7 +31,7 @@ export class ZoneEntityManager {
       return;
     }
 
-    if (this.zoneIdToEntity.has(zone.zoneName)) {
+    if (this.zoneNameToEntity.has(zone.zoneName)) {
       toast.error(
         `A danger zone with id ${zone.zoneName} already exists. Couldn't save.`
       );
@@ -40,19 +39,19 @@ export class ZoneEntityManager {
     }
 
     const entity = this.tryCreatePolygon(zone);
-    this.zoneIdToEntity.set(zone.zoneName, entity);
+    this.zoneNameToEntity.set(zone.zoneName, entity);
   }
 
-  getZone(zoneId: string): Cesium.Entity | null {
-    return this.zoneIdToEntity.get(zoneId) ?? null;
+  getZone(zoneName: string): Cesium.Entity | null {
+    return this.zoneNameToEntity.get(zoneName) ?? null;
   }
 
-  removeZone(zoneId: string) {
-    const entity = this.zoneIdToEntity.get(zoneId);
+  removeZone(zoneName: string) {
+    const entity = this.zoneNameToEntity.get(zoneName);
     if (entity) {
       this.viewer.entities.remove(entity);
-      this.zoneIdToEntity.delete(zoneId);
-      this.blinkingZones.delete(zoneId);
+      this.zoneNameToEntity.delete(zoneName);
+      this.blinkingZones.delete(zoneName);
     }
   }
 
@@ -62,20 +61,20 @@ export class ZoneEntityManager {
       return false;
     }
 
-    if (!this.zoneIdToEntity.has(zone.zoneName)) {
+    if (!this.zoneNameToEntity.has(zone.zoneName)) {
       toast.error(`Danger zone with id ${zone.zoneName} does not exist`);
       return false;
     }
 
     // remove the old entity
-    const oldEntity = this.zoneIdToEntity.get(zone.zoneName);
+    const oldEntity = this.zoneNameToEntity.get(zone.zoneName);
     if (oldEntity) {
       this.viewer.entities.remove(oldEntity);
     }
 
     // create and save new entity
     const newEntity = this.tryCreatePolygon(zone);
-    this.zoneIdToEntity.set(zone.zoneName, newEntity);
+    this.zoneNameToEntity.set(zone.zoneName, newEntity);
 
     // if this zone was blinking, restart its blinking effect
     if (this.blinkingZones.has(zone.zoneName)) {
@@ -86,35 +85,35 @@ export class ZoneEntityManager {
   }
 
 
-  hideEntityById(zoneId: string) {
-    const entity = this.zoneIdToEntity.get(zoneId);
+  hideEntityById(zoneName: string) {
+    const entity = this.zoneNameToEntity.get(zoneName);
     if (!entity) return;
     entity.show = false;
   }
   
-  showEntityById(zoneId: string) {
-    const entity = this.zoneIdToEntity.get(zoneId);
+  showEntityById(zoneName: string) {
+    const entity = this.zoneNameToEntity.get(zoneName);
     if (!entity) return;
     entity.show = true;
   }
   getAllZoneIds(): string[] {
-    return Array.from(this.zoneIdToEntity.keys());
+    return Array.from(this.zoneNameToEntity.keys());
   }
 
   clearAllZones() {
-    for (const entity of this.zoneIdToEntity.values()) {
+    for (const entity of this.zoneNameToEntity.values()) {
       this.viewer.entities.remove(entity);
     }
-    this.zoneIdToEntity.clear();
+    this.zoneNameToEntity.clear();
     this.blinkingZones.clear();
   }
 
-  startBlinking(zoneId: string) {
-    const entity = this.zoneIdToEntity.get(zoneId);
+  startBlinking(zoneName: string) {
+    const entity = this.zoneNameToEntity.get(zoneName);
     if (!entity || !entity.polygon) return;
-    if (this.blinkingZones.has(zoneId)) return;
+    if (this.blinkingZones.has(zoneName)) return;
 
-    this.blinkingZones.add(zoneId);
+    this.blinkingZones.add(zoneName);
 
     entity.polygon.material = new Cesium.ColorMaterialProperty(
       new Cesium.CallbackProperty(() => {
@@ -134,7 +133,7 @@ export class ZoneEntityManager {
   }
 
   stopBlinking(zoneId: string) {
-    const entity = this.zoneIdToEntity.get(zoneId);
+    const entity = this.zoneNameToEntity.get(zoneId);
     if (!entity || !entity.polygon) return;
     if (!this.blinkingZones.has(zoneId)) return;
 
