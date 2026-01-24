@@ -22,6 +22,16 @@ export class JammerHandler {
     return this.instance;
   }
 
+  HandleAddJammers(data: any){
+    try {
+        const jammers = data as Jammer[];
+        for(const jammer of jammers)
+            this.AddJammer(jammer)
+    } catch (err) {
+        console.log("data could not be parsed Jammer[]");
+    }
+  }
+    
   HandleAddJammer(data: any) {
     try {
       const jammer = data as Jammer;
@@ -34,6 +44,16 @@ export class JammerHandler {
   AddJammer(jammer: Jammer) {
       this.jammerEntityManager.tryAddJammer(jammer);
       console.log(`Jammer ${jammer.id} added successfully.`);
+  }
+
+  HandleRemoveJammers(data: any){
+    try {
+        const jammers = data as Jammer[];
+        for(const jammer of jammers)
+            this.RemoveJammer(jammer)
+    } catch (err) {
+        console.log("data could not be parsed Jammer[]");
+    }
   }
 
   HandleRemoveJammer(data: any) {

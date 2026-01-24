@@ -149,11 +149,11 @@ public partial class Scenario
     public string scenarioName { get; set; }
 
     [JsonPropertyName("zones")]
-    public List<Zone> zones;
+    public List<Zone> zones { get; set; }
     [JsonPropertyName("jammers")]
-    public List<Sensor> jammers;
+    public List<Sensor> jammers { get; set; }
     [JsonPropertyName("radars")]
-    public List<Sensor> radars;
+    public List<Sensor> radars { get; set; }
 
 }
 

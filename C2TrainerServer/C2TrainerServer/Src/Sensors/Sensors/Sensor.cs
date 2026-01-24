@@ -7,6 +7,9 @@ using System.Text.Json.Serialization;
 [JsonDerivedType(typeof(Radar), "Radar")]
 public class Sensor
 {
+    [JsonIgnore]
+    public SensorType sensorType { get; set; }
+    
     [JsonPropertyName("id")]
 
     public string id { get; set; }
@@ -16,7 +19,5 @@ public class Sensor
     [JsonPropertyName("status")]
 
     public Status status { get;  set; }
-    [JsonIgnore]
 
-    public SensorType sensorType { get; set; }
 }

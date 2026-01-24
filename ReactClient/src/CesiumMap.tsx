@@ -21,6 +21,23 @@ export default function CesiumMap({ viewerRef, onViewerReady  }: CesiumMapProps)
       scene3DOnly: true,
     });
 
+
+viewer.scene.postProcessStages.add(
+  new Cesium.PostProcessStage({
+    name: "blueTint",
+    fragmentShader: `
+      uniform sampler2D colorTexture;
+      in vec2 v_textureCoordinates;
+      out vec4 fragColor;
+
+      void main() {
+        vec4 color = texture(colorTexture, v_textureCoordinates);
+        color.b = min(color.b + 0.18, 1.0); 
+        fragColor = color;
+      }
+    `
+  })
+);
     viewer.scene.globe.depthTestAgainstTerrain = true;
 
     viewer.camera.flyTo({

@@ -16,6 +16,7 @@ import { ZoneEntityManager } from './Zones/ZoneEntityManager';
 import { ZoneManager } from './Zones/ZoneManager';
 import { JammerHandler } from './Jamming/Handler/JammerHandler';
 import { JammersUpdateHandler } from './Jamming/Handler/JammersUpdateHandler';
+import SimulatorIndicator from './SimulatorIndicator/SimulatorIndicator';
 
 
 export default function App() {
@@ -53,7 +54,7 @@ export default function App() {
       jammersUpdateHandlerRef.current = JammersUpdateHandler.GetInstance(viewerRef.current);
       zoneHandlerRef.current = ZoneHandler.getInstance(viewerRef.current);
       jammerHandlerRef.current = JammerHandler.getInstance(viewerRef.current);
-      scenarioHandlerRef.current = ScenarioHandler.getInstance();
+      scenarioHandlerRef.current = ScenarioHandler.getInstance(viewerRef.current);
 
       // register to all of the events
       registerHandlers();
@@ -70,9 +71,9 @@ export default function App() {
       handleInitData(data, viewerRef.current!);
     });
 
-    // type : ScenarioPlanesSnapshot
-    const unsubScenarioPlanesSnapshot = on(S2CMessageType.ScenarioPlanesSnapshot , (data) => {
-      ScenarioPlanesSnapshotHandlerRef.current?.HandleScenarioPlanesSnapshot(data);
+    // type : RadarUpdate
+    const unsubScenarioPlanesSnapshot = on(S2CMessageType.RadarUpdate , (data) => {
+      ScenarioPlanesSnapshotHandlerRef.current?.HandleRadarUpdate(data);
     });
 
     // type : AddZone
@@ -122,6 +123,7 @@ export default function App() {
 
     // type : AddScenario
     const unsubAddScenario = on(S2CMessageType.AddScenario, (data) => {
+      console.log(data);
       scenarioHandlerRef.current?.HandleAddScenario(data);
     });
 
@@ -166,7 +168,8 @@ export default function App() {
     <>
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
       <PanelsAndButtons viewerRef={viewerRef} />
-
+      <SimulatorIndicator/>
+      
       <ToastContainer
         position="top-right"
         autoClose={3000}

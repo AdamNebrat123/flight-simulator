@@ -27,20 +27,20 @@ export class ZoneEntityManager {
   }
 
   tryAddZone(zone: Zone) {
-    if (!zone || !zone.zoneName) {
+    if (!zone || !zone.zoneId) {
       toast.error("Invalid DangerZone or missing zoneId");
       return;
     }
 
-    if (this.zoneIdToEntity.has(zone.zoneName)) {
+    if (this.zoneIdToEntity.has(zone.zoneId)) {
       toast.error(
-        `A danger zone with id ${zone.zoneName} already exists. Couldn't save.`
+        `A danger zone with id ${zone.zoneId} already exists. Couldn't save.`
       );
       return;
     }
 
     const entity = this.tryCreatePolygon(zone);
-    this.zoneIdToEntity.set(zone.zoneName, entity);
+    this.zoneIdToEntity.set(zone.zoneId, entity);
   }
 
   getZone(zoneId: string): Cesium.Entity | null {
@@ -57,29 +57,29 @@ export class ZoneEntityManager {
   }
 
   editZone(zone: Zone) {
-    if (!zone || !zone.zoneName) {
+    if (!zone || !zone.zoneId) {
       toast.error("Invalid Zone or missing zoneId");
       return false;
     }
 
-    if (!this.zoneIdToEntity.has(zone.zoneName)) {
-      toast.error(`Danger zone with id ${zone.zoneName} does not exist`);
+    if (!this.zoneIdToEntity.has(zone.zoneId)) {
+      toast.error(`Danger zone with id ${zone.zoneId} does not exist`);
       return false;
     }
 
     // remove the old entity
-    const oldEntity = this.zoneIdToEntity.get(zone.zoneName);
+    const oldEntity = this.zoneIdToEntity.get(zone.zoneId);
     if (oldEntity) {
       this.viewer.entities.remove(oldEntity);
     }
 
     // create and save new entity
     const newEntity = this.tryCreatePolygon(zone);
-    this.zoneIdToEntity.set(zone.zoneName, newEntity);
+    this.zoneIdToEntity.set(zone.zoneId, newEntity);
 
     // if this zone was blinking, restart its blinking effect
-    if (this.blinkingZones.has(zone.zoneName)) {
-      this.startBlinking(zone.zoneName);
+    if (this.blinkingZones.has(zone.zoneId)) {
+      this.startBlinking(zone.zoneId);
     }
 
     return true;

@@ -1,5 +1,5 @@
 export enum S2CMessageType {
-    ScenarioPlanesSnapshot = "ScenarioPlanesSnapshot",
+    RadarUpdate = "RadarUpdate",
     AddZone = "AddZone",
     RemoveZone = "RemoveZone",
     EditZone = "EditZone",

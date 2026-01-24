@@ -107,6 +107,11 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
         simStateContext?.setSimState({...simStateContext.simState})
         onClose();
     }
+
+    const handleSaveScenario = (scenario: Scenario) => {
+        send(C2SMessageType.AddScenario, scenario);
+        setShowCreateScenarioPanel(false);
+    }
     
 
 
@@ -168,8 +173,8 @@ export default function ScenariosPanel({ onClose, viewerRef }: Props){
 
         {showCreateScenarioPanel && (
             <CreateScenarioPanel 
-            initialScenario={{ aircrafts: [], scenarioName: "ScenarioName" , zones:[], jammers: []}}
-            onSave={() => {}}
+            initialScenario={{ aircrafts: [], scenarioName: "ScenarioName" , zones:[], jammers: [], radars:[], scenarioId: ""}}
+            onSave={(scenario: Scenario) => {handleSaveScenario(scenario)}}
             onClose={() => {setShowCreateScenarioPanel(false)}}
             viewerRef={viewerRef}
             />

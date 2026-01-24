@@ -107,6 +107,9 @@ public class PlaySelectedScenarioHandler
             // send radar update
             SendRadarUpdate(radarUpdate, _allocation, _scenarioCopy);
 
+            // send radar update to UI
+            SendRadarUpdateToUI(radarUpdate);
+
             int delay = (int)(timeStepSeconds * 1000 / originalScenario.playSpeed);
             await Task.Delay(delay);
         }
@@ -141,5 +144,11 @@ public class PlaySelectedScenarioHandler
     {
         if(_jammersStatusSender != null)
             await _jammersStatusSender.StopAsync();
+    }
+    public void SendRadarUpdateToUI(RadarUpdate radarUpdate)
+    {
+        string msgType = RadarToC2ServerMsgType.RadarUpdate.ToString();
+        string json = UIWebSocketServer.PrepareMessageToClient(S2CMessageType.RadarUpdate, radarUpdate, ModeEnum.ScenarioSimulator);
+        UIWebSocketServer.SendMsgToClients(json, ModeEnum.ScenarioSimulator);
     }
 }

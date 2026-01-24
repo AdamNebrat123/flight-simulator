@@ -7,11 +7,12 @@ import { JamMode, Status } from "../../Sensors/Jammer/JammerRelatedEnums";
 import CreateJammerPanel from "../CreateJammerPanel/CreateJammerPanel";
 import { TemporaryJammerEntityManager } from "../EntitiesManagment/TemporaryJammerEntityManager";
 import type { Zone } from "../../Messages/AllTypes";
+import type { Sensor } from "../../Sensors/Sensor";
 
 interface Props {
-  jammers: Jammer[];
+  jammers: Sensor[];
   zones: Zone[]
-  setJammers: React.Dispatch<React.SetStateAction<Jammer[]>>;
+  setJammers: React.Dispatch<React.SetStateAction<Sensor[]>>;
   viewerRef: React.RefObject<any>;
 }
 
@@ -54,7 +55,7 @@ export default function JammersPanel({viewerRef, jammers, setJammers, zones }: P
   };
   const AddJammer = (data: Jammer) => {
         temporaryJammerEntityManager.tryAddJammer(data)
-        setJammers([...jammers,data])
+        setJammers([...jammers,(data as any as Sensor)])
         setShowCreateJammerPanel(false);
         setSelectedJammer(null);
     };
@@ -70,7 +71,7 @@ export default function JammersPanel({viewerRef, jammers, setJammers, zones }: P
     const EditJammer = (data: Jammer) => {
         let jammer = jammers.filter(j => j.id == data.id)?.[0]
           if(jammer != null){
-              jammer = data;
+              jammer = data as any as Sensor;
               temporaryJammerEntityManager.editJammer(data)
           }
         setShowCreateJammerPanel(false);
@@ -125,7 +126,7 @@ export default function JammersPanel({viewerRef, jammers, setJammers, zones }: P
             className={`jammer-item ${
               selectedJammer?.id === jammer.id ? "selected" : ""
             }`}
-            onClick={() => handleSelect(jammer)}
+            onClick={() => handleSelect(jammer as any as Jammer)}
           >
             {jammer.id || "<unnamed jammer>"}
           </li>

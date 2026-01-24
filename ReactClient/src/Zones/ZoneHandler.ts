@@ -20,6 +20,15 @@ export class ZoneHandler{
         return this.instance;
     }
     
+    HandleAddZones(data: any){
+        try {
+            const zones = data as Zone[];
+            for(const zone of zones)
+                this.AddZone(zone)
+        } catch (err) {
+            console.log("data could not be parsed to Zone[]");
+        }
+    }
     
     HandleAddZone(data: any){
         try {
@@ -32,9 +41,18 @@ export class ZoneHandler{
     AddZone(zone: Zone){
         
             this.zoneEntityManager.tryAddZone(zone);
-            console.log(` zone ${zone.zoneName} added successfully.`);
+            console.log(` zone ${zone.zoneId} added successfully.`);
     }
 
+    HandleRemoveZones(data: any){
+        try {
+            const zones = data as Zone[];
+            for(const zone of zones)
+                this.RemoveZone(zone)
+        } catch (err) {
+            console.log("data could not be parsed to Zone[]");
+        }
+    }
     HandleRemoveZone(data: any){
         try {
             const zone = data as Zone;
@@ -46,8 +64,8 @@ export class ZoneHandler{
 
     RemoveZone(zone: Zone){
 
-            this.zoneEntityManager.removeZone(zone.zoneName);
-        console.log(`zone ${zone.zoneName} removed successfully.`);
+            this.zoneEntityManager.removeZone(zone.zoneId);
+        console.log(`zone ${zone.zoneId} removed successfully.`);
     }
 
     HandleEditZone(data: any){
@@ -63,7 +81,7 @@ export class ZoneHandler{
     EditZone(zone: Zone){
 
         this.zoneEntityManager.editZone(zone);
-        console.log(`danger zone ${zone.zoneName} edited successfully.`);
+        console.log(`danger zone ${zone.zoneId} edited successfully.`);
     }
 
     HandleZoneError(data: any){

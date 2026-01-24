@@ -1,28 +1,18 @@
 import { useState } from "react";
 
 import "./CreateScenarioPanel.css";
-import type { AircraftTrajectory, Zone } from "../Messages/AllTypes";
-import type { Jammer } from "../Sensors/Jammer/Jammer";
+import type { AircraftTrajectory, Scenario, Zone } from "../Messages/AllTypes";
 import CreateTrajectoryPanel from "../CreateTrajectoryPanel/CreateTrajectoryPanel";
 import ZonesPanel from "../ZonesPanel/ZonesPanel";
 import JammersPanel from "../Jamming/JammersPanel/JammersPanel";
 import { TemporaryZoneEntityManager } from "../Zones/TemporaryZoneEntityManager";
 import { TemporaryJammerEntityManager } from "../Jamming/EntitiesManagment/TemporaryJammerEntityManager";
+import type { Sensor } from "../Sensors/Sensor";
 
 interface Props {
   onClose: () => void;
-  onSave: (scenarioData: {
-    scenarioName: string;
-    aircrafts: AircraftTrajectory[];
-    zones: Zone[];
-    jammers: Jammer[];
-  }) => void;
-  initialScenario?: {
-    scenarioName: string;
-    aircrafts: AircraftTrajectory[];
-    zones: Zone[];
-    jammers: Jammer[];
-  };
+  onSave: (scenario: Scenario) => void;
+  initialScenario?: Scenario
   viewerRef: React.RefObject<any>;
 }
 
@@ -32,12 +22,12 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
   const [scenarioName, setScenarioName] = useState(initialScenario?.scenarioName || "");
   const [aircrafts, setAircrafts] = useState<AircraftTrajectory[]>(initialScenario?.aircrafts || []);
   const [zones, setZones] = useState<Zone[]>(initialScenario?.zones || []);
-  const [jammers, setJammers] = useState<Jammer[]>(initialScenario?.jammers || []);
+  const [jammers, setJammers] = useState<Sensor[]>(initialScenario?.jammers || []);
   const temporaryZoneEntityManager = TemporaryZoneEntityManager.GetInstance(viewerRef.current);
   const temporaryJammerEntityManager = TemporaryJammerEntityManager.GetInstance(viewerRef.current!);
 
   const handleSave = () => {
-    onSave({ scenarioName, aircrafts, zones, jammers });
+    onSave({ scenarioName, aircrafts, zones, jammers, radars: [], scenarioId : ""});
     handleCancel();
   };
   const handleCancel = () => {

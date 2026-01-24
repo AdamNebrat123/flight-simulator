@@ -41,6 +41,24 @@ public class ScenarioHandler
                 string aircraftIdString = aircraftId.ToString();
                 aircraft.aircraftId = aircraftIdString;
             }
+            foreach(Sensor jammer in scenario.jammers)
+            {
+                Guid id = Guid.NewGuid();
+                string idString = id.ToString();
+                jammer.id = idString;
+            }
+            foreach(Sensor radar in scenario.radars)
+            {
+                Guid id = Guid.NewGuid();
+                string idString = id.ToString();
+                radar.id = idString;
+            }
+            foreach(Zone zone in scenario.zones)
+            {
+                Guid id = Guid.NewGuid();
+                string idString = id.ToString();
+                zone.zoneId = idString;
+            }
 
             
             ScenarioResults? scenarioResults = scenarioResultsCalculator.CalculateScenarioResults(scenario);

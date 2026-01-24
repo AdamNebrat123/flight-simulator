@@ -29,14 +29,13 @@ public abstract class WebSocketClient
     {
         while (!ct.IsCancellationRequested)
         {
-            bool wasConnected = false; // דגל למעקב אחרי מצב החיבור
+            bool wasConnected = false; 
             try
             {
                 _socket = new ClientWebSocket();
                 
                 await _socket.ConnectAsync(_serverUri, ct);
                 
-                // אם הגענו לכאן - החיבור הצליח!
                 wasConnected = true; 
                 Console.WriteLine($"[Client] Connected to {_serverUri}!");
 
@@ -44,14 +43,12 @@ public abstract class WebSocketClient
             }
             catch (Exception ex)
             {
-                // כאן נתפסות שגיאות חיבור (Server Down וכו')
             }
             finally
             {
                 _socket?.Dispose();
                 _socket = null;
 
-                // קוראים לניתוק רק אם הדגל אומר שהיה חיבור פעיל לפני רגע
                 if (wasConnected)
                 {
                     wasConnected = false;
@@ -66,7 +63,7 @@ public abstract class WebSocketClient
 
     private async Task ReceiveLoopAsync(CancellationToken ct)
     {
-        var buffer = new byte[1024 * 16];
+        var buffer = new byte[1024 * 1024];
         while (_socket?.State == WebSocketState.Open && !ct.IsCancellationRequested)
         {
             WebSocketReceiveResult result;

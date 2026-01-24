@@ -19,7 +19,7 @@ export function handleInitData(data: any, viewer : Cesium.Viewer){
         */
         // save the scenarios
         const scenarios = initData.scenarios;
-        const scenarioHandler = ScenarioHandler.getInstance();
+        const scenarioHandler = ScenarioHandler.getInstance(viewer);
         for(const scenario of scenarios){
             scenarioHandler.AddScenario(scenario)
         }

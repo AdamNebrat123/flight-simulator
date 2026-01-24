@@ -62,6 +62,13 @@ export interface Scenario {
     radars: Sensor[];
 }
 
+export interface RadarUpdate {
+    skyPicture: SkyPicture;
+}
+
+export interface SkyPicture {
+    aircrafts: AircraftStatus[];
+}
 
 export interface ScenariosReadyToPlay {
   scenariosIds: string[];
@@ -92,7 +99,7 @@ export interface ChangeScenarioPlaySpeedCmd {
 export interface Zone {
   zoneType: string;
   zoneName: string;
-  zoneName: string;
+  zoneId: string;
   points: GeoPoint[];
   topHeight: number;
   bottomHeight: number;

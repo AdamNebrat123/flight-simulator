@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import type { ScenarioAirCraftsSnapshot } from "../../Messages/AllTypes";
+import type { RadarUpdate, ScenarioAirCraftsSnapshot, SkyPicture } from "../../Messages/AllTypes";
 import type { ZoneEntityManager } from "../../Zones/ZoneEntityManager";
 import type { PlaneEntityManager } from "../AirCrafts/PlaneEntityManager";
 import type { PlaneTailManager } from "../AirCrafts/PlaneTailManager";
@@ -20,22 +20,22 @@ export class ScenarioPlanesSnapshotHandler {
   }
 
   // Public entry point for raw data
-  public HandleScenarioPlanesSnapshot(data: any) {
+  public HandleRadarUpdate(data: any) {
     try {
-      const scenarioPlanesSnapshot = data as ScenarioAirCraftsSnapshot;
-
-      this.processTrajectoryResult(scenarioPlanesSnapshot);
+      const radarUpdate = data as RadarUpdate;
+      this.processTrajectoryResult(radarUpdate);
     } catch (err) {
       console.log("data could not be parsed to ScenarioPlanesSnapshot");
     }
   }
 
   private async processTrajectoryResult(
-    scenarioPlanesSnapshot: ScenarioAirCraftsSnapshot
+    radarUpdate: RadarUpdate
   ): Promise<void> {
     const uniqueDangerZones = new Set<string>();
+    const skyPicture: SkyPicture = radarUpdate.skyPicture;
 
-    for (const aircraft of scenarioPlanesSnapshot.aircrafts) {
+    for (const aircraft of skyPicture.aircrafts) {
       for (const point of aircraft.trajectoryPoints) {
         const position = Cesium.Cartesian3.fromDegrees(
           point.position.longitude,
@@ -70,15 +70,6 @@ export class ScenarioPlanesSnapshotHandler {
         // Update the tail
         this.tailManager.updateTail(aircraft.aircraftName, aircraft.tailPoints);
       }
-    }
-    // After processing all planes, check all danger zones to know what danger zone(s) should blink
-    const allDangerIds = this.dangerZoneEntityManager.getAllZoneIds();
-    for (const zoneId of allDangerIds) {
-        if (uniqueDangerZones.has(zoneId)) {
-            this.dangerZoneEntityManager.startBlinking(zoneId);
-        } else {
-            this.dangerZoneEntityManager.stopBlinking(zoneId);
-        }
     }
   }
 }

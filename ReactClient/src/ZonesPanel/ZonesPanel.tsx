@@ -37,7 +37,7 @@ export default function ZonesPanel({zones, setZones, viewerRef }: Props){
 
 
     const handleAddZoneClick = () => {
-        setSelectedZoneObj({ zoneType: "Danger", zoneName: "ZoneName", points: [], topHeight: 100, bottomHeight: 0});
+        setSelectedZoneObj({ zoneType: "Danger", zoneId:"", zoneName: "ZoneName", points: [], topHeight: 100, bottomHeight: 0});
         setOnSaveZone(() => SaveZone); // set the onSave to Save function
         openCreateDangerZonePanel();
     };
@@ -45,7 +45,6 @@ export default function ZonesPanel({zones, setZones, viewerRef }: Props){
     // Save/Edit DangerZone functions
     const SaveZone = (zone: Zone) => {
         setZones([...zones, zone])
-        zoneHandlerRef.current?.HandleAddZone(zone);
         temporaryZoneEntityManager.tryAddZone(zone);
         setShowCreateDangerZonePanel(false);
     };

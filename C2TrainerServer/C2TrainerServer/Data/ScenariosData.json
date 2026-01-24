@@ -1,0 +1,245 @@
+{
+  "dataType": "ScenariosData",
+  "data": [
+    {
+      "scenarioId": "24f409e4-b20a-49f5-8a48-db39c2937676",
+      "aircrafts": [
+        {
+          "aircraftType": "Drone",
+          "frequency": "Rc_58GHz",
+          "aircraftId": "1fb31a4d-d6ba-4d94-a842-593f7dc29e66",
+          "geoPoints": [
+            {
+              "altitude": 44.601907766919986,
+              "latitude": 32.03673302506131,
+              "longitude": 34.77568048602418
+            },
+            {
+              "altitude": 47.21148736191133,
+              "latitude": 32.03898201074482,
+              "longitude": 34.78711918707216
+            }
+          ],
+          "aircraftName": "Drone 1",
+          "velocity": 50
+        },
+        {
+          "aircraftType": "Drone",
+          "frequency": "GNSS_L1",
+          "aircraftId": "fb769047-1c74-4463-98ab-2e9f4e6e3476",
+          "geoPoints": [
+            {
+              "altitude": 51.82576820030601,
+              "latitude": 32.028135325126996,
+              "longitude": 34.78834643103093
+            },
+            {
+              "altitude": 46.77658165976475,
+              "latitude": 32.041435340799254,
+              "longitude": 34.782053593707936
+            }
+          ],
+          "aircraftName": "Drone 2",
+          "velocity": 50
+        },
+        {
+          "aircraftType": "Drone",
+          "frequency": "Rc_58GHz",
+          "aircraftId": "f7c63c10-6a5a-4770-8f24-841f424ea2d2",
+          "geoPoints": [
+            {
+              "altitude": 145.6683864969192,
+              "latitude": 32.03257944294312,
+              "longitude": 34.77579428348739
+            },
+            {
+              "altitude": 148.48657378164236,
+              "latitude": 32.040700990051135,
+              "longitude": 34.78743272566928
+            }
+          ],
+          "aircraftName": "Drone 3",
+          "velocity": 50
+        },
+        {
+          "aircraftType": "Drone",
+          "frequency": "Rc_58GHz",
+          "aircraftId": "de564656-ae01-4559-bd83-1a6425631e0f",
+          "geoPoints": [
+            {
+              "altitude": 143.51235504787184,
+              "latitude": 32.036550884146074,
+              "longitude": 34.80085864545482
+            },
+            {
+              "altitude": 144.82996451347273,
+              "latitude": 32.034470815257656,
+              "longitude": 34.77566312620766
+            }
+          ],
+          "aircraftName": "Drone 4",
+          "velocity": 70
+        },
+        {
+          "aircraftType": "Drone",
+          "frequency": "GNSS_L2",
+          "aircraftId": "d03ecd3a-4bab-4a36-ac7c-46005cf48f65",
+          "geoPoints": [
+            {
+              "altitude": 149.87016275445396,
+              "latitude": 32.028404467352836,
+              "longitude": 34.77934946927281
+            },
+            {
+              "altitude": 246.46962400470116,
+              "latitude": 32.0331954626847,
+              "longitude": 34.79350948139455
+            }
+          ],
+          "aircraftName": "Drone 5",
+          "velocity": 50
+        },
+        {
+          "aircraftType": "Drone",
+          "frequency": "GNSS_L2",
+          "aircraftId": "72155d57-1fcf-495b-a482-1ab8d038a6ca",
+          "geoPoints": [
+            {
+              "altitude": 145.6678231489375,
+              "latitude": 32.0398447145031,
+              "longitude": 34.77561848062997
+            },
+            {
+              "altitude": 152.62140279391065,
+              "latitude": 32.0267831990373,
+              "longitude": 34.790284571714196
+            }
+          ],
+          "aircraftName": "Drone 6",
+          "velocity": 50
+        },
+        {
+          "aircraftType": "Drone",
+          "frequency": "GNSS_L2",
+          "aircraftId": "398b2ebc-461a-497e-a086-c993d311cbf7",
+          "geoPoints": [
+            {
+              "altitude": 47.996153472405,
+              "latitude": 32.028922173455655,
+              "longitude": 34.776620960382324
+            },
+            {
+              "altitude": 45.54246335997107,
+              "latitude": 32.03771083177104,
+              "longitude": 34.78965002356923
+            }
+          ],
+          "aircraftName": "Drone 7",
+          "velocity": 50
+        }
+      ],
+      "scenarioName": "ScenarioName",
+      "zones": [
+        {
+          "zoneType": "Jam",
+          "jammersIds": [
+            "0d993b29-9beb-428d-82be-11b78f07baed",
+            "70ee1e13-bbe4-48ee-90df-b031095aa1d1",
+            "328d67f1-5ffa-4682-a54e-dc0edaaed202"
+          ],
+          "zoneId": "ac19092c-c960-4d3f-8d2b-57aba687fdc5",
+          "zoneName": "ZoneName",
+          "points": [
+            {
+              "altitude": 87.03494859043121,
+              "latitude": 32.06090962055034,
+              "longitude": 34.84223233650855
+            },
+            {
+              "altitude": 34.02852938335154,
+              "latitude": 32.08849123065517,
+              "longitude": 34.74025181436869
+            },
+            {
+              "altitude": 35.45153999671648,
+              "latitude": 32.02397082151187,
+              "longitude": 34.70749032287997
+            },
+            {
+              "altitude": 82.83529601720943,
+              "latitude": 31.986254007749828,
+              "longitude": 34.83445042325035
+            },
+            {
+              "altitude": 79.95778249231257,
+              "latitude": 32.02112630223357,
+              "longitude": 34.872283113190754
+            }
+          ],
+          "topHeight": 10000,
+          "bottomHeight": 0
+        }
+      ],
+      "jammers": [
+        {
+          "sensorType": "Jammer",
+          "jamMode": "None",
+          "supportedFrequencies": [
+            "Rc_24GHz",
+            "Rc_58GHz",
+            "GNSS_L1",
+            "GNSS_L2"
+          ],
+          "radius": 400,
+          "directionDegrees": null,
+          "id": "0d993b29-9beb-428d-82be-11b78f07baed",
+          "position": {
+            "altitude": 40.534588190710075,
+            "latitude": 32.03644584731649,
+            "longitude": 34.78278713219179
+          },
+          "status": "Online"
+        },
+        {
+          "sensorType": "Jammer",
+          "jamMode": "Directional",
+          "supportedFrequencies": [
+            "GNSS_L2",
+            "GNSS_L1",
+            "Rc_58GHz",
+            "Rc_24GHz"
+          ],
+          "radius": 450,
+          "directionDegrees": 90,
+          "id": "70ee1e13-bbe4-48ee-90df-b031095aa1d1",
+          "position": {
+            "altitude": 43.9155719989818,
+            "latitude": 32.03212610830705,
+            "longitude": 34.78599440721986
+          },
+          "status": "Online"
+        },
+        {
+          "sensorType": "Jammer",
+          "jamMode": "None",
+          "supportedFrequencies": [
+            "Rc_24GHz",
+            "Rc_58GHz",
+            "GNSS_L1",
+            "GNSS_L2"
+          ],
+          "radius": 300,
+          "directionDegrees": null,
+          "id": "328d67f1-5ffa-4682-a54e-dc0edaaed202",
+          "position": {
+            "altitude": 41.732868987071676,
+            "latitude": 32.033365319657705,
+            "longitude": 34.78039932832487
+          },
+          "status": "Online"
+        }
+      ],
+      "radars": []
+    }
+  ]
+}

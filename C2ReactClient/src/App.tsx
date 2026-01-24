@@ -13,6 +13,7 @@ import { ZoneEntityManager } from './Zones/ZoneEntityManager';
 import { ZoneManager } from './Zones/ZoneManager';
 import { JammerHandler } from './Jamming/Handler/JammerHandler';
 import { JammersUpdateHandler } from './Jamming/Handler/JammersUpdateHandler';
+import C2Indicator from './C2Indicator/C2Indicator';
 
 
 export default function App() {
@@ -121,6 +122,8 @@ const registerHandlers = () => {
   return (
     <>
       <CesiumMap viewerRef={viewerRef} onViewerReady={handleViewerReady} />
+      <C2Indicator/>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

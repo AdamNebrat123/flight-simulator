@@ -1,18 +1,25 @@
-import type { Scenario, ScenarioError } from "../Messages/AllTypes";
+import * as Cesium from "cesium";
+import { JammerHandler } from "../Jamming/Handler/JammerHandler";
+import type { Scenario, ScenarioError} from "../Messages/AllTypes";
 import { ScenarioManager } from "../Scenarios/ScenarioManager";
 import { toast } from "react-toastify/unstyled";
+import { ZoneHandler } from "../Zones/ZoneHandler";
 
 export class ScenarioHandler {
     private static instance: ScenarioHandler | null = null;
     private scenarioManager: ScenarioManager;
+    private static jammerHandler: JammerHandler;
+    private static zoneHandler : ZoneHandler;
 
     private constructor() {
         this.scenarioManager = ScenarioManager.getInstance();
     }
 
-    public static getInstance(): ScenarioHandler {
+    public static getInstance(viewer: Cesium.Viewer): ScenarioHandler {
         if (this.instance === null) {
             this.instance = new ScenarioHandler();
+            this.jammerHandler =  JammerHandler.getInstance(viewer)
+            this.zoneHandler =  ZoneHandler.getInstance(viewer)
         }
         return this.instance;
     }
@@ -29,7 +36,10 @@ export class ScenarioHandler {
     AddScenario(scenario: Scenario) {
         const isAdded = this.scenarioManager.tryAddScenario(scenario);
         if (isAdded)
-            console.log(`Scenario ${scenario.scenarioId} added successfully.`);
+        {
+            ScenarioHandler.zoneHandler.HandleAddZones(scenario.zones);
+            ScenarioHandler.jammerHandler.HandleAddJammers(scenario.jammers)
+        }
         else
             console.log("Error in HandleAddScenario. Scenario adding failed.");
     }
@@ -38,6 +48,8 @@ export class ScenarioHandler {
         try {
             const scenario = data as Scenario;
             this.RemoveScenario(scenario);
+            ScenarioHandler.zoneHandler.HandleRemoveZones(scenario.zones);
+            ScenarioHandler.jammerHandler.HandleRemoveJammers(scenario.jammers)
         } catch (err) {
             console.log("data could not be parsed to PlanesTrajectoryPointsScenario");
         }
