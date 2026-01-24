@@ -12,14 +12,13 @@ import CreateDrone from "./CreateDrone";
 
 
 interface Props {
+  aircrafts: AircraftTrajectory[]
+  setAircrafts: React.Dispatch<React.SetStateAction<AircraftTrajectory[]>>;
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
-  initialScenario: Scenario;
 }
 
-export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Props) {
-    const [scenario, setScenario] = useState<Scenario>(
-        JSON.parse(JSON.stringify(initialScenario)) // deep copy to avoid mutating the prop
-    );
+export default function CreateTrajectoryPanel({ viewerRef,aircrafts , setAircrafts}: Props) {
+
     const [isDrawing, setIsDrawing] = useState(false);
     const isDrawingRef = useRef(isDrawing);
 
@@ -43,9 +42,9 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         polylineManagerRef.current = new PlanePolylineManager(viewerRef.current);
         polylineInteractionRef.current = new PlanePolylineInteraction(viewerRef.current,polylineManagerRef.current)
     }
-    if(scenario.aircrafts && scenario.aircrafts.length > 0){
+    if(aircrafts && aircrafts.length > 0){
         // load existing polylines
-        polylineManagerRef.current?.loadExistingPolylines(scenario);
+        polylineManagerRef.current?.loadExistingPolylines(aircrafts);
         setSelectedAircraftIndex(0);
     }
 
@@ -63,13 +62,6 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         currentMousePositionRef.current = null;
     }
 
-    // Handler for scenario name change
-    const handleScenarioNameChange = (newName: string) => {
-    setScenario((prev) => ({
-        ...prev,
-        scenarioName: newName,
-    }));
-    };
 
     // Adds a new plane with a default name
     const handleAddAircraft = () => {
@@ -83,21 +75,18 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
             velocity: 50,
         });
 
-        const index = scenario.aircrafts.length
-        const updatedAircrafts = [...scenario.aircrafts];
+        const index = aircrafts.length
+        const updatedAircrafts = [...aircrafts];
         updatedAircrafts[index] = newAircraft;
         updatedAircrafts[index].aircraftName = `${AircraftTypeEnum.Plane} ${index + 1}`;
 
-        setScenario(prev => ({
-            ...prev,
-            aircrafts: [...prev.aircrafts, newAircraft],
-        }));
+        setAircrafts([...updatedAircrafts]);
 
-        setSelectedAircraftIndex(scenario.aircrafts.length); // length לפני ההוספה
+        setSelectedAircraftIndex(aircrafts.length); // length לפני ההוספה
     };
 
     const handleAircraftTypeChange = (index: number, newType: string) => {
-        const oldAircraft = scenario.aircrafts[index];
+        const oldAircraft = aircrafts[index];
 
         // יוצרים מופע חדש בהתאם לסוג החדש, ושומרים נתונים קיימים
         const updatedAircraft = createAircraftByType(newType, {
@@ -105,27 +94,26 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
             velocity: oldAircraft.velocity,
         });
 
-        const updatedAircrafts = [...scenario.aircrafts];
+        const updatedAircrafts = [...aircrafts];
         updatedAircrafts[index] = updatedAircraft;
         updatedAircrafts[index].aircraftName = `${newType} ${index + 1}`;
         
-        setScenario({
-            ...scenario,
-            aircrafts: updatedAircrafts,
-        });
+        setAircrafts([...updatedAircrafts]);
+
     };
 
     
     const handlePlaneNameChange = (index: number, newName: string) => {
-        const updatedPlanes = [...scenario.aircrafts];
+        const updatedPlanes = [...aircrafts];
         updatedPlanes[index].aircraftName = newName;
-        setScenario(scenario);
+        setAircrafts([...updatedPlanes]);
+
     };
 
     const handleVelocityChange = (index: number, newVelocity: number) => {
-        const updatedPlanes = [...scenario.aircrafts];
+        const updatedPlanes = [...aircrafts];
         updatedPlanes[index].velocity = newVelocity;
-        setScenario(scenario);
+        setAircrafts([...updatedPlanes]);
     };
 
     const handleGeoPointChange = (
@@ -134,10 +122,10 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         field: keyof GeoPoint,
         value: number
     ) => {
-        const updatedPlanes = [...scenario.aircrafts];
+        const updatedPlanes = [...aircrafts];
         updatedPlanes[planeIndex].geoPoints[pointIndex][field] = value;
         const updatedPoint = updatedPlanes[planeIndex].geoPoints[pointIndex];
-        setScenario(scenario);
+        setAircrafts([...updatedPlanes]);
         const planeName = updatedPlanes[planeIndex].aircraftName;
         polylineManagerRef.current?.updatePoint(planeName, pointIndex, updatedPoint)
     };
@@ -159,7 +147,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         currentMousePositionRef.current = null;
 
         // make the trajectory cyan
-        const planeName = scenario.aircrafts[selectedAircraftIndex!].aircraftName;
+        const planeName = aircrafts[selectedAircraftIndex!].aircraftName;
         polylineManagerRef.current?.setPlanePolylineColorCyan(planeName);
     };
 
@@ -181,7 +169,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         setIsDrawing(true);
         isDrawingRef.current = true;
 
-        const plane = scenario.aircrafts[selectedAircraftIndex];
+        const plane = aircrafts[selectedAircraftIndex];
         const planeName = plane.aircraftName;
         polylineManagerRef.current?.createPolyline(planeName);
         polylineManagerRef.current?.setPlanePolylineColorYellow(planeName);
@@ -223,15 +211,13 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
             };
 
             polylineManagerRef.current?.addPoint(planeName, newPoint);
+            const newPlanes = [...aircrafts];
+            newPlanes[selectedAircraftIndex].geoPoints = [
+                ...newPlanes[selectedAircraftIndex].geoPoints,
+                newPoint,
+            ];
+            setAircrafts([...newPlanes]);
 
-            setScenario((prev) => {
-                const newPlanes = [...prev.aircrafts];
-                newPlanes[selectedAircraftIndex].geoPoints = [
-                    ...newPlanes[selectedAircraftIndex].geoPoints,
-                    newPoint,
-                ];
-                return { ...prev, aircrafts: newPlanes };
-            });
 
             lastPointRef.current = Cesium.Cartesian3.fromDegrees(
                 newPoint.longitude,
@@ -285,16 +271,9 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
 
     return (
         <div className="trajectory-content">
-        <input
-        id="scenario-name"
-        type="text"
-        className="scenarioName"
-        value={scenario.scenarioName}
-        onChange={(e) => handleScenarioNameChange(e.target.value)}
-        />
 
-        {scenario.aircrafts.length != 0 && <AerialUnitSelection
-            selectedType={selectedAircraftIndex !== null ? scenario.aircrafts[selectedAircraftIndex].aircraftType : defaultAircraftType}
+        {aircrafts.length != 0 && <AerialUnitSelection
+            selectedType={selectedAircraftIndex !== null ? aircrafts[selectedAircraftIndex].aircraftType : defaultAircraftType}
             onSelectType={(type: string) => {
                 if (selectedAircraftIndex !== null) {
                     handleAircraftTypeChange(selectedAircraftIndex, type);
@@ -308,7 +287,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         <button className="addPlane-button" onClick={handleAddAircraft} disabled={isDrawing}>
             Add AirCraft
         </button>
-        {scenario.aircrafts.length > 0 && (
+        {aircrafts.length > 0 && (
             <>
             <div style={{ marginTop: 8 }}>
                 <label htmlFor="plane-select">Select plane to add points:</label>
@@ -322,7 +301,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
                 <option value="" disabled>
                     -- Select a plane --
                 </option>
-                {scenario.aircrafts.map((plane, index) => (
+                {aircrafts.map((plane, index) => (
                     <option key={index} value={index}>
                     {plane.aircraftName}
                     </option>
@@ -343,12 +322,12 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
         )}
 
         <div>
-        {selectedAircraftIndex !== null && scenario.aircrafts[selectedAircraftIndex] && (
+        {selectedAircraftIndex !== null && aircrafts[selectedAircraftIndex] && (
             <div className="plane-block">
                 <summary>
                     <input
                         type="text"
-                        value={scenario.aircrafts[selectedAircraftIndex].aircraftName}
+                        value={aircrafts[selectedAircraftIndex].aircraftName}
                         onChange={(e) => handlePlaneNameChange(selectedAircraftIndex, e.target.value)}
                         className="plane-name-input"
                     />
@@ -359,17 +338,17 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
                         Velocity:
                         <input
                         type="number"
-                        value={scenario.aircrafts[selectedAircraftIndex].velocity}
+                        value={aircrafts[selectedAircraftIndex].velocity}
                         onChange={(e) => handleVelocityChange(selectedAircraftIndex, Number(e.target.value))}
                         style={{ marginLeft: 8, width: 60 }}
                         />
                     </label>
 
-                    {selectedAircraftIndex !== null && scenario.aircrafts[selectedAircraftIndex].aircraftType === AircraftTypeEnum.Drone && (
-                            <CreateDrone viewerRef={viewerRef} setScenario={setScenario} selectedAircraftIndex={selectedAircraftIndex} scenario={scenario}/>
+                    {selectedAircraftIndex !== null && aircrafts[selectedAircraftIndex].aircraftType === AircraftTypeEnum.Drone && (
+                            <CreateDrone viewerRef={viewerRef} setAircrafts={setAircrafts} selectedAircraftIndex={selectedAircraftIndex} aircrafts={aircrafts}/>
                         )}
 
-                    {scenario.aircrafts[selectedAircraftIndex].geoPoints.length > 0 && (
+                    {aircrafts[selectedAircraftIndex].geoPoints.length > 0 && (
                         <div className="points-section">
                         <table>
                             <thead>
@@ -380,7 +359,7 @@ export default function CreateTrajectoryPanel({ viewerRef, initialScenario}: Pro
                             </tr>
                             </thead>
                             <tbody>
-                            {scenario.aircrafts[selectedAircraftIndex].geoPoints.map((point, pIndex) => (
+                            {aircrafts[selectedAircraftIndex].geoPoints.map((point, pIndex) => (
                                 <tr key={pIndex}>
                                 <td>
                                     <input

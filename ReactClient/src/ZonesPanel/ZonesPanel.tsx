@@ -9,6 +9,8 @@ import CreateZonePanel from "./CreateZonePanel";
 
 
 interface Props {
+  zones: Zone[]
+  setZones: React.Dispatch<React.SetStateAction<Zone[]>>;
   viewerRef: React.RefObject<any>;
 }
 

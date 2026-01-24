@@ -8,6 +8,8 @@ import CreateJammerPanel from "../CreateJammerPanel/CreateJammerPanel";
 import { JammersManager } from "../Manager/JammerManager";
 
 interface Props {
+  jammers: Jammer[];
+  setJammers: React.Dispatch<React.SetStateAction<Jammer[]>>;
   viewerRef: React.RefObject<any>;
 }
 

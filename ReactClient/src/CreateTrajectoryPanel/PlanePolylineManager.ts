@@ -1,6 +1,6 @@
 // PlanePolylineManager.ts
 import * as Cesium from "cesium";
-import type { GeoPoint, Scenario } from "../Messages/AllTypes";
+import type { AircraftTrajectory, GeoPoint, Scenario } from "../Messages/AllTypes";
 
 export class PlanePolylineManager {
   private viewer: Cesium.Viewer;
@@ -89,10 +89,10 @@ export class PlanePolylineManager {
       }
   }
 
-  loadExistingPolylines(scenario: Scenario) {
-    if (!scenario || !scenario.aircrafts) return;
+  loadExistingPolylines(aircrafts: AircraftTrajectory[]) {
+    if (!aircrafts) return;
 
-    for (const plane of scenario.aircrafts) {
+    for (const plane of aircrafts) {
       const { aircraftName: planeName, geoPoints } = plane;
 
       // Create a new polyline for this plane

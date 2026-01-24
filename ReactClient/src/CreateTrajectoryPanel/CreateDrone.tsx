@@ -2,19 +2,19 @@ import { Frequency } from "../Sensors/Jammer/JammerRelatedEnums";
 import type { AircraftTrajectory, DroneTrajectory, Scenario } from "../Messages/AllTypes";
 
 interface DronelProps {
-  scenario: Scenario;
+  aircrafts: AircraftTrajectory[]
+  setAircrafts: React.Dispatch<React.SetStateAction<AircraftTrajectory[]>>;
   selectedAircraftIndex: number
-  setScenario: React.Dispatch<React.SetStateAction<Scenario>>;
   viewerRef: React.MutableRefObject<any>;
 }
 
-export default function CreateDrone({ scenario, setScenario,selectedAircraftIndex }: DronelProps) {
+export default function CreateDrone({ aircrafts, setAircrafts,selectedAircraftIndex }: DronelProps) {
 
   const handleFrequencyChange = (value: Frequency) => {
-        const updatedPlanes = [...scenario.aircrafts];
+        const updatedPlanes = [...aircrafts];
         const drone = updatedPlanes[selectedAircraftIndex] as DroneTrajectory;
         drone.frequency = value
-        setScenario({ aircrafts: updatedPlanes, scenarioName: scenario.scenarioName, scenarioId: scenario.scenarioId });
+        setAircrafts([...updatedPlanes]);
   };
 
   return (
@@ -24,7 +24,7 @@ export default function CreateDrone({ scenario, setScenario,selectedAircraftInde
         Select Frequency:
         <select
           className="frequency-select"
-          value={(scenario.aircrafts[selectedAircraftIndex] as DroneTrajectory).frequency ?? ""}
+          value={(aircrafts[selectedAircraftIndex] as DroneTrajectory).frequency ?? ""}
           onChange={(e) => handleFrequencyChange(e.target.value as Frequency)}
         >
           {Object.values(Frequency).map(freq => (

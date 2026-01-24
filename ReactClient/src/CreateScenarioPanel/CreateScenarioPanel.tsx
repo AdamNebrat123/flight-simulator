@@ -79,25 +79,23 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
       <div className="scenario-content">
         {selectedTab === "TRAJECTORIES" && (
           <CreateTrajectoryPanel
+            aircrafts={aircrafts}
+            setAircrafts={setAircrafts}
             viewerRef={viewerRef}
-            initialScenario={{ aircrafts: [], scenarioName: "ScenarioName", scenarioId: "" , zones:[], radars: [], jammers: []}}
-            //trajectories={aircrafts}
-            //setTrajectories={setAircrafts}
           />
         )}
         {selectedTab === "ZONES" && (
           <ZonesPanel
+            zones={zones}
+            setZones={setZones}
             viewerRef={viewerRef}
-            //zones={zones}
-            //setZones={setZones}
           />
         )}
         {selectedTab === "JAMMERS" && (
           <JammersPanel
+            jammers={jammers}
+            setJammers={setJammers}
             viewerRef={viewerRef}
-            onClose={() => {}}
-            //jammers={jammers}
-            //setJammers={setJammers}
           />
         )}
       </div>
