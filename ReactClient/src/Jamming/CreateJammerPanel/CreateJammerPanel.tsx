@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
 import "./CreateJammerPanel.css";
-import type { GeoPoint } from "../../Messages/AllTypes";
+import type { GeoPoint, Zone } from "../../Messages/AllTypes";
 import { JammerEntity } from "../EntitiesManagment/JammerEntity";
 import { ZoneManager } from "../../Zones/ZoneManager";
 import { toast } from "react-toastify";
 import type { Jammer } from "../../Sensors/Jammer/Jammer";
 import { Frequency } from "../../Sensors/Jammer/JammerRelatedEnums";
+import { TemporaryZoneEntityManager } from "../../Zones/TemporaryZoneEntityManager";
 
 interface Props {
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>;
   initialJammer: Jammer;
+  zones: Zone[]
   onSave: (data: Jammer) => void;
   onCancel: () => void;
 }
 
-export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, onCancel}: Props) {
+export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, onCancel, zones}: Props) {
   const [jammer, setJammer] = useState<Jammer>(
     JSON.parse(JSON.stringify(initialJammer)) // deep copy
   );
@@ -23,7 +25,8 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
   const [isSelectingPosition, setIsSelectingPosition] = useState(false);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const jammerEntityRef = useRef<JammerEntity | null>(null);
-  const zoneManagerRef = useRef<ZoneManager | null>(null);
+  const temporaryZoneEntityManager = TemporaryZoneEntityManager.GetInstance(viewerRef.current!);
+
   
 
   useEffect(() => {
@@ -32,7 +35,7 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
         jammerEntityRef.current = new JammerEntity(viewerRef.current, jammer);
 
     }
-    zoneManagerRef.current = ZoneManager.getInstance();
+   
     
 
     return () => {
@@ -51,9 +54,9 @@ export default function CreateJammerPanel({ viewerRef, initialJammer, onSave, on
   }
 
   const handlePositionChange = (newPosition: GeoPoint) => {
-    if(!zoneManagerRef.current)
+    if(!temporaryZoneEntityManager)
         return;
-    const isInAnyZone : boolean =  zoneManagerRef.current.isPointInsideAnyJamZone(newPosition);
+    const isInAnyZone : boolean =  temporaryZoneEntityManager.isPointInsideAnyJamZone(newPosition,zones);
     if (isInAnyZone === false){
         toast.error("You can place a jammer only in a JamZone!");
         return;

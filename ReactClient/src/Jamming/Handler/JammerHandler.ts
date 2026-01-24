@@ -2,8 +2,8 @@ import * as Cesium from "cesium";
 import { toast } from "react-toastify";
 import { JammersManager } from "../Manager/JammerManager";
 import { JammerEntityManager } from "../EntitiesManagment/JammerEntityManager";
-import type { Jammer } from "../Jammer/Jammer";
 import type { JammerError } from "../../Messages/AllTypes";
+import type { Jammer } from "../../Sensors/Jammer/Jammer";
 
 export class JammerHandler {
   private static instance: JammerHandler | null = null;
@@ -32,13 +32,8 @@ export class JammerHandler {
   }
 
   AddJammer(jammer: Jammer) {
-    const isAdded = this.jammerManager.tryAddJammer(jammer);
-    if (isAdded) {
       this.jammerEntityManager.tryAddJammer(jammer);
       console.log(`Jammer ${jammer.id} added successfully.`);
-    } else {
-      console.log("error in HandleAddJammer. Jammer adding failed");
-    }
   }
 
   HandleRemoveJammer(data: any) {
@@ -51,13 +46,9 @@ export class JammerHandler {
   }
 
   RemoveJammer(jammer: Jammer) {
-    const isRemoved = this.jammerManager.tryRemoveJammer(jammer.id);
-    if (isRemoved) {
       this.jammerEntityManager.removeJammer(jammer.id);
       console.log(`Jammer ${jammer.id} removed successfully.`);
-    } else {
-      console.log("error in HandleRemoveJammer. Jammer removing failed");
-    }
+
   }
 
   HandleEditJammer(data: any) {
@@ -70,13 +61,8 @@ export class JammerHandler {
   }
 
   EditJammer(jammer: Jammer) {
-    const isEdited = this.jammerManager.tryEditJammer(jammer);
-    if (isEdited) {
       this.jammerEntityManager.editJammer(jammer);
       console.log(`Jammer ${jammer.id} edited successfully.`);
-    } else {
-      console.log("error in HandleEditJammer. Jammer editing failed");
-    }
   }
 
   HandleJammerError(data: any) {

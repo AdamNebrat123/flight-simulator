@@ -7,6 +7,7 @@ import CreateTrajectoryPanel from "../CreateTrajectoryPanel/CreateTrajectoryPane
 import ZonesPanel from "../ZonesPanel/ZonesPanel";
 import JammersPanel from "../Jamming/JammersPanel/JammersPanel";
 import { TemporaryZoneEntityManager } from "../Zones/TemporaryZoneEntityManager";
+import { TemporaryJammerEntityManager } from "../Jamming/EntitiesManagment/TemporaryJammerEntityManager";
 
 interface Props {
   onClose: () => void;
@@ -33,6 +34,7 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
   const [zones, setZones] = useState<Zone[]>(initialScenario?.zones || []);
   const [jammers, setJammers] = useState<Jammer[]>(initialScenario?.jammers || []);
   const temporaryZoneEntityManager = TemporaryZoneEntityManager.GetInstance(viewerRef.current);
+  const temporaryJammerEntityManager = TemporaryJammerEntityManager.GetInstance(viewerRef.current!);
 
   const handleSave = () => {
     onSave({ scenarioName, aircrafts, zones, jammers });
@@ -40,6 +42,7 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
   };
   const handleCancel = () => {
     temporaryZoneEntityManager.clearAllZones()
+    temporaryJammerEntityManager.clearAllJammers()
     onClose();
   };
 
@@ -100,6 +103,7 @@ export default function CreateScenarioPanel({ onClose, onSave, initialScenario, 
         )}
         {selectedTab === "JAMMERS" && (
           <JammersPanel
+            zones={zones}
             jammers={jammers}
             setJammers={setJammers}
             viewerRef={viewerRef}

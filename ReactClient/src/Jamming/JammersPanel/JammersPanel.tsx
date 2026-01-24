@@ -5,19 +5,18 @@ import type { Jammer } from "../../Sensors/Jammer/Jammer";
 import { C2SMessageType } from "../../Messages/C2SMessageType";
 import { JamMode, Status } from "../../Sensors/Jammer/JammerRelatedEnums";
 import CreateJammerPanel from "../CreateJammerPanel/CreateJammerPanel";
-import { JammersManager } from "../Manager/JammerManager";
+import { TemporaryJammerEntityManager } from "../EntitiesManagment/TemporaryJammerEntityManager";
+import type { Zone } from "../../Messages/AllTypes";
 
 interface Props {
   jammers: Jammer[];
+  zones: Zone[]
   setJammers: React.Dispatch<React.SetStateAction<Jammer[]>>;
   viewerRef: React.RefObject<any>;
 }
 
-export default function JammersPanel({viewerRef }: Props) {
-  const { send } = useWebSocket();
-  const jammersManager = JammersManager.getInstance();
-
-  const [jammers, setJammers] = useState<Jammer[]>(jammersManager.getAllJammers());
+export default function JammersPanel({viewerRef, jammers, setJammers, zones }: Props) {
+  const temporaryJammerEntityManager = TemporaryJammerEntityManager.GetInstance(viewerRef.current!);
   const [selectedJammer, setSelectedJammer] = useState<Jammer | null>(null);
   // create / edit scenario panel
   const [showCreateJammerPanel, setShowCreateJammerPanel] = useState(false);
@@ -30,14 +29,6 @@ export default function JammersPanel({viewerRef }: Props) {
     setSelectedJammer(null);
   }
 
-  useEffect(() => {
-      const unsubscribe = jammersManager.subscribe((newJammers: Jammer[]) => {
-          setJammers(newJammers);
-      });
-  
-      return () => unsubscribe();
-      }, [jammersManager]);
-
 
 
   const handleSelect = (jammer: Jammer) => {
@@ -47,8 +38,9 @@ export default function JammersPanel({viewerRef }: Props) {
   
 
   const handleAddJammerClick = () => {
+    const id = crypto.randomUUID();
     const newJammer: Jammer = {
-      id: "",
+      id: id,
       position: { latitude: 0, longitude: 0, altitude: 0 },
       status: Status.Online,
       jamMode: JamMode.None, 
@@ -61,7 +53,8 @@ export default function JammersPanel({viewerRef }: Props) {
 
   };
   const AddJammer = (data: Jammer) => {
-        send(C2SMessageType.AddJammer, data);
+        temporaryJammerEntityManager.tryAddJammer(data)
+        setJammers([...jammers,data])
         setShowCreateJammerPanel(false);
         setSelectedJammer(null);
     };
@@ -75,14 +68,20 @@ export default function JammersPanel({viewerRef }: Props) {
         openCreateJammerPanel();
     };
     const EditJammer = (data: Jammer) => {
-            send(C2SMessageType.EditJammer, data);
-            setShowCreateJammerPanel(false);
-            setSelectedJammer(null);
+        let jammer = jammers.filter(j => j.id == data.id)?.[0]
+          if(jammer != null){
+              jammer = data;
+              temporaryJammerEntityManager.editJammer(data)
+          }
+        setShowCreateJammerPanel(false);
+        setSelectedJammer(null);
     };
 
     // On Remove
     const handleRemoveJammerClick = () => {
-        send(C2SMessageType.RemoveJammer, selectedJammer);
+        temporaryJammerEntityManager.removeJammer(selectedJammer?.id!);
+        const newJammers = jammers.filter(j => j.id != selectedJammer?.id)
+        setJammers([...newJammers])
         setSelectedJammer(null);
     };
     
@@ -142,6 +141,7 @@ export default function JammersPanel({viewerRef }: Props) {
                 onSave={onSaveJammer!}
                 onCancel={onCancel}
                 viewerRef={viewerRef}
+                zones={zones}
                 />
             )}
 

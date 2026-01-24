@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DangerZone, Zone } from "../Messages/AllTypes";
 import "./ZonesPanel.css";
-import { ZoneEntityManager } from "../Zones/ZoneEntityManager";
 import CreateZonePanel from "./CreateZonePanel";
 import type { ZoneHandler } from "../Zones/ZoneHandler";
 import { TemporaryZoneEntityManager } from "../Zones/TemporaryZoneEntityManager";
