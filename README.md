@@ -1,9 +1,34 @@
 # * READ THE README, THERE ARE VISUAL EXAMPLES *
 <br>
+
+## note: the readme file is a little bit outdated, so i will sum up the changes.
+the whole project is splited in to two parts.
+a simulator server and client with UI, and a C2 server and client with UI.
+the simulator server is simulating sky pictures of drones, and sends them to the C2 server.
+the C2 server recieves data, and manages all of the jammers.
+A drone jammer is a security device that disrupts a drone's communication and navigation signals to force it to land or return to its origin, effectively neutralizing it as a potential threat.
+The two systems does Not denpend on each other, its like two different systems. It means that the C2 server does NOT "care" if the data is real or simulated, and thats a very important thing.
+
+heres whats happening every time i play a scenario:
+<img width="1475" height="574" alt="Screenshot 2026-03-09 205613" src="https://github.com/user-attachments/assets/e79596a8-e831-4990-b140-2c369e69bbcd" />
+
+
+here how the jammers should works:
+if there one drone jammer's radius, start directional jam (cover a specific part in the radius)
+if there two+ drones in jammer's radius, start omnidirectional jam (cover the whole radius)
+why shouldnt it always be omnidirectional? cause we might jam "friendly" drones accidentaly
+of course if one jammer sees other jammer already covers a drone, it will realize that it is covered and it wont jam.
+
+## Example visualization:
+
+
+https://github.com/user-attachments/assets/5d9b96ab-dd0b-4cc2-9eeb-1c8f0bb20eee
+
+
  
 # Introduction
 
-This project is a **Flight Simulation and Multiplayer Platform** built with a **C# (.NET) server** and a **React + Vite + TypeScript + Cesium client**, connected through a **WebSocket**.
+This project is a **Flight Simulation and Multiclient Platform** built with a **C# (.NET) server** and a **React + Vite + TypeScript + Cesium client**, connected through a **WebSocket**.
 
 It includes several interactive modes:
 
@@ -15,17 +40,6 @@ It includes several interactive modes:
 ### ***The system is built to allow global access through ngrok, so clients can connect from anywhere in the world.**
 
 **Note:** Installation instructions are at the bottom of the README.
-
----
-# JAMMERS
-
-**JAMMERS**  
-SO COOLLL!!!!!
-
-
-## Example visualization:
-
-https://github.com/user-attachments/assets/8cfaa464-137d-4f60-8ac8-e2fda84bf8ba
 
 
 ---
