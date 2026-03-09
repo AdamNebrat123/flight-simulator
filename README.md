@@ -10,6 +10,14 @@ A drone jammer is a security device that disrupts a drone's communication and na
 The two systems does Not denpend on each other, its like two different systems. It means that the C2 server does NOT "care" if the data is real or simulated, and thats a very important thing.
 
 heres whats happening every time i play a scenario:
+every jammer is a websocket server. becuase i simulate it, the simulator it the one who creates them. 
+the radar is a websocket server.
+C2 server connects to the radar and to the jammers.
+simulator server simulates and sends the sky pictures through the radar websocket (to simulate that the radar is actually the ome who send the data..)
+the jammers every 1 second are sending their status
+C2 server saves jammers statuses, and every 1 second he takes the most updated sky picture he got from the radar,
+and analyzes the situation, and decides how to assign the jammers if needed.
+when he decides to assign a jammer he sends a "command" to the specific jammer through the specific websocket and he shows in the UI the assignments.
 <img width="1475" height="574" alt="Screenshot 2026-03-09 205613" src="https://github.com/user-attachments/assets/e79596a8-e831-4990-b140-2c369e69bbcd" />
 
 
