@@ -21,8 +21,8 @@ when he decides to assign a jammer he sends a "command" to the specific jammer t
 <img width="1475" height="574" alt="Screenshot 2026-03-09 205613" src="https://github.com/user-attachments/assets/e79596a8-e831-4990-b140-2c369e69bbcd" />
 
 
-here how the jammers should works:
-if there one drone jammer's radius, start directional jam (cover a specific part in the radius)
+here how the jammers should work:
+if there is one drone in jammer's radius, start directional jam (cover a specific part in the radius)
 if there two+ drones in jammer's radius, start omnidirectional jam (cover the whole radius)
 why shouldnt it always be omnidirectional? cause we might jam "friendly" drones accidentaly
 of course if one jammer sees other jammer already covers a drone, it will realize that it is covered and it wont jam.
