@@ -60,7 +60,7 @@ Fly, fight, and survive against other drones in a fast-paced 3D arena.
 
 
 
-### 🎮 Gameplay
+### Gameplay
 - Control a drone and shoot other players.  
 - Leave the arena → you’re destroyed.  
 - Get killed → you respawn at a random spot.  
@@ -83,7 +83,7 @@ https://github.com/user-attachments/assets/5a3e8d36-48b4-4537-bbbb-90774c64840a
 
 ---
 
-# ✈️ Real Planes Mode
+# Real Planes Mode
 
 **A live mode that displays real-world aircraft using ADS-B data.**  
 Planes are shown on the map in real time, based on their actual positions and flight information.
